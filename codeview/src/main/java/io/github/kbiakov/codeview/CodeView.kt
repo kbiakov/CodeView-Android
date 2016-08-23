@@ -85,12 +85,12 @@ class CodeView : RelativeLayout {
     /**
      * Public getter for accessing view state.
      * It may be useful if code view state is unknown.
-     * If code view was built rhis is not safe to use operations chaining.
+     * If code view was built it is not safe to use operations chaining.
      */
     fun getState() = state
 
     /**
-     * Accessor/mutator to reduce frequently used actions
+     * Accessor/mutator to reduce frequently used actions.
      */
     var adapter: CodeContentAdapter
         get() {
@@ -98,6 +98,7 @@ class CodeView : RelativeLayout {
         }
         set(adapter) {
             rvCodeContent.adapter = adapter
+            state = ViewState.PRESENTED
         }
 
     // - Build processor
@@ -122,7 +123,7 @@ class CodeView : RelativeLayout {
     }
 
     /**
-     * Process build tasks queue to build view
+     * Process build tasks queue to build view.
      */
     private fun processBuildTasks() {
         while (tasks.isNotEmpty())
@@ -173,6 +174,16 @@ class CodeView : RelativeLayout {
     }
 
     /**
+     * Control shadows visibility to provide more sensitive UI.
+     */
+    fun setShadowsVisible(isVisible: Boolean = true) = addTask {
+        val visibility = if (isVisible) View.VISIBLE else GONE
+        vShadowRight.visibility = visibility
+        vShadowBottomLine.visibility = visibility
+        vShadowBottomContent.visibility = visibility
+    }
+
+    /**
      * Update code content if view was built or, finally, build code view.
      */
     fun setCodeContent(content: String) {
@@ -205,7 +216,7 @@ class CodeView : RelativeLayout {
         Thread.delayed {
             rvCodeContent.adapter = CodeContentAdapter(context, content)
             processBuildTasks()
-            setupShortcutShadows()
+            setupShadows()
             hidePlaceholder()
             state = ViewState.PRESENTED
         }
@@ -214,15 +225,10 @@ class CodeView : RelativeLayout {
     // - Setup actions
 
     /**
-     * Border shadows will shown if presented listing shortcut.
-     * It helps user to what parts of content are scrolled & hidden.
+     * Border shadows will shown if presented full code listing.
+     * It helps user to see what part of content are scrolled & hidden.
      */
-    private fun setupShortcutShadows() {
-        val visibility = if (adapter.isFullShowing) GONE else VISIBLE
-        vShadowRight.visibility = visibility
-        vShadowBottomLine.visibility = visibility
-        vShadowBottomContent.visibility = visibility
-    }
+    private fun setupShadows() = setShadowsVisible(!adapter.isFullShowing)
 
     /**
      * Placeholder fills space at start and stretched to marked up view size
