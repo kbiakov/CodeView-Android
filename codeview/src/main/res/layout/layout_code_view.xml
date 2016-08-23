@@ -3,7 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:id="@+id/v_root">
 
     <io.github.kbiakov.codeview.BidirectionalScrollView
         android:id="@+id/v_scroll"
@@ -13,7 +14,7 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_code_content"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             tools:listitem="@layout/item_code_line"/>
 
     </io.github.kbiakov.codeview.BidirectionalScrollView>

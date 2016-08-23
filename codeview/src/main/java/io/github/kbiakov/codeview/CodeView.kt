@@ -13,6 +13,7 @@ import android.view.ViewPropertyAnimator
 import android.widget.RelativeLayout
 import io.github.kbiakov.codeview.highlight.ColorTheme
 import io.github.kbiakov.codeview.highlight.ColorThemeData
+import io.github.kbiakov.codeview.highlight.color
 import java.util.*
 
 /**
@@ -34,6 +35,7 @@ import java.util.*
  */
 class CodeView : RelativeLayout {
 
+    private val vRoot: View
     private val vPlaceholder: View
     private val vShadowRight: View
     private val vShadowBottomLine: View
@@ -59,6 +61,7 @@ class CodeView : RelativeLayout {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         inflater.inflate(R.layout.layout_code_view, this, true)
 
+        vRoot = findViewById(R.id.v_root)
         vPlaceholder = findViewById(R.id.v_placeholder)
         vShadowRight = findViewById(R.id.v_shadow_right)
         vShadowBottomLine = findViewById(R.id.v_shadow_bottom_line)
@@ -135,21 +138,27 @@ class CodeView : RelativeLayout {
     /**
      * Specify color theme: syntax colors (need to highlighting) & related to
      * code view (numeration color & background, content backgrounds).
+     *
+     * @param colorTheme Default or custom color theme
      */
 
     // default color theme provided by enum
     fun setColorTheme(colorTheme: ColorTheme) = addTask {
         adapter.colorTheme = colorTheme.with()
+        fillBackground(colorTheme.bgContent)
     }
 
     // custom color theme provided by user
     fun setColorTheme(colorTheme: ColorThemeData) = addTask {
         adapter.colorTheme = colorTheme
+        fillBackground(colorTheme.bgContent)
     }
 
     /**
      * Highlight code by defined programming language.
      * It holds the placeholder on the view until code is highlighted.
+     *
+     * @param language Language to highlight
      */
     fun highlightCode(language: String) = addTask {
         adapter.highlightCode(language)
@@ -166,8 +175,10 @@ class CodeView : RelativeLayout {
     }
 
     /**
-     * Useful in some cases if you want to listen user line selection.
-     * (May be you want to show alert when user click on code line, who knows?) ¯\_(ツ)_/¯
+     * Useful in some cases if you want to listen user line clicks.
+     * (May be you want to show alert, who knows?) ¯\_(ツ)_/¯
+     *
+     * @param listener Code line click listener
      */
     fun setCodeListener(listener: OnCodeLineClickListener) = addTask {
         adapter.codeListener = listener
@@ -175,6 +186,8 @@ class CodeView : RelativeLayout {
 
     /**
      * Control shadows visibility to provide more sensitive UI.
+     *
+     * @param isVisible Shadows visibility
      */
     fun setShadowsVisible(isVisible: Boolean = true) = addTask {
         val visibility = if (isVisible) View.VISIBLE else GONE
@@ -185,6 +198,8 @@ class CodeView : RelativeLayout {
 
     /**
      * Update code content if view was built or, finally, build code view.
+     *
+     * @param content Code content
      */
     fun setCodeContent(content: String) {
         when (state) {
@@ -216,6 +231,7 @@ class CodeView : RelativeLayout {
         Thread.delayed {
             rvCodeContent.adapter = CodeContentAdapter(context, content)
             processBuildTasks()
+            //fillBackground()
             setupShadows()
             hidePlaceholder()
             state = ViewState.PRESENTED
@@ -231,8 +247,18 @@ class CodeView : RelativeLayout {
     private fun setupShadows() = setShadowsVisible(!adapter.isFullShowing)
 
     /**
+     * Fill background to color accordingly to color theme.
+     *
+     * @color Background color
+     */
+    private fun fillBackground(color: Int = adapter.colorTheme.bgContent) =
+            vRoot.setBackgroundColor(color.color())
+
+    /**
      * Placeholder fills space at start and stretched to marked up view size
      * (by extracting code lines) because at this point it's not built yet.
+     *
+     * @param linesCount Count of lines to measure space for placeholder
      */
     private fun measurePlaceholder(linesCount: Int) {
         val lineHeight = dpToPx(context, 24)
@@ -270,11 +296,15 @@ interface OnCodeLineClickListener {
 
 /**
  * Extension for delayed block call.
+ *
+ * @param body Operation body
  */
 fun Thread.delayed(body: () -> Unit) = Handler().postDelayed(body, 150)
 
 /**
  * More readable form for animation listener (hi, iOS & Cocoa Touch!).
+ *
+ * @param handler Handler body
  */
 fun ViewPropertyAnimator.didAnimated(handler: () -> Unit) =
         setListener(object : AnimatorListenerAdapter() {

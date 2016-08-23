@@ -25,7 +25,7 @@ object CodeHighlighter {
      * @param codeLanguage Programming language
      * @param rawSource Code source by one string
      * @param colorTheme Color theme (see below)
-     * @return Highlighted code. String with necessary inserted color tags.
+     * @return Highlighted code, string with necessary inserted color tags
      */
     fun highlight(codeLanguage: String, rawSource: String, colorTheme: ColorThemeData): String {
         val source = rawSource.escapeLT()
@@ -46,6 +46,10 @@ object CodeHighlighter {
 
     /**
      * Parse user input by extracting highlighted content.
+     *
+     * @param codeContent Code content
+     * @param result Syntax unit
+     * @return Parsed content to highlight
      */
     private fun parseContent(codeContent: String, result: ParseResult): String {
         val length = result.offset + result.length
@@ -55,12 +59,19 @@ object CodeHighlighter {
 
     /**
      * Color accessor from built color map for selected color theme.
+     *
+     * @param colorsMap Colors map built from color theme
+     * @param result Syntax unit
+     * @return Color for syntax unit
      */
     private fun getColor(colorsMap: HashMap<String, String>, result: ParseResult) =
             colorsMap[result.styleKeys[0]] ?: colorsMap["pln"]
 
     /**
      * Build fast accessor (as map) for selected color theme.
+     *
+     * @param colorTheme Color theme
+     * @return Colors map built from color theme
      */
     private fun buildColorsMap(colorTheme: ColorThemeData) =
             object : HashMap<String, String>() {
@@ -155,7 +166,7 @@ data class ColorThemeData(
         val noteColor: Int)
 
 /**
- * Colors for highlighting code spots.
+ * Colors for highlighting code units.
  */
 data class SyntaxColors(
         val type: Int = 0x859900,
