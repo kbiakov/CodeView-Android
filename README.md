@@ -4,7 +4,7 @@ CodeView helps to show code content with syntax highlighting in native way.
 ## Description
 CodeView contains 3 core parts to implement necessary logic:<br>
 
-1. <b>CodeClassifier</b> is trying to define what language presented in code snippet. It built upon <a href="https://github.com/ptnplanet/Java-Naive-Bayes-Classifier">Naive Bayes classifier</a>. There is no need to work with this class directly & you must just follow instructions below. <font color="red">Experimental module, doesn't work properly!</font><br>
+1. <b>CodeClassifier</b> is trying to define what language presented in code snippet. It built upon <a href="https://github.com/ptnplanet/Java-Naive-Bayes-Classifier">Naive Bayes classifier</a>. There is no need to work with this class directly & you must just follow instructions below. (Experimental module, may not work properly!)<br>
 
 2. For highlighting it uses <b>CodeHighlighter</b>, just highlights your code & returns formatted content. It based on Google Prettify and <a href="https://github.com/twalcari/java-prettify">their fork</a>.<br>
 
