@@ -9,3 +9,4 @@
 *.m linguist-language=Kotlin
 *.rb linguist-language=Kotlin
 *.sh linguist-language=Kotlin
+*.py linguist-language=Kotlin
