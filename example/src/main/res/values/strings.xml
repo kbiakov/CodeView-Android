@@ -1,0 +1,105 @@
+<resources>
+
+    <string name="app_name">CodeViewExample</string>
+
+    <string name="listing_js">
+        &lt;SCRIPT language=\"JavaScript\" type=\"text/javascript\"&gt; \r\n
+            function fulltime () { \r\n
+            var time=new Date();    // create a variable of the current time in our code\r\n
+            var Event=new Date(\"dec,31,2015,10:10:10\");      // date and time of our event\r\n
+            var totalRemains=(Event.getTime()-time.getTime());    // compute the difference\r\n
+            \r\n
+            if (totalRemains&gt;1){    // if have time alittle bit...\r\n
+            var RemainsSec = (parseInt(totalRemains/1000));   // then compute rest time\r\n
+            var RemainsFullDays=(parseInt(RemainsSec));    // extract full days\r\n
+            var secInLastDay=RemainsSec-RemainsFullDays*24*3600; \r\n
+            var RemainsFullHours=(parseInt(secInLastDay/3600));   // full hours\r\n
+            if (RemainsFullHours&lt;10){RemainsFullHours=\"0\"+Remains FullHours}; \r\n
+            var secInLastHour=secInLastDay-RemainsFullHours*3600; \r\n
+            var RemainsMinutes=(parseInt(secInLastHour/60));   // minutes\r\n
+            if (RemainsMinutes&lt;10){RemainsMinutes=\"0\"+RemainsMinu tes}; \r\n
+            var lastSec=secInLastHour-RemainsMinutes*60;     // seconds\r\n
+            if (lastSec&lt;10){lastSec=\"0\"+lastSec}; \r\n
+            \r\n
+            document.getElementById(\"RemainsFullDays\").innerHTML=RemainsFullDays+\" seconds\"; \r\n
+            setTimeout(\'fulltime()\',10) \r\n
+            }\r\n
+            \r\n
+            else{ \r\n
+            document.getElementById(\"clock\").innerHTML=\"Go to main page to full inforamtion\";      // if have no time, change time to our string\r\n
+            }\r\n
+            }\r\n
+            &lt;/SCRIPT&gt; \r\n
+            \r\n
+        &lt;body&gt;// script is can be runned on page\r\n
+        &lt;div align=\"center\"&gt;&lt;span id=\"clock\"&gt;
+        &lt;/div&gt; \r\n
+        &lt;div align=\"center\"&gt;&lt;b&gt;&lt;span id=\"RemainsFullDays\"&gt;
+        &lt;/span&gt;&lt;/b&gt;&lt;/div&gt;&lt;br&gt;\r\n
+        &lt;/span&gt; \r\n
+            \r\n
+        &lt;SCRIPT language=\"JavaScript\"&gt;fulltime();&lt;/SCRIPT&gt;
+    </string>
+
+    <string name="listing_py" formatted="false">
+        from timeit import Timer\n
+            \n
+            tmp = \"Python 3.2.2 (default, Jun 12 2011, 15:08:59) [MSC v.1500 32 bit (Intel)] on win32.\"\n
+            \n
+            def case1(): # А. инкрементальные конкатенации в цикле\n
+            s = \"\"\n
+            for i in range(10000):\n
+            s += tmp\n
+
+            def case2(): # Б. через промежуточный список и метод join\n
+            s = []\n
+            for i in range(10000):\n
+            s.append(tmp)\n
+            s = \"\".join(s)\n
+            \n
+            def case3(): # В. списковое выражение и метод join\n
+            return \"\".join([tmp for i in range(10000)])\n
+            \n
+            def case4(): # Г. генераторное выражение и метод join\n
+            return \"\".join(tmp for i in range(10000))\n
+            \n
+            for v in range(1,5):\n
+            print (Timer(\"func()\","from __main__ import case%s as func\" % v).timeit(200))\n
+    </string>
+
+    <string name="listing_java">
+        package io.github.kbiakov.codeviewexample;\n
+        \n
+        import android.os.Bundle;\n
+        import android.support.annotation.Nullable;\n
+        import android.support.v4.content.ContextCompat;\n
+        import android.support.v7.app.AppCompatActivity;\n
+        \n
+        import io.github.kbiakov.codeview.CodeView;\n
+        import io.github.kbiakov.codeview.highlight.ColorTheme;\n
+        \n
+        public class ListingsActivity extends AppCompatActivity {\n
+            \n
+            @Override\n
+            protected void onCreate(@Nullable Bundle savedInstanceState) {\n
+                super.onCreate(savedInstanceState);\n
+                setContentView(R.layout.activity_listings);\n
+                \n
+                int myColor = ContextCompat.getColor(this, R.color.code_content_background);\n
+                \n
+                CodeView codeView = (CodeView) findViewById(R.id.code_view);\n
+                \n
+                // use chaining to build view\n
+                codeView.highlightCode("js")\n
+                        .setColorTheme(ColorTheme.SOLARIZED_LIGHT.withBgContent(myColor))\n
+                        .setCodeContent(getString(R.string.listing_js));\n
+                \n
+                // do not use chaining for built view\n
+                // (you can, but follow it should be performed sequentially)\n
+                codeView.setCodeContent(getString(R.string.listing_java));\n
+                codeView.highlightCode("java");
+            }
+        }
+    </string>
+
+</resources>

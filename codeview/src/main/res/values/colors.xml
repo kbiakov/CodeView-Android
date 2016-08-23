@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="code_num">#99a8b7</color>
+    <color name="code_num_background">#f2f2f6</color>
+    <color name="code_content">#2c2d30</color>
+    <color name="code_content_background">#e9edf4</color>
+    <color name="note">#4c5d6e</color>
+</resources>
