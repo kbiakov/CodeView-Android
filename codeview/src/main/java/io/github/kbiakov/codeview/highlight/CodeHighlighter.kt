@@ -171,7 +171,7 @@ data class SyntaxColors(
         val attrValue: Int = 0x269186)
 
 /**
- * Convert hex int to color by adding alpha-channel
+ * Convert hex int to color by adding alpha-channel.
  *
  * @return Color int
  */
@@ -182,7 +182,7 @@ fun Int.color() = try {
 }
 
 /**
- * Convert hex int to hex string
+ * Convert hex int to hex string.
  *
  * @return Hex string
  */
