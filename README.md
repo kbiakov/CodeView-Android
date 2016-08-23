@@ -3,9 +3,12 @@ CodeView helps to show code content with syntax highlighting in native way.
 
 ## Description
 CodeView contains 3 core parts to implement necessary logic:<br>
-1. <b>CodeClassifier</b> is trying to define what language presented in code snippet. It built upon <a href="https://github.com/ptnplanet/Java-Naive-Bayes-Classifier">Naive Bayes classifier</a>. There is no need to work with this class directly & you must just follow instructions below.<br>
+
+1. <b>CodeClassifier</b> is trying to define what language presented in code snippet. It built upon <a href="https://github.com/ptnplanet/Java-Naive-Bayes-Classifier">Naive Bayes classifier</a>. There is no need to work with this class directly & you must just follow instructions below. <font color="red">Experimental module, doesn't work properly!</font><br>
+
 2. For highlighting it uses <b>CodeHighlighter</b>, just highlights your code & returns formatted content. It based on Google Prettify and <a href="https://github.com/twalcari/java-prettify">their fork</a>.<br>
-3. <b>CodeView</b> & necessary adapter.<br>
+
+3. <b>CodeView</b> & related adapter.<br>
 
 ## Download
 Add it in your root ```build.gradle``` at the end of repositories:
@@ -56,7 +59,7 @@ codeView.highlightCode("java");
 You can use both forms for build & built view, but note: ```setCodeContent(String)``` is final step when you build your view, otherwise not. If you firstly highlight and then set code content, code will not be highlighted. Instructions above helps you to avoid errors. View has state to handle this behavior.
 
 ## Customizing
-1. Use implicit or eplixit form to code highlighting:
+Use implicit or eplixit form to code highlighting:
 ```java
 codeView.highlightCode();
 ```
@@ -64,7 +67,7 @@ codeView.highlightCode();
 codeView.highlightCode("js"); // it will work fast!
 ```
 
-2. Extend default color theme or create your own (don't forget to open PR with this stuff!):
+Extend default color theme or create your own (don't forget to open PR with this stuff!):
 ```java
 int myColor = ContextCompat.getColor(this, R.color.code_content_background);
 codeView.setColorTheme(ColorTheme.SOLARIZED_LIGHT.withBgContent(myColor));
@@ -73,7 +76,7 @@ codeView.setColorTheme(ColorTheme.SOLARIZED_LIGHT.withBgContent(myColor));
 codeView.setColorTheme(new ColorThemeData(new SyntaxColors(...)));
 ```
 
-3. Handle user clicks on code lines:
+Handle user clicks on code lines:
 ```java
 codeView.setCodeListener(new OnCodeLineClickListener() {
     @Override
@@ -82,6 +85,11 @@ codeView.setCodeListener(new OnCodeLineClickListener() {
     }
 });
 ```
+
+## How it looks in app
+See <a href="https://github.com/Softwee/codeview-android/tree/master/example">example</a>.<br>
+
+[![CodeView_Android_Screenshot.png](https://s10.postimg.org/ckzv9xmm1/Code_View_Android_Screenshot.png)](https://postimg.org/image/6wtkj1i9h/)
 
 ## License MIT
 Copyright (c) 2016 Softwee
