@@ -1,0 +1,151 @@
+
+html {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	-moz-transition: all;
+	-o-transition: all;
+	-webkit-transition: all;
+	transition: all;
+}
+
+.hidden {
+	display: none !important;
+	visibility: hidden !important;
+}
+
+body {
+	stroke: #eee;
+	stroke-width: 2;
+	stroke-dasharray: 0;
+}
+
+a {
+	text-align: center;
+	font-size: 1.1rem;
+	padding: 12px 0;
+}
+
+li {
+	-webkit-touch-callout: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+/* points of interest */
+ul > li {
+	stroke: steelblue;
+	stroke-width: 2;
+	fill: #FFF;
+	-moz-transform-origin: center;
+	-ms-transform-origin: center;
+	-o-transform-origin: center;
+	-webkit-transform-origin: center;
+	transform-origin: center;
+}
+
+a + div {
+	background-size: cover;
+}
+
+
+
+div {
+	background: #fff;
+}
+
+.n2-charts-close {
+	font-size: 32px;
+	position: absolute;
+	top: 20px;
+	right: 20px;
+	padding: 2px 12px;
+	cursor: pointer;
+}
+
+/* Landscape styles */
+@media screen and (orientation:landscape) {
+
+	.chart.fullscreen {
+		font-size: 32px;
+		position: absolute;
+		top: 20px;
+		right: 20px;
+		padding: 2px 12px;
+		cursor: pointer;
+	}
+}
+
+@-moz-keyframes n2-poi-blink {
+	0% {
+		-moz-transform: scale(1);
+		-ms-transform: scale(1);
+		-o-transform: scale(1);
+		-webkit-transform: scale(1);
+		transform: scale(1);
+	}
+
+	100% {
+		-moz-transform: scale(1);
+		-ms-transform: scale(1);
+		-o-transform: scale(1);
+		-webkit-transform: scale(1);
+		transform: scale(1);
+	}
+}
+
+@-ms-keyframes n2-poi-blink {
+	0% {
+		-moz-transform: scale(1);
+		-ms-transform: scale(1);
+		-o-transform: scale(1);
+		-webkit-transform: scale(1);
+		transform: scale(1);
+	}
+
+	100% {
+		-moz-transform: scale(1);
+		-ms-transform: scale(1);
+		-o-transform: scale(1);
+		-webkit-transform: scale(1);
+		transform: scale(1);
+	}
+}
+
+@-webkit-keyframes n2-poi-blink {
+	0% {
+		-moz-transform: scale(1);
+		-ms-transform: scale(1);
+		-o-transform: scale(1);
+		-webkit-transform: scale(1);
+		transform: scale(1);
+	}
+
+	100% {
+		-moz-transform: scale(1);
+		-ms-transform: scale(1);
+		-o-transform: scale(1);
+		-webkit-transform: scale(1);
+		transform: scale(1);
+	}
+}
+
+@keyframes n2-poi-blink {
+	0% {
+		-moz-transform: scale(1);
+		-ms-transform: scale(1);
+		-o-transform: scale(1);
+		-webkit-transform: scale(1);
+		transform: scale(1);
+	}
+
+	100% {
+		-moz-transform: scale(1);
+		-ms-transform: scale(1);
+		-o-transform: scale(1);
+		-webkit-transform: scale(1);
+		transform: scale(1);
+	}
+}
