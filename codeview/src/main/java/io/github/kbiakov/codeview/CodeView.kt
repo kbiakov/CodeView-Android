@@ -13,6 +13,7 @@ import android.view.ViewPropertyAnimator
 import android.widget.RelativeLayout
 import io.github.kbiakov.codeview.highlight.ColorTheme
 import io.github.kbiakov.codeview.highlight.ColorThemeData
+import io.github.kbiakov.codeview.highlight.color
 import java.util.*
 
 /**
@@ -135,6 +136,8 @@ class CodeView : RelativeLayout {
     /**
      * Specify color theme: syntax colors (need to highlighting) & related to
      * code view (numeration color & background, content backgrounds).
+     *
+     * @param colorTheme Default or custom color theme
      */
 
     // default color theme provided by enum
@@ -150,6 +153,8 @@ class CodeView : RelativeLayout {
     /**
      * Highlight code by defined programming language.
      * It holds the placeholder on the view until code is highlighted.
+     *
+     * @param language Language to highlight
      */
     fun highlightCode(language: String) = addTask {
         adapter.highlightCode(language)
@@ -166,8 +171,10 @@ class CodeView : RelativeLayout {
     }
 
     /**
-     * Useful in some cases if you want to listen user line selection.
-     * (May be you want to show alert when user click on code line, who knows?) ¯\_(ツ)_/¯
+     * Useful in some cases if you want to listen user line clicks.
+     * (May be you want to show alert, who knows?) ¯\_(ツ)_/¯
+     *
+     * @param listener Code line click listener
      */
     fun setCodeListener(listener: OnCodeLineClickListener) = addTask {
         adapter.codeListener = listener
@@ -175,6 +182,8 @@ class CodeView : RelativeLayout {
 
     /**
      * Control shadows visibility to provide more sensitive UI.
+     *
+     * @param isVisible Shadows visibility
      */
     fun setShadowsVisible(isVisible: Boolean = true) = addTask {
         val visibility = if (isVisible) View.VISIBLE else GONE
@@ -185,6 +194,8 @@ class CodeView : RelativeLayout {
 
     /**
      * Update code content if view was built or, finally, build code view.
+     *
+     * @param content Code content
      */
     fun setCodeContent(content: String) {
         when (state) {
@@ -192,10 +203,10 @@ class CodeView : RelativeLayout {
                 build(content)
             ViewState.PREPARE ->
                 Thread.delayed {
-                    adapter.updateCodeContent(content)
+                    update(content)
                 }
             ViewState.PRESENTED ->
-                adapter.updateCodeContent(content)
+                update(content)
         }
     }
 
@@ -222,6 +233,19 @@ class CodeView : RelativeLayout {
         }
     }
 
+    /**
+     * Hot view updating.
+     *
+     * @param content Code content
+     */
+    private fun update(content: String) {
+        state = ViewState.PREPARE
+        measurePlaceholder(extractLines(content).size)
+        adapter.updateCodeContent(content)
+        hidePlaceholder()
+        state = ViewState.PRESENTED
+    }
+
     // - Setup actions
 
     /**
@@ -232,15 +256,22 @@ class CodeView : RelativeLayout {
 
     /**
      * Placeholder fills space at start and stretched to marked up view size
-     * (by extracting code lines) because at this point it's not built yet.
+     * (by code lines count) because at this point it's not built yet.
+     *
+     * @param linesCount Count of lines to measure space for placeholder
      */
     private fun measurePlaceholder(linesCount: Int) {
         val lineHeight = dpToPx(context, 24)
-        val topMargin = dpToPx(context, 8)
-        val height = linesCount * lineHeight + 2 * topMargin
+        val topPadding = dpToPx(context, 8)
+
+        // double padding (top & bottom) for big view, one is enough for small
+        val padding = (if (linesCount > 1) 2 else 1) * topPadding
+
+        val height = linesCount * lineHeight + padding
 
         vPlaceholder.layoutParams = RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.MATCH_PARENT, height)
+        vPlaceholder.visibility = View.VISIBLE
     }
 
     // - Animations
@@ -270,11 +301,15 @@ interface OnCodeLineClickListener {
 
 /**
  * Extension for delayed block call.
+ *
+ * @param body Operation body
  */
 fun Thread.delayed(body: () -> Unit) = Handler().postDelayed(body, 150)
 
 /**
  * More readable form for animation listener (hi, iOS & Cocoa Touch!).
+ *
+ * @param handler Handler body
  */
 fun ViewPropertyAnimator.didAnimated(handler: () -> Unit) =
         setListener(object : AnimatorListenerAdapter() {

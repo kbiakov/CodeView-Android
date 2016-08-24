@@ -76,6 +76,9 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
     /**
      * Split code content by lines. If listing must not be shown full it shows
      * only necessary lines & rest are dropped (and stores in named variable).
+     *
+     * @param isShowFull Show full listing?
+     * @param shortcutNote Note will shown below code for listing shortcut
      */
     private fun initCodeContent(isShowFull: Boolean,
                                 shortcutNote: String = mContext.getString(R.string.show_all)) {
