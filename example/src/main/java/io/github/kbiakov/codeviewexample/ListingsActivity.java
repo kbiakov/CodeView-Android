@@ -22,12 +22,13 @@ public class ListingsActivity extends AppCompatActivity {
 
         // use chaining to build view
         codeView.highlightCode("js")
-                //.setColorTheme(ColorTheme.SOLARIZED_LIGHT.withBgContent(myColor))
+                .setColorTheme(ColorTheme.SOLARIZED_LIGHT)
                 .setCodeContent(getString(R.string.listing_js));
 
         // do not use chaining for built view
         // (you can, but follow it should be performed sequentially)
         codeView.setCodeContent(getString(R.string.listing_java));
+        codeView.setColorTheme(ColorTheme.DEFAULT);
         codeView.highlightCode("java");
     }
 }
