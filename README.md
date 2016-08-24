@@ -23,7 +23,7 @@ allprojects {
 
 Add the dependency:
 ```groovy
-compile 'com.github.softwee:codeview-android:1.0.0'
+compile 'com.github.softwee:codeview-android:1.0.3'
 ```
 
 ## Usage
