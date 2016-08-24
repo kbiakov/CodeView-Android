@@ -35,7 +35,6 @@ import java.util.*
  */
 class CodeView : RelativeLayout {
 
-    private val vRoot: View
     private val vPlaceholder: View
     private val vShadowRight: View
     private val vShadowBottomLine: View
@@ -61,7 +60,6 @@ class CodeView : RelativeLayout {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         inflater.inflate(R.layout.layout_code_view, this, true)
 
-        vRoot = findViewById(R.id.v_root)
         vPlaceholder = findViewById(R.id.v_placeholder)
         vShadowRight = findViewById(R.id.v_shadow_right)
         vShadowBottomLine = findViewById(R.id.v_shadow_bottom_line)
@@ -145,13 +143,11 @@ class CodeView : RelativeLayout {
     // default color theme provided by enum
     fun setColorTheme(colorTheme: ColorTheme) = addTask {
         adapter.colorTheme = colorTheme.with()
-        fillBackground(colorTheme.bgContent)
     }
 
     // custom color theme provided by user
     fun setColorTheme(colorTheme: ColorThemeData) = addTask {
         adapter.colorTheme = colorTheme
-        fillBackground(colorTheme.bgContent)
     }
 
     /**
@@ -207,10 +203,10 @@ class CodeView : RelativeLayout {
                 build(content)
             ViewState.PREPARE ->
                 Thread.delayed {
-                    adapter.updateCodeContent(content)
+                    update(content)
                 }
             ViewState.PRESENTED ->
-                adapter.updateCodeContent(content)
+                update(content)
         }
     }
 
@@ -231,11 +227,23 @@ class CodeView : RelativeLayout {
         Thread.delayed {
             rvCodeContent.adapter = CodeContentAdapter(context, content)
             processBuildTasks()
-            //fillBackground()
             setupShadows()
             hidePlaceholder()
             state = ViewState.PRESENTED
         }
+    }
+
+    /**
+     * Hot view updating.
+     *
+     * @param content Code content
+     */
+    private fun update(content: String) {
+        state = ViewState.PREPARE
+        measurePlaceholder(extractLines(content).size)
+        adapter.updateCodeContent(content)
+        hidePlaceholder()
+        state = ViewState.PRESENTED
     }
 
     // - Setup actions
@@ -247,26 +255,23 @@ class CodeView : RelativeLayout {
     private fun setupShadows() = setShadowsVisible(!adapter.isFullShowing)
 
     /**
-     * Fill background to color accordingly to color theme.
-     *
-     * @color Background color
-     */
-    private fun fillBackground(color: Int = adapter.colorTheme.bgContent) =
-            vRoot.setBackgroundColor(color.color())
-
-    /**
      * Placeholder fills space at start and stretched to marked up view size
-     * (by extracting code lines) because at this point it's not built yet.
+     * (by code lines count) because at this point it's not built yet.
      *
      * @param linesCount Count of lines to measure space for placeholder
      */
     private fun measurePlaceholder(linesCount: Int) {
         val lineHeight = dpToPx(context, 24)
-        val topMargin = dpToPx(context, 8)
-        val height = linesCount * lineHeight + 2 * topMargin
+        val topPadding = dpToPx(context, 8)
+
+        // double padding (top & bottom) for big view, one is enough for small
+        val padding = (if (linesCount > 1) 2 else 1) * topPadding
+
+        val height = linesCount * lineHeight + padding
 
         vPlaceholder.layoutParams = RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.MATCH_PARENT, height)
+        vPlaceholder.visibility = View.VISIBLE
     }
 
     // - Animations
