@@ -90,15 +90,15 @@
                 CodeView codeView = (CodeView) findViewById(R.id.code_view);\n
                 \n
                 // use chaining to build view\n
-                codeView.highlightCode("js")\n
+                codeView.highlightCode(\"js\")\n
                         .setColorTheme(ColorTheme.SOLARIZED_LIGHT.withBgContent(myColor))\n
                         .setCodeContent(getString(R.string.listing_js));\n
                 \n
                 // do not use chaining for built view\n
                 // (you can, but follow it should be performed sequentially)\n
                 codeView.setCodeContent(getString(R.string.listing_java));\n
-                codeView.highlightCode("java");
-            }
+                codeView.highlightCode("java");\n
+            }\n
         }
     </string>
 
