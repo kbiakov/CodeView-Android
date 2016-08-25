@@ -1,4 +1,7 @@
 # CodeView (Android)
+
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-codeview--android-green.svg?style=true)](https://android-arsenal.com/details/1/4216)
+
 CodeView helps to show code content with syntax highlighting in native way.
 
 ## Description
