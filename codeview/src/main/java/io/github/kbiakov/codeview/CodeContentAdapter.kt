@@ -5,6 +5,8 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.TextView
 import io.github.kbiakov.codeview.classifier.CodeProcessor
 import io.github.kbiakov.codeview.highlight.*
@@ -32,6 +34,12 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
 
     internal var codeListener: OnCodeLineClickListener?
 
+    internal var lineNotes: HashMap<Int, List<String>>
+        set(lineNotes) {
+            field = lineNotes
+            notifyDataSetChanged()
+        }
+
     internal var colorTheme: ColorThemeData
         set(colorTheme) {
             field = colorTheme
@@ -42,6 +50,7 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
         mLines = ArrayList()
         mDroppedLines = null
         isFullShowing = true
+        lineNotes = HashMap()
         colorTheme = ColorTheme.SOLARIZED_LIGHT.with()
     }
 
@@ -81,7 +90,7 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
      * @param shortcutNote Note will shown below code for listing shortcut
      */
     private fun initCodeContent(isShowFull: Boolean,
-                                shortcutNote: String = mContext.getString(R.string.show_all)) {
+                                shortcutNote: String = showAllBottomNote()) {
         var lines: MutableList<String> = ArrayList(extractLines(mContent))
         isFullShowing = isShowFull || lines.size <= mMaxLines // limit is not reached
 
@@ -103,6 +112,18 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
     fun updateCodeContent(newContent: String) {
         mContent = newContent
         initCodeContent(isFullShowing)
+        notifyDataSetChanged()
+    }
+
+    /**
+     * Add note to code line.
+     *
+     * @param num Line number
+     * @param note Note content
+     */
+    fun addLineNote(num: Int, note: String) {
+        val notes = lineNotes[num] ?: ArrayList()
+        lineNotes.put(num, notes + note)
         notifyDataSetChanged()
     }
 
@@ -134,7 +155,7 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
         }
     }
 
-    // - Helpers
+    // - Helpers (for accessors)
 
     private fun updateContent(codeLines: List<String>, onUpdated: () -> Unit) {
         ui {
@@ -152,6 +173,8 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
         val lines = extractLines(code)
         updateContent(lines, onReady)
     }
+
+    private fun showAllBottomNote() = mContext.getString(R.string.show_all)
 
     private fun monoTypeface() = MonoFontCache.getInstance(mContext).typeface
 
@@ -178,10 +201,20 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
         holder.mItem = codeLine
 
         holder.itemView.setOnClickListener {
-            codeListener?.onCodeLineClicked(position + 1, codeLine)
+            codeListener?.onCodeLineClicked(position, codeLine)
         }
 
-        holder.tvLineContent.text = html(codeLine)
+        setupLine(position, codeLine, holder)
+        displayLineNotes(position, holder)
+        addExtraPadding(position, holder)
+    }
+
+    override fun getItemCount() = mLines.size
+
+    // Helpers (for view holder)
+
+    private fun setupLine(position: Int, line: String, holder: ViewHolder) {
+        holder.tvLineContent.text = html(line)
 
         if (!isFullShowing && position == MAX_SHORTCUT_LINES) {
             holder.tvLineNum.textSize = 10f
@@ -191,31 +224,44 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
             holder.tvLineNum.textSize = 12f
             holder.tvLineNum.text = "${position + 1}"
         }
-
-        addExtraPadding(position, holder.itemView, holder.tvLineNum, holder.tvLineContent)
     }
 
-    override fun getItemCount() = mLines.size
+    private fun displayLineNotes(position: Int, holder: ViewHolder) {
+        val notes = lineNotes[position]
 
-    private fun addExtraPadding(position: Int, itemView: View,
-                                tvLineNum: TextView, tvLineContent: TextView) {
+        holder.llLineNotes.removeAllViews()
+
+        notes?.let {
+            holder.llLineNotes.visibility = if (it.isNotEmpty()) View.VISIBLE else View.GONE
+
+            it.forEach { note ->
+                val noteView = LineNoteView.create(mContext, note, colorTheme.noteColor.color())
+                holder.llLineNotes.addView(noteView)
+            }
+        }
+    }
+
+    private fun addExtraPadding(position: Int, holder: ViewHolder) {
         val dp8 = dpToPx(mContext, 8)
         val isFirst = position == 0
         val isLast = position == itemCount - 1
 
         if (isFirst || isLast) {
-            itemView.layoutParams.height = dp8 * 4
+            // itemView.layoutParams.height = dp8 * 4
 
             val topPadding = if (isFirst) dp8 else 0
             val bottomPadding = if (isLast) dp8 else 0
-            tvLineNum.setPadding(0, topPadding, 0, bottomPadding)
-            tvLineContent.setPadding(0, topPadding, 0, bottomPadding)
+            holder.tvLineNum.setPadding(0, topPadding, 0, bottomPadding)
+            holder.tvLineContent.setPadding(0, topPadding, 0, bottomPadding)
         } else {
-            itemView.layoutParams.height = dp8 * 3
+            // itemView.layoutParams.height = dp8 * 3
 
-            tvLineNum.setPadding(0, 0, 0, 0)
-            tvLineContent.setPadding(0, 0, 0, 0)
+            holder.tvLineNum.setPadding(0, 0, 0, 0)
+            holder.tvLineContent.setPadding(0, 0, 0, 0)
         }
+
+        // TODO: measure height
+        // holder.tvLineNum.layoutParams.height = holder.itemView.layoutParams.height
     }
 
     companion object {
@@ -225,12 +271,16 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var tvLineNum: TextView
         var tvLineContent: TextView
+        var rlLineBlock: RelativeLayout
+        var llLineNotes: LinearLayout
 
         var mItem: String? = null
 
         init {
             tvLineNum = itemView.findViewById(R.id.tv_line_num) as TextView
             tvLineContent = itemView.findViewById(R.id.tv_line_content) as TextView
+            rlLineBlock = itemView.findViewById(R.id.rl_line_block) as RelativeLayout
+            llLineNotes = itemView.findViewById(R.id.ll_line_notes) as LinearLayout
         }
 
         override fun toString() = "${super.toString()} '$mItem'"

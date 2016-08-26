@@ -193,6 +193,25 @@ class CodeView : RelativeLayout {
     }
 
     /**
+     * Add notes to code snippet.
+     *
+     * @param notes Map of notes (line number -> list of notes)
+     */
+    fun addLineNotes(notes: HashMap<Int, List<String>>) = addTask {
+        adapter.lineNotes = notes
+    }
+
+    /**
+     * Add note to code line.
+     *
+     * @param num Line number
+     * @param note Note content
+     */
+    fun addLineNote(num: Int, note: String) = addTask {
+        adapter.addLineNote(num, note)
+    }
+
+    /**
      * Update code content if view was built or, finally, build code view.
      *
      * @param content Code content
