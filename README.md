@@ -1,4 +1,8 @@
 # CodeView (Android)
+
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-codeview--android-green.svg?style=true)](https://android-arsenal.com/details/1/4216)
+[![Release](https://jitpack.io/v/softwee/codeview-android.svg)](https://jitpack.io/#softwee/codeview-android)
+
 CodeView helps to show code content with syntax highlighting in native way.
 
 ## Description
@@ -23,7 +27,7 @@ allprojects {
 
 Add the dependency:
 ```groovy
-compile 'com.github.softwee:codeview-android:1.0.0'
+compile 'com.github.softwee:codeview-android:1.0.3'
 ```
 
 ## Usage
@@ -56,13 +60,14 @@ codeView.setCodeContent(getString(R.string.listing_java));
 codeView.highlightCode("java");
 ```
 
-You can use both forms for build & built view, but note: ```setCodeContent(String)``` is final step when you build your view, otherwise not. If you firstly highlight and then set code content, code will not be highlighted. Instructions above helps you to avoid errors. View has state to handle this behavior.
+You can use both forms for build & built view, but note: ```setCodeContent(String)``` is final step when you build your view, otherwise not. If you firstly highlight and then set code content, code will not be highlighted if view was not built yet. Instructions above helps you to avoid errors. View has state to handle this behavior.
 
 ## Customizing
-Use implicit or eplixit form to code highlighting:
+Use implicit form to code highlighting:
 ```java
 codeView.highlightCode();
 ```
+or eplixit (see available extensions below):
 ```java
 codeView.highlightCode("js"); // it will work fast!
 ```
@@ -87,9 +92,17 @@ codeView.setCodeListener(new OnCodeLineClickListener() {
 ```
 
 ## How it looks in app
-See <a href="https://github.com/Softwee/codeview-android/tree/master/example">example</a>.<br>
+See <a href="https://github.com/Softwee/codeview-android/blob/master/example/src/main/java/io/github/kbiakov/codeviewexample/ListingsActivity.java">example</a>.<br>
 
 [![CodeView_Android_Screenshot.png](https://s10.postimg.org/ckzv9xmm1/Code_View_Android_Screenshot.png)](https://postimg.org/image/6wtkj1i9h/)
+
+## List of available languages & their extensions
+C/C++/Objective-C (```"c"```, ```"cc"```, ```"cpp"```, ```"cxx"```, ```"cyc"```, ```"m"```), C# (```"cs"```), Java (```"java"```),Bash (```"bash"```, ```"bsh"```, ```"csh"```, ```"sh"```), Python (```"cv"```, ```"py"```, ```"python"```), Perl (```"perl"```, ```"pl"```, ```"pm"```), Ruby (```"rb"```, ```"ruby"```), JavaScript (```"javascript"```, ```"js"```), CoffeeScript (```"coffee"```), Rust (```"rc"```, ```"rs"```, ```"rust"```), Appollo (```"apollo"```, ```"agc"```, ```"aea"```), Basic (```"basic"```, ```"cbm"```), Clojure (```"clj"```), Css (```"css"```), Dart (```"dart"```), Erlang (```"erlang"```, ```"erl"```), Go (```"go"```), Haskell (```"hs"```), Lisp (```"cl"```, ```"el"```, ```"lisp"```, ```"lsp"```, ```"scm"```, ```"ss"```, ```"rkt"```), Llvm (```"llvm"```, ```"ll"```), Lua (```"lua"```), Matlab (```"matlab"```), ML (OCaml, SML, F#, etc) (```"fs"```, ```"ml"```), Mumps (```"mumps"```), N (```"n"```, ```"nemerle"```), Pascal (```"pascal"```), R (```"r"```, ```"s"```, ```"R"```, ```"S"```, ```"Splus"```), Rd (```"Rd"```, ```"rd"```), Scala (```"scala"```), SQL (```"sql"```), Tex (```"latex"```, ```"tex"```), VB (```"vb"```, ```"vbs"```), VHDL (```"vhdl"```, ```"vhd"```), Tcl (```"tcl"```), Wiki (```"wiki.meta"```), XQuery (```"xq"```, ```"xquery"```), YAML (```"yaml"```, ```"yml"```), formats (```"json"```, ```"xml"```, ```"proto"```), ```"regex"```
+
+Didn't found yours? Please, open issue to show your interest & I try to add this language in next releases.
+
+## Author
+### <a href="https://github.com/kbiakov">Kirill Biakov</a>
 
 ## License MIT
 Copyright (c) 2016 Softwee
