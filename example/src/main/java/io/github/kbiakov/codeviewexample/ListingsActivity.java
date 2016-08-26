@@ -17,7 +17,7 @@ public class ListingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_listings);
 
-        //int myColor = ContextCompat.getColor(this, R.color.code_content_background);
+        // int myColor = ContextCompat.getColor(this, R.color.code_content_background);
 
         final CodeView codeView = (CodeView) findViewById(R.id.code_view);
 
@@ -28,7 +28,7 @@ public class ListingsActivity extends AppCompatActivity {
 
         // do not use chaining for built view
         // (you can, but follow it should be performed sequentially)
-        codeView.setCodeContent(getString(R.string.mark));
+        codeView.setCodeContent(getString(R.string.listing_java));
         codeView.setColorTheme(ColorTheme.DEFAULT);
         codeView.highlightCode("java");
 

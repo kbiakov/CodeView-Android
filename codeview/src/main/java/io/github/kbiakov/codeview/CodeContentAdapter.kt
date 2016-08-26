@@ -234,9 +234,14 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
         notes?.let {
             holder.llLineNotes.visibility = if (it.isNotEmpty()) View.VISIBLE else View.GONE
 
+            val noteBg = colorTheme.bgNum.color()
+            val noteColor = colorTheme.noteColor.color()
+            var isFirst = true
+
             it.forEach { note ->
-                val noteView = LineNoteView.create(mContext, note, colorTheme.noteColor.color())
+                val noteView = LineNoteView.create(mContext, note, isFirst, noteBg, noteColor)
                 holder.llLineNotes.addView(noteView)
+                isFirst = false
             }
         }
     }
@@ -247,14 +252,14 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
         val isLast = position == itemCount - 1
 
         if (isFirst || isLast) {
-            // itemView.layoutParams.height = dp8 * 4
+            // holder.itemView.layoutParams.height = dp8 * 4
 
             val topPadding = if (isFirst) dp8 else 0
             val bottomPadding = if (isLast) dp8 else 0
             holder.tvLineNum.setPadding(0, topPadding, 0, bottomPadding)
             holder.tvLineContent.setPadding(0, topPadding, 0, bottomPadding)
         } else {
-            // itemView.layoutParams.height = dp8 * 3
+            // holder.itemView.layoutParams.height = dp8 * 3
 
             holder.tvLineNum.setPadding(0, 0, 0, 0)
             holder.tvLineContent.setPadding(0, 0, 0, 0)
@@ -271,7 +276,6 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var tvLineNum: TextView
         var tvLineContent: TextView
-        var rlLineBlock: RelativeLayout
         var llLineNotes: LinearLayout
 
         var mItem: String? = null
@@ -279,8 +283,7 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
         init {
             tvLineNum = itemView.findViewById(R.id.tv_line_num) as TextView
             tvLineContent = itemView.findViewById(R.id.tv_line_content) as TextView
-            rlLineBlock = itemView.findViewById(R.id.rl_line_block) as RelativeLayout
-            llLineNotes = itemView.findViewById(R.id.ll_line_notes) as LinearLayout
+            llLineNotes = itemView.findViewById(R.id.ll_line_footer) as LinearLayout
         }
 
         override fun toString() = "${super.toString()} '$mItem'"
