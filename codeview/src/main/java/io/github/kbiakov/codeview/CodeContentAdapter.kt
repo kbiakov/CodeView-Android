@@ -178,7 +178,7 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
         holder.mItem = codeLine
 
         holder.itemView.setOnClickListener {
-            codeListener?.onCodeLineClicked(position)
+            codeListener?.onCodeLineClicked(position + 1, codeLine)
         }
 
         holder.tvLineContent.text = html(codeLine)

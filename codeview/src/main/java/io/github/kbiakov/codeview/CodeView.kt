@@ -264,7 +264,7 @@ class CodeView : RelativeLayout {
         val lineHeight = dpToPx(context, 24)
         val topPadding = dpToPx(context, 8)
 
-        // double padding (top & bottom) for big view, one is enough for small
+        // double padding (top & bottom), one is enough for single line view
         val padding = (if (linesCount > 1) 2 else 1) * topPadding
 
         val height = linesCount * lineHeight + padding
@@ -296,7 +296,7 @@ class CodeView : RelativeLayout {
  * Provides listener to code line clicks.
  */
 interface OnCodeLineClickListener {
-    fun onCodeLineClicked(n: Int)
+    fun onCodeLineClicked(n: Int, line: String)
 }
 
 /**
