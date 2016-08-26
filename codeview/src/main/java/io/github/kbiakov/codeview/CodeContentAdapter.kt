@@ -215,11 +215,11 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
 
     private fun setupLine(position: Int, line: String, holder: ViewHolder) {
         holder.tvLineContent.text = html(line)
+        holder.tvLineContent.setTextColor(colorTheme.noteColor.color())
 
         if (!isFullShowing && position == MAX_SHORTCUT_LINES) {
             holder.tvLineNum.textSize = 10f
             holder.tvLineNum.text = mContext.getString(R.string.dots)
-            holder.tvLineContent.setTextColor(colorTheme.noteColor.color())
         } else {
             holder.tvLineNum.textSize = 12f
             holder.tvLineNum.text = "${position + 1}"

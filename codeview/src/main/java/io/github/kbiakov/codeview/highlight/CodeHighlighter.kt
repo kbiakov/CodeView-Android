@@ -116,6 +116,24 @@ enum class ColorTheme(
             bgNum = 0xEEE8D5,
             noteColor = 0x657B83),
 
+    MONOKAI(
+            syntaxColors = SyntaxColors(
+                    type = 0xA7E22E,
+                    keyword = 0xFA2772,
+                    literal = 0x66D9EE,
+                    comment = 0x76715E,
+                    string = 0xE6DB74,
+                    punctuation = 0xC1C1C1,
+                    plain = 0xF8F8F0,
+                    tag = 0xF92672,
+                    declaration = 0xFA2772,
+                    attrName = 0xA6E22E,
+                    attrValue = 0xE6DB74),
+            numColor = 0x48483E,
+            bgContent = 0x272822,
+            bgNum = 0x272822,
+            noteColor = 0xCFD0C2),
+
     DEFAULT(
             numColor = 0x99A8B7,
             bgContent = 0xE9EDF4,

@@ -30,7 +30,7 @@ class LineNoteView(context: Context?) : TextView(context) {
             noteView.setBackgroundColor(bgColor)
 
             val dp8 = dpToPx(context, 8)
-            noteView.setPadding(dpToPx(context, 48), if (isFirst) dp8 else 0, dp8, dp8)
+            noteView.setPadding(dpToPx(context, 46), if (isFirst) dp8 else 0, dp8, dp8)
 
             return noteView
         }
