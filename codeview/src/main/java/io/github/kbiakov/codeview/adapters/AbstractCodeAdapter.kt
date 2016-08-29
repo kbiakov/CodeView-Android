@@ -19,7 +19,7 @@ import java.util.*
 /**
  * @class AbstractCodeAdapter
  *
- * Adapter for code view.
+ * Basic adapter for code view.
  *
  * @author Kirill Biakov
  */
@@ -103,7 +103,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         mLines = lines
     }
 
-    // - User interaction interface
+    // - Adapter interface
 
     /**
      * Update code with new content.
@@ -156,6 +156,15 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         }
     }
 
+    /**
+     * Mapper from entity to footer view.
+     *
+     * @param context Context
+     * @param entity Entity to init view
+     * @return Footer view
+     */
+    abstract fun createFooter(context: Context, entity: T): View
+
     // - Helpers (for accessors)
 
     private fun updateContent(codeLines: List<String>, onUpdated: () -> Unit) {
@@ -175,7 +184,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         updateContent(lines, onReady)
     }
 
-    internal fun showAllBottomNote() = mContext.getString(R.string.show_all)
+    private fun showAllBottomNote() = mContext.getString(R.string.show_all)
 
     private fun monoTypeface() = MonoFontCache.getInstance(mContext).typeface
 
@@ -206,13 +215,13 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         }
 
         setupLine(position, codeLine, holder)
-        displayFooterEntities(position, holder)
+        displayLineFooter(position, holder)
         addExtraPadding(position, holder)
     }
 
     override fun getItemCount() = mLines.size
 
-    // Helpers (for view holder)
+    // - Helpers (for view holder)
 
     private fun setupLine(position: Int, line: String, holder: ViewHolder) {
         holder.tvLineContent.text = html(line)
@@ -227,7 +236,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         }
     }
 
-    private fun displayFooterEntities(position: Int, holder: ViewHolder) {
+    private fun displayLineFooter(position: Int, holder: ViewHolder) {
         val entityList = footerEntities[position]
 
         holder.llLineFooter.removeAllViews()
@@ -243,12 +252,11 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
                 footerView.setPadding(dpToPx(mContext, 46), if (isFirst) dp8 else 0, dp8, dp8)
 
                 holder.llLineFooter.addView(footerView)
+
                 isFirst = false
             }
         }
     }
-
-    abstract fun createFooter(context: Context, entity: T): View
 
     private fun addExtraPadding(position: Int, holder: ViewHolder) {
         val dp8 = dpToPx(mContext, 8)
@@ -256,27 +264,24 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         val isLast = position == itemCount - 1
 
         if (isFirst || isLast) {
-            // holder.itemView.layoutParams.height = dp8 * 4
-
             val topPadding = if (isFirst) dp8 else 0
             val bottomPadding = if (isLast) dp8 else 0
             holder.tvLineNum.setPadding(0, topPadding, 0, bottomPadding)
             holder.tvLineContent.setPadding(0, topPadding, 0, bottomPadding)
         } else {
-            // holder.itemView.layoutParams.height = dp8 * 3
-
             holder.tvLineNum.setPadding(0, 0, 0, 0)
             holder.tvLineContent.setPadding(0, 0, 0, 0)
         }
-
-        // TODO: measure height
-        // holder.tvLineNum.layoutParams.height = holder.itemView.layoutParams.height
     }
 
     companion object {
         internal const val MAX_SHORTCUT_LINES = 6
     }
 
+    /**
+     * View holder for code adapter.
+     * Stores all views related to code line layout.
+     */
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var tvLineNum: TextView
         var tvLineContent: TextView

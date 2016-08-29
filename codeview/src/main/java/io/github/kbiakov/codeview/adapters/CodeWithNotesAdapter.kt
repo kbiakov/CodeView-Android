@@ -5,7 +5,11 @@ import io.github.kbiakov.codeview.highlight.color
 import io.github.kbiakov.codeview.views.LineNoteView
 
 /**
+ * @class CodeWithNotesAdapter
  *
+ * Default code content adapter.
+ *
+ * @author Kirill Biakov
  */
 class CodeWithNotesAdapter : AbstractCodeAdapter<String> {
     /**
@@ -14,14 +18,14 @@ class CodeWithNotesAdapter : AbstractCodeAdapter<String> {
     constructor(context: Context, content: String) : super(context, content)
 
     /**
-     * Add note to code line.
+     * Create footer view.
      *
-     * @param num Line number
+     * @param context Context
      * @param entity Note content
      */
     override fun createFooter(context: Context, entity: String) =
             LineNoteView.create(context,
-                    noteText = entity,
+                    text = entity,
                     bgColor = colorTheme.bgNum.color(),
                     textColor = colorTheme.noteColor.color())
 }

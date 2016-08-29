@@ -16,7 +16,6 @@ import io.github.kbiakov.codeview.adapters.CodeWithNotesAdapter
 import io.github.kbiakov.codeview.highlight.ColorTheme
 import io.github.kbiakov.codeview.highlight.ColorThemeData
 import java.util.*
-import kotlin.reflect.KClass
 
 /**
  * @class CodeView
@@ -35,7 +34,7 @@ import kotlin.reflect.KClass
  *
  * @author Kirill Biakov
  */
-class CodeView<T> : RelativeLayout {
+class CodeView : RelativeLayout {
 
     private val vPlaceholder: View
     private val vShadowRight: View
@@ -57,6 +56,11 @@ class CodeView<T> : RelativeLayout {
      * (and awaiting for build) or view was built & code is presented.
      */
     private var state: ViewState
+        set(newState) {
+            if (newState == ViewState.PRESENTED)
+                hidePlaceholder()
+            field = newState
+        }
 
     /**
      * Default constructor.
@@ -100,52 +104,18 @@ class CodeView<T> : RelativeLayout {
     fun isPresented() = state == ViewState.PRESENTED
 
     /**
-     * TODO
-     */
-    private var AdapterClass: KClass<out AbstractCodeAdapter<T>>? = null
-
-    fun registerAdapterClass(adapterClass: KClass<out AbstractCodeAdapter<T>>) {
-        if (state == ViewState.BUILD)
-            AdapterClass = adapterClass
-        else throw RuntimeException("CodeView is already registered with " +
-                "${AdapterClass?.simpleName} class name. Please, check the build flow.")
-    }
-
-    fun registerAdapterClass(adapterClass: Class<out AbstractCodeAdapter<T>>) =
-            registerAdapterClass(adapterClass.kotlin)
-
-    /**
      * Accessor/mutator to reduce frequently used actions.
      */
-    private var adapter: AbstractCodeAdapter<T>
+    var adapter: AbstractCodeAdapter<*>
         get() {
-            return rvCodeContent.adapter as AbstractCodeAdapter<T>
+            return rvCodeContent.adapter as AbstractCodeAdapter<*>
         }
         set(adapter) {
-            rvCodeContent.adapter = adapter
-            state = ViewState.PRESENTED
+            delayed { // to prevent UI overhead & initialization inconsistency
+                rvCodeContent.adapter = adapter
+                state = ViewState.PRESENTED
+            }
         }
-
-    /**
-     * TODO
-     */
-    private fun createAdapter(content: String) =
-            (AdapterClass ?: CodeWithNotesAdapter::class)
-                .constructors
-                .first()
-                .call(context, content)
-
-    /**
-     * TODO
-     */
-    private fun setupInitAdapter(content: String) {
-        try {
-            rvCodeContent.adapter = createAdapter(content)
-        } catch (e: IllegalArgumentException) {
-            throw IllegalArgumentException("You're registered ${AdapterClass?.simpleName}, " +
-                    "but default constructor with 2 params (context & code content) not found.")
-        }
-    }
 
     // - Build processor
 
@@ -156,7 +126,7 @@ class CodeView<T> : RelativeLayout {
      *
      * @param task Task to process
      */
-    private fun addTask(task: () -> Unit): CodeView<T> {
+    private fun addTask(task: () -> Unit): CodeView {
         when (state) {
             ViewState.BUILD ->
                 tasks.add(task)
@@ -238,25 +208,6 @@ class CodeView<T> : RelativeLayout {
     }
 
     /**
-     * Add entities to code snippet as footer.
-     *
-     * @param entities Map of entities (line number -> list of entities)
-     */
-    fun addFooterEntities(entities: HashMap<Int, List<T>>) = addTask {
-        adapter.footerEntities = entities
-    }
-
-    /**
-     * Add footer entity to code line.
-     *
-     * @param num Line number
-     * @param entity Entity content
-     */
-    fun addFooterEntity(num: Int, entity: T) = addTask {
-        adapter.addFooterEntity(num, entity)
-    }
-
-    /**
      * Update code content if view was built or, finally, build code view.
      *
      * @param content Code content
@@ -289,7 +240,7 @@ class CodeView<T> : RelativeLayout {
         state = ViewState.PREPARE
 
         delayed {
-            setupInitAdapter(content)
+            rvCodeContent.adapter = CodeWithNotesAdapter(context, content)
             processBuildTasks()
             setupShadows()
             hidePlaceholder()
