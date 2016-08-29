@@ -6,9 +6,10 @@ import android.support.v7.app.AppCompatActivity;
 
 import org.jetbrains.annotations.NotNull;
 
+import io.github.kbiakov.codeview.adapters.CodeWithNotesAdapter;
+import io.github.kbiakov.codeview.highlight.ColorTheme;
 import io.github.kbiakov.codeview.CodeView;
 import io.github.kbiakov.codeview.OnCodeLineClickListener;
-import io.github.kbiakov.codeview.highlight.ColorTheme;
 
 public class ListingsActivity extends AppCompatActivity {
 
@@ -20,6 +21,8 @@ public class ListingsActivity extends AppCompatActivity {
         // int myColor = ContextCompat.getColor(this, R.color.code_content_background);
 
         final CodeView codeView = (CodeView) findViewById(R.id.code_view);
+
+        codeView.registerAdapterClass(CodeWithNotesAdapter.class);
 
         // use chaining to build view
         codeView.highlightCode("js")
@@ -35,7 +38,7 @@ public class ListingsActivity extends AppCompatActivity {
         codeView.setCodeListener(new OnCodeLineClickListener() {
             @Override
             public void onCodeLineClicked(int n, @NotNull String line) {
-                codeView.addLineNote(n, line);
+                codeView.addFooterEntity(n, line);
             }
         });
     }

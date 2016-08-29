@@ -1,4 +1,4 @@
-package io.github.kbiakov.codeview
+package io.github.kbiakov.codeview.views
 
 import android.content.Context
 import android.widget.TextView
@@ -15,22 +15,17 @@ class LineNoteView(context: Context?) : TextView(context) {
          * Simple factory method to create note view.
          *
          * @param context Context
-         * @param text Note text
-         * @param isFirst If is first note
+         * @param noteText Note text
          * @param bgColor Background color
          * @param textColor Text Color
          * @return Created line note view
          */
-        fun create(context: Context, text: String, isFirst: Boolean,
-                   bgColor: Int, textColor: Int): LineNoteView {
+        fun create(context: Context, noteText: String, bgColor: Int, textColor: Int): LineNoteView {
             val noteView = LineNoteView(context)
             noteView.textSize = 12f
-            noteView.text = text
+            noteView.text = noteText
             noteView.setTextColor(textColor)
             noteView.setBackgroundColor(bgColor)
-
-            val dp8 = dpToPx(context, 8)
-            noteView.setPadding(dpToPx(context, 46), if (isFirst) dp8 else 0, dp8, dp8)
 
             return noteView
         }

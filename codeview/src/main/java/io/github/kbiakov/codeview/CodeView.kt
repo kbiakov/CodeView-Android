@@ -3,7 +3,6 @@ package io.github.kbiakov.codeview
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.Context
-import android.os.Handler
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
@@ -11,10 +10,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewPropertyAnimator
 import android.widget.RelativeLayout
+import io.github.kbiakov.codeview.adapters.AbstractCodeAdapter
+import io.github.kbiakov.codeview.Thread.delayed
+import io.github.kbiakov.codeview.adapters.CodeWithNotesAdapter
 import io.github.kbiakov.codeview.highlight.ColorTheme
 import io.github.kbiakov.codeview.highlight.ColorThemeData
-import io.github.kbiakov.codeview.highlight.color
 import java.util.*
+import kotlin.reflect.KClass
 
 /**
  * @class CodeView
@@ -33,7 +35,7 @@ import java.util.*
  *
  * @author Kirill Biakov
  */
-class CodeView : RelativeLayout {
+class CodeView<T> : RelativeLayout {
 
     private val vPlaceholder: View
     private val vShadowRight: View
@@ -56,6 +58,9 @@ class CodeView : RelativeLayout {
      */
     private var state: ViewState
 
+    /**
+     * Default constructor.
+     */
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         inflater.inflate(R.layout.layout_code_view, this, true)
@@ -69,13 +74,13 @@ class CodeView : RelativeLayout {
         rvCodeContent.layoutManager = LinearLayoutManager(context)
         rvCodeContent.isNestedScrollingEnabled = true
 
-        tasks = LinkedList()
-
         state = ViewState.BUILD
+
+        tasks = LinkedList()
     }
 
     /**
-     * Code view states.
+     * Code view state to control build flow.
      */
     enum class ViewState {
         BUILD,
@@ -84,23 +89,63 @@ class CodeView : RelativeLayout {
     }
 
     /**
-     * Public getter for accessing view state.
-     * It may be useful if code view state is unknown.
-     * If code view was built it is not safe to use operations chaining.
+     * Public getters for checking view state.
+     * May be useful when code view state is unknown.
+     * If view was built it is unsafe to use operations chaining.
+     *
+     * @return Result of state check
      */
-    fun getState() = state
+    fun isBuilding() = state == ViewState.BUILD
+    fun isPrepared() = state == ViewState.PREPARE
+    fun isPresented() = state == ViewState.PRESENTED
+
+    /**
+     * TODO
+     */
+    private var AdapterClass: KClass<out AbstractCodeAdapter<T>>? = null
+
+    fun registerAdapterClass(adapterClass: KClass<out AbstractCodeAdapter<T>>) {
+        if (state == ViewState.BUILD)
+            AdapterClass = adapterClass
+        else throw RuntimeException("CodeView is already registered with " +
+                "${AdapterClass?.simpleName} class name. Please, check the build flow.")
+    }
+
+    fun registerAdapterClass(adapterClass: Class<out AbstractCodeAdapter<T>>) =
+            registerAdapterClass(adapterClass.kotlin)
 
     /**
      * Accessor/mutator to reduce frequently used actions.
      */
-    var adapter: CodeContentAdapter
+    private var adapter: AbstractCodeAdapter<T>
         get() {
-            return rvCodeContent.adapter as CodeContentAdapter
+            return rvCodeContent.adapter as AbstractCodeAdapter<T>
         }
         set(adapter) {
             rvCodeContent.adapter = adapter
             state = ViewState.PRESENTED
         }
+
+    /**
+     * TODO
+     */
+    private fun createAdapter(content: String) =
+            (AdapterClass ?: CodeWithNotesAdapter::class)
+                .constructors
+                .first()
+                .call(context, content)
+
+    /**
+     * TODO
+     */
+    private fun setupInitAdapter(content: String) {
+        try {
+            rvCodeContent.adapter = createAdapter(content)
+        } catch (e: IllegalArgumentException) {
+            throw IllegalArgumentException("You're registered ${AdapterClass?.simpleName}, " +
+                    "but default constructor with 2 params (context & code content) not found.")
+        }
+    }
 
     // - Build processor
 
@@ -111,12 +156,12 @@ class CodeView : RelativeLayout {
      *
      * @param task Task to process
      */
-    private fun addTask(task: () -> Unit): CodeView {
+    private fun addTask(task: () -> Unit): CodeView<T> {
         when (state) {
             ViewState.BUILD ->
                 tasks.add(task)
             ViewState.PREPARE ->
-                Thread.delayed(task)
+                delayed(body = task)
             ViewState.PRESENTED ->
                 task()
         }
@@ -193,22 +238,22 @@ class CodeView : RelativeLayout {
     }
 
     /**
-     * Add notes to code snippet.
+     * Add entities to code snippet as footer.
      *
-     * @param notes Map of notes (line number -> list of notes)
+     * @param entities Map of entities (line number -> list of entities)
      */
-    fun addLineNotes(notes: HashMap<Int, List<String>>) = addTask {
-        adapter.lineNotes = notes
+    fun addFooterEntities(entities: HashMap<Int, List<T>>) = addTask {
+        adapter.footerEntities = entities
     }
 
     /**
-     * Add note to code line.
+     * Add footer entity to code line.
      *
      * @param num Line number
-     * @param note Note content
+     * @param entity Entity content
      */
-    fun addLineNote(num: Int, note: String) = addTask {
-        adapter.addLineNote(num, note)
+    fun addFooterEntity(num: Int, entity: T) = addTask {
+        adapter.addFooterEntity(num, entity)
     }
 
     /**
@@ -221,7 +266,7 @@ class CodeView : RelativeLayout {
             ViewState.BUILD ->
                 build(content)
             ViewState.PREPARE ->
-                Thread.delayed {
+                delayed {
                     update(content)
                 }
             ViewState.PRESENTED ->
@@ -243,8 +288,8 @@ class CodeView : RelativeLayout {
         measurePlaceholder(linesCount)
         state = ViewState.PREPARE
 
-        Thread.delayed {
-            rvCodeContent.adapter = CodeContentAdapter(context, content)
+        delayed {
+            setupInitAdapter(content)
             processBuildTasks()
             setupShadows()
             hidePlaceholder()
@@ -288,8 +333,8 @@ class CodeView : RelativeLayout {
 
         val height = linesCount * lineHeight + padding
 
-        vPlaceholder.layoutParams = RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.MATCH_PARENT, height)
+        vPlaceholder.layoutParams = LayoutParams(
+                LayoutParams.MATCH_PARENT, height)
         vPlaceholder.visibility = View.VISIBLE
     }
 
@@ -317,13 +362,6 @@ class CodeView : RelativeLayout {
 interface OnCodeLineClickListener {
     fun onCodeLineClicked(n: Int, line: String)
 }
-
-/**
- * Extension for delayed block call.
- *
- * @param body Operation body
- */
-fun Thread.delayed(body: () -> Unit) = Handler().postDelayed(body, 150)
 
 /**
  * More readable form for animation listener (hi, iOS & Cocoa Touch!).

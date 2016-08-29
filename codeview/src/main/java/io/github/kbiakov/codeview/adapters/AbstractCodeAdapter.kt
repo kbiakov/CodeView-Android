@@ -1,4 +1,4 @@
-package io.github.kbiakov.codeview
+package io.github.kbiakov.codeview.adapters
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
@@ -6,23 +6,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.RelativeLayout
 import android.widget.TextView
+import io.github.kbiakov.codeview.*
 import io.github.kbiakov.codeview.classifier.CodeProcessor
 import io.github.kbiakov.codeview.highlight.*
 import io.github.kbiakov.codeview.Thread.async
 import io.github.kbiakov.codeview.Thread.ui
 import io.github.kbiakov.codeview.classifier.CodeClassifier
+import io.github.kbiakov.codeview.OnCodeLineClickListener
 import java.util.*
 
 /**
- * @class CodeContentAdapter
+ * @class AbstractCodeAdapter
  *
  * Adapter for code view.
  *
  * @author Kirill Biakov
  */
-class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
+abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter.ViewHolder> {
 
     private val mContext: Context
     private var mContent: String
@@ -34,15 +35,15 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
 
     internal var codeListener: OnCodeLineClickListener?
 
-    internal var lineNotes: HashMap<Int, List<String>>
-        set(lineNotes) {
-            field = lineNotes
-            notifyDataSetChanged()
-        }
-
     internal var colorTheme: ColorThemeData
         set(colorTheme) {
             field = colorTheme
+            notifyDataSetChanged()
+        }
+
+    internal var footerEntities: HashMap<Int, List<T>>
+        set(footerEntities) {
+            field = footerEntities
             notifyDataSetChanged()
         }
 
@@ -50,12 +51,12 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
         mLines = ArrayList()
         mDroppedLines = null
         isFullShowing = true
-        lineNotes = HashMap()
         colorTheme = ColorTheme.SOLARIZED_LIGHT.with()
+        footerEntities = HashMap()
     }
 
     /**
-     * Adapter constructor
+     * Adapter constructor.
      *
      * @param content Context
      * @param content Code content
@@ -116,14 +117,14 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
     }
 
     /**
-     * Add note to code line.
+     * Add footer entity for code line.
      *
      * @param num Line number
-     * @param note Note content
+     * @param entity Footer entity
      */
-    fun addLineNote(num: Int, note: String) {
-        val notes = lineNotes[num] ?: ArrayList()
-        lineNotes.put(num, notes + note)
+    fun addFooterEntity(num: Int, entity: T) {
+        val notes = footerEntities[num] ?: ArrayList()
+        footerEntities.put(num, notes + entity)
         notifyDataSetChanged()
     }
 
@@ -174,7 +175,7 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
         updateContent(lines, onReady)
     }
 
-    private fun showAllBottomNote() = mContext.getString(R.string.show_all)
+    internal fun showAllBottomNote() = mContext.getString(R.string.show_all)
 
     private fun monoTypeface() = MonoFontCache.getInstance(mContext).typeface
 
@@ -205,7 +206,7 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
         }
 
         setupLine(position, codeLine, holder)
-        displayLineNotes(position, holder)
+        displayFooterEntities(position, holder)
         addExtraPadding(position, holder)
     }
 
@@ -226,25 +227,28 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
         }
     }
 
-    private fun displayLineNotes(position: Int, holder: ViewHolder) {
-        val notes = lineNotes[position]
+    private fun displayFooterEntities(position: Int, holder: ViewHolder) {
+        val entityList = footerEntities[position]
 
-        holder.llLineNotes.removeAllViews()
+        holder.llLineFooter.removeAllViews()
 
-        notes?.let {
-            holder.llLineNotes.visibility = if (it.isNotEmpty()) View.VISIBLE else View.GONE
+        entityList?.let {
+            holder.llLineFooter.visibility = if (it.isNotEmpty()) View.VISIBLE else View.GONE
 
-            val noteBg = colorTheme.bgNum.color()
-            val noteColor = colorTheme.noteColor.color()
             var isFirst = true
 
-            it.forEach { note ->
-                val noteView = LineNoteView.create(mContext, note, isFirst, noteBg, noteColor)
-                holder.llLineNotes.addView(noteView)
+            it.forEach { entity ->
+                val footerView = createFooter(mContext, entity)
+                val dp8 = dpToPx(mContext, 8)
+                footerView.setPadding(dpToPx(mContext, 46), if (isFirst) dp8 else 0, dp8, dp8)
+
+                holder.llLineFooter.addView(footerView)
                 isFirst = false
             }
         }
     }
+
+    abstract fun createFooter(context: Context, entity: T): View
 
     private fun addExtraPadding(position: Int, holder: ViewHolder) {
         val dp8 = dpToPx(mContext, 8)
@@ -270,20 +274,20 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
     }
 
     companion object {
-        private const val MAX_SHORTCUT_LINES = 6
+        internal const val MAX_SHORTCUT_LINES = 6
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var tvLineNum: TextView
         var tvLineContent: TextView
-        var llLineNotes: LinearLayout
+        var llLineFooter: LinearLayout
 
         var mItem: String? = null
 
         init {
             tvLineNum = itemView.findViewById(R.id.tv_line_num) as TextView
             tvLineContent = itemView.findViewById(R.id.tv_line_content) as TextView
-            llLineNotes = itemView.findViewById(R.id.ll_line_footer) as LinearLayout
+            llLineFooter = itemView.findViewById(R.id.ll_line_footer) as LinearLayout
         }
 
         override fun toString() = "${super.toString()} '$mItem'"
