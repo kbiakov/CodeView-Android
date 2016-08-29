@@ -1,8 +1,8 @@
 package io.github.kbiakov.codeview.highlight
 
 import android.graphics.Color
-import prettify.PrettifyParser
-import syntaxhighlight.ParseResult
+import io.github.kbiakov.codeview.highlight.prettify.PrettifyParser
+import io.github.kbiakov.codeview.highlight.parser.ParseResult
 import java.util.*
 
 /**

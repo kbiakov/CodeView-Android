@@ -27,11 +27,9 @@ dependencies {
     testCompile 'junit:junit:4.12'
 
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: '1.0.3'
 
     compile 'com.android.support:appcompat-v7:24.2.0'
     compile 'com.android.support:recyclerview-v7:24.2.0'
-    compile 'com.github.twalcari:java-prettify:1.2.2'
 }
 repositories {
     mavenCentral()
