@@ -43,7 +43,7 @@ fun extractLines(source: String) = listOf(*source.split("\n").toTypedArray())
  * @param content Source
  * @return Spanned HTML string
  */
-@Suppress("DEPRECATION")
+@Suppress("deprecation")
 fun html(content: String): Spanned =
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N)
             Html.fromHtml(content, Html.FROM_HTML_MODE_LEGACY)
@@ -68,6 +68,14 @@ object Thread {
     fun ui(body: () -> Unit) {
         Handler(Looper.getMainLooper()).post(body)
     }
+
+    /**
+     * Delayed block call.
+     *
+     * @param body Operation body
+     * @param delayMs Delay in m
+     */
+    fun delayed(delayMs: Long = 150, body: () -> Unit) = Handler().postDelayed(body, delayMs)
 
     // - Extensions for block manipulations
 

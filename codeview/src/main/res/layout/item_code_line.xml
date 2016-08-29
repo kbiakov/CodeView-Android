@@ -7,7 +7,7 @@
     <TextView
         android:id="@+id/tv_line_num"
         android:layout_width="32dp"
-        android:layout_height="match_parent"
+        android:layout_height="24dp"
         android:gravity="center"
         android:fontFamily="monospace"
         android:textSize="12sp"
@@ -16,7 +16,7 @@
     <TextView
         android:id="@+id/tv_line_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="24dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:layout_toRightOf="@+id/tv_line_num"
@@ -25,5 +25,13 @@
         android:singleLine="true"
         android:textSize="12sp"
         android:text="@string/stub_line_content"/>
+
+    <LinearLayout
+        android:id="@+id/ll_line_footer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/tv_line_content"
+        android:orientation="vertical"
+        android:visibility="gone"/>
 
 </RelativeLayout>
