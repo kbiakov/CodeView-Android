@@ -8,10 +8,12 @@ import android.util.Log;
 
 import org.jetbrains.annotations.NotNull;
 
+import io.github.kbiakov.codeview.adapters.CodeWithDiffsAdapter;
 import io.github.kbiakov.codeview.adapters.CodeWithNotesAdapter;
 import io.github.kbiakov.codeview.highlight.ColorTheme;
 import io.github.kbiakov.codeview.CodeView;
 import io.github.kbiakov.codeview.OnCodeLineClickListener;
+import io.github.kbiakov.codeview.views.DiffModel;
 
 public class ListingsActivity extends AppCompatActivity {
 
@@ -64,5 +66,17 @@ public class ListingsActivity extends AppCompatActivity {
                 adapter.addFooterEntity(n, new CustomAdapter.CustomModel("Line " + (n + 1), line));
             }
         });
+
+        /**
+         * 4: diff adapter with footer views
+         */
+
+        final CodeWithDiffsAdapter diffsAdapter = new CodeWithDiffsAdapter(this, getString(R.string.listing_py));
+        codeView.setAdapter(diffsAdapter);
+        codeView.highlightCode("python");
+        codeView.removeCodeListener();
+
+        diffsAdapter.addFooterEntity(15, new DiffModel(getString(R.string.py_addition_16), true));
+        diffsAdapter.addFooterEntity(10, new DiffModel(getString(R.string.py_deletion_11), false));
     }
 }

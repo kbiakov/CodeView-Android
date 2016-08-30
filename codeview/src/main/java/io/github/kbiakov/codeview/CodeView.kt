@@ -196,6 +196,13 @@ class CodeView : RelativeLayout {
     }
 
     /**
+     * Remove code listener.
+     */
+    fun removeCodeListener() = addTask {
+        adapter.codeListener = null
+    }
+
+    /**
      * Control shadows visibility to provide more sensitive UI.
      *
      * @param isVisible Shadows visibility

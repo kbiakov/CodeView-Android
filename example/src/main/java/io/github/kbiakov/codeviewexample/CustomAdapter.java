@@ -17,7 +17,7 @@ public class CustomAdapter extends AbstractCodeAdapter<CustomAdapter.CustomModel
 
     @NotNull
     @Override
-    public View createFooter(@NotNull Context context, CustomModel entity) {
+    public View createFooter(@NotNull Context context, CustomModel entity, boolean isFirst) {
         View footerView = LayoutInflater.from(context).inflate(R.layout.custom_footer, null);
         ((TextView) footerView.findViewById(R.id.tv_footer_title)).setText(entity.firstName);
         ((TextView) footerView.findViewById(R.id.tv_footer_description)).setText(entity.lastName);

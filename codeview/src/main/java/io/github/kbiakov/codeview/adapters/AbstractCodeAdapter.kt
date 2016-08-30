@@ -161,9 +161,10 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
      *
      * @param context Context
      * @param entity Entity to init view
+     * @param isFirst Is first footer view
      * @return Footer view
      */
-    abstract fun createFooter(context: Context, entity: T): View
+    abstract fun createFooter(context: Context, entity: T, isFirst: Boolean): View
 
     // - Helpers (for accessors)
 
@@ -247,9 +248,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
             var isFirst = true
 
             it.forEach { entity ->
-                val footerView = createFooter(mContext, entity)
-                val dp8 = dpToPx(mContext, 8)
-                footerView.setPadding(dpToPx(mContext, 46), if (isFirst) dp8 else 0, dp8, dp8)
+                val footerView = createFooter(mContext, entity, isFirst)
 
                 holder.llLineFooter.addView(footerView)
 
