@@ -51,19 +51,18 @@ public class ListingsActivity extends AppCompatActivity {
 
         /**
          * 3: custom adapter with footer views
-         *
+         */
 
-        final CustomAdapter adapter = new CustomAdapter(this, getString(R.string.listing_py));
+        final CustomAdapter adapter = new CustomAdapter(this, getString(R.string.listing_md));
 
         codeView.setAdapter(adapter);
         codeView.setColorTheme(ColorTheme.MONOKAI);
-        codeView.highlightCode("python");
+        codeView.highlightCode("md");
         codeView.setCodeListener(new OnCodeLineClickListener() {
             @Override
             public void onCodeLineClicked(int n, @NotNull String line) {
                 adapter.addFooterEntity(n, new CustomAdapter.CustomModel("Line " + (n + 1), line));
             }
         });
-        */
     }
 }

@@ -1,6 +1,7 @@
 package io.github.kbiakov.codeview.highlight
 
 import android.graphics.Color
+import android.util.Log
 import io.github.kbiakov.codeview.highlight.prettify.PrettifyParser
 import io.github.kbiakov.codeview.highlight.parser.ParseResult
 import java.util.*
@@ -34,9 +35,11 @@ object CodeHighlighter {
         val highlighted = StringBuilder()
 
         results.forEach { result ->
-            val color = getColor(colorsMap, result)
+            val color = colorsMap.getColor(result)
             val content = parseContent(source, result)
-            highlighted.append("<font color=\"$color\">$content</font>")
+            //Log.e("!!!", content)
+
+            highlighted.append(content.withFontParams(color))
         }
 
         return highlighted.toString()
@@ -64,8 +67,8 @@ object CodeHighlighter {
      * @param result Syntax unit
      * @return Color for syntax unit
      */
-    private fun getColor(colorsMap: HashMap<String, String>, result: ParseResult) =
-            colorsMap[result.styleKeys[0]] ?: colorsMap["pln"]
+    private fun HashMap<String, String>.getColor(result: ParseResult) =
+            this[result.styleKeys[0]] ?: this["pln"]
 
     /**
      * Build fast accessor (as map) for selected color theme.
@@ -200,9 +203,7 @@ data class SyntaxColors(
         val attrValue: Int = 0x269186)
 
 /**
- * Convert hex int to color by adding alpha-channel.
- *
- * @return Color int
+ * @return Converted hex int to color by adding alpha-channel
  */
 fun Int.color() = try {
     Color.parseColor("#FF${Integer.toHexString(this)}")
@@ -211,8 +212,49 @@ fun Int.color() = try {
 }
 
 /**
- * Convert hex int to hex string.
- *
- * @return Hex string
+ * @return Converted hex int to hex string
  */
 fun Int.hex() = "#${Integer.toHexString(this)}"
+
+/**
+ * @return Is value equals to found or not condition
+ */
+fun Int.isFound() = this >= 0
+fun Int.notFound() = this == -1
+
+/**
+ * @return String with applied font params
+ */
+fun String.withFontParams(color: String?): String {
+    val parametrizedString = StringBuilder()
+
+    var idx = 0
+    var newIdx = indexOf("\n")
+
+    if (newIdx.notFound())
+        parametrizedString.append(inFontTag(color))
+    else while (newIdx.isFound()) {
+        if (idx > 0)
+            parametrizedString.append("\n")
+
+        val part = substring(idx..newIdx - 1).inFontTag(color)
+        parametrizedString.append(part)
+
+        idx = newIdx
+        newIdx = indexOf("\n", idx + 1)
+    }
+
+    Log.e("!!!", parametrizedString.toString())
+
+    return parametrizedString.toString()
+}
+
+/**
+ * @return String surrounded by font tag
+ */
+fun String.inFontTag(color: String?) =
+        "<font color=\"$color\">${
+            if (startsWith("\n") && length > 2)
+                substring(2)
+            else this
+        }</font>"
