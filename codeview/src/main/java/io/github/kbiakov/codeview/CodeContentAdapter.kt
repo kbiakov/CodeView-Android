@@ -6,11 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import io.github.kbiakov.codeview.classifier.CodeProcessor
-import io.github.kbiakov.codeview.highlight.*
 import io.github.kbiakov.codeview.Thread.async
 import io.github.kbiakov.codeview.Thread.ui
 import io.github.kbiakov.codeview.classifier.CodeClassifier
+import io.github.kbiakov.codeview.classifier.CodeProcessor
+import io.github.kbiakov.codeview.highlight.*
 import java.util.*
 
 /**
@@ -178,7 +178,7 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
         holder.mItem = codeLine
 
         holder.itemView.setOnClickListener {
-            codeListener?.onCodeLineClicked(position)
+            codeListener?.onCodeLineClicked(position + 1)
         }
 
         holder.tvLineContent.text = html(codeLine)

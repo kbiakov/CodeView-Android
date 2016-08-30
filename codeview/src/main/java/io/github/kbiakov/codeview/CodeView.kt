@@ -13,7 +13,6 @@ import android.view.ViewPropertyAnimator
 import android.widget.RelativeLayout
 import io.github.kbiakov.codeview.highlight.ColorTheme
 import io.github.kbiakov.codeview.highlight.ColorThemeData
-import io.github.kbiakov.codeview.highlight.color
 import java.util.*
 
 /**
@@ -186,7 +185,7 @@ class CodeView : RelativeLayout {
      * @param isVisible Shadows visibility
      */
     fun setShadowsVisible(isVisible: Boolean = true) = addTask {
-        val visibility = if (isVisible) View.VISIBLE else GONE
+        val visibility = if (isVisible) VISIBLE else GONE
         vShadowRight.visibility = visibility
         vShadowBottomLine.visibility = visibility
         vShadowBottomContent.visibility = visibility
@@ -271,7 +270,8 @@ class CodeView : RelativeLayout {
 
         vPlaceholder.layoutParams = RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.MATCH_PARENT, height)
-        vPlaceholder.visibility = View.VISIBLE
+
+        vPlaceholder.alpha = 1f
     }
 
     // - Animations
@@ -279,9 +279,7 @@ class CodeView : RelativeLayout {
     private fun hidePlaceholder() = vPlaceholder.animate()
             .setDuration(350)
             .alpha(0f)
-            .didAnimated {
-                vPlaceholder.visibility = View.GONE
-            }
+            .didAnimated { vPlaceholder.alpha = 0f }
 
     private fun refreshAnimated() = animate()
             .setDuration(150)
