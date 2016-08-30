@@ -64,7 +64,24 @@
             return \"\".join(tmp for i in range(10000))\n
             \n
             for v in range(1,5):\n
-            print (Timer(\"func()\","from __main__ import case%s as func\" % v).timeit(200))\n
+            print (Timer(\"func()\",\"from __main__ import case%s as func\" % v).timeit(200))\n
+    </string>
+
+    <string name="listing_md">
+        3. CodeView and related adapter.\n
+        \n
+        ## Download\n
+        Add it in your root ```build.gradle``` at the end of repositories:\n
+        ```groovy\n
+        allprojects {\n
+            repositories {\n
+                ...\n
+                maven { url \"https://jitpack.io\" }\n
+            }\n
+        }\n
+        ```\n
+        \n
+        Add the dependency:
     </string>
 
     <string name="listing_java">

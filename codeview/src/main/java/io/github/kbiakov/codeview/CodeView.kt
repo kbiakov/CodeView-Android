@@ -111,7 +111,7 @@ class CodeView : RelativeLayout {
             return rvCodeContent.adapter as AbstractCodeAdapter<*>
         }
         set(adapter) {
-            delayed { // to prevent UI overhead & initialization inconsistency
+            delayed { // prevent UI overhead & initialization inconsistency
                 rvCodeContent.adapter = adapter
                 state = ViewState.PRESENTED
             }

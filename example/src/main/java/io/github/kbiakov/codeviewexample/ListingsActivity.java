@@ -25,7 +25,7 @@ public class ListingsActivity extends AppCompatActivity {
         CodeView codeView = (CodeView) findViewById(R.id.code_view);
 
         /**
-         * 1: Default adapter with chaining build flow
+         * 1: default adapter with chaining build flow
          */
 
         // use chaining to build view with default adapter
@@ -34,7 +34,7 @@ public class ListingsActivity extends AppCompatActivity {
                 .setCodeContent(getString(R.string.listing_js));
 
         /**
-         * 2: Updating built view
+         * 2: updating built view
          */
 
         // do not use chaining for built view
@@ -50,8 +50,8 @@ public class ListingsActivity extends AppCompatActivity {
         });
 
         /**
-         * 3: Custom adapter with footer views
-         */
+         * 3: custom adapter with footer views
+         *
 
         final CustomAdapter adapter = new CustomAdapter(this, getString(R.string.listing_py));
 
@@ -64,5 +64,6 @@ public class ListingsActivity extends AppCompatActivity {
                 adapter.addFooterEntity(n, new CustomAdapter.CustomModel("Line " + (n + 1), line));
             }
         });
+        */
     }
 }

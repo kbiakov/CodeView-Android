@@ -35,6 +35,7 @@ import io.github.kbiakov.codeview.highlight.prettify.lang.LangLisp;
 import io.github.kbiakov.codeview.highlight.prettify.lang.LangLlvm;
 import io.github.kbiakov.codeview.highlight.prettify.lang.LangLua;
 import io.github.kbiakov.codeview.highlight.prettify.lang.LangMatlab;
+import io.github.kbiakov.codeview.highlight.prettify.lang.LangMd;
 import io.github.kbiakov.codeview.highlight.prettify.lang.LangMl;
 import io.github.kbiakov.codeview.highlight.prettify.lang.LangMumps;
 import io.github.kbiakov.codeview.highlight.prettify.lang.LangN;
@@ -377,6 +378,7 @@ public class Prettify {
       register(LangLlvm.class);
       register(LangLua.class);
       register(LangMatlab.class);
+      register(LangMd.class);
       register(LangMl.class);
       register(LangMumps.class);
       register(LangN.class);
