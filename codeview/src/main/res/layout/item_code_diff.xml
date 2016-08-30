@@ -5,7 +5,7 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/tv_line_num"
+        android:id="@+id/tv_line_diff"
         android:layout_width="@dimen/line_num_width"
         android:layout_height="@dimen/line_height"
         android:gravity="center"
@@ -19,19 +19,11 @@
         android:layout_height="@dimen/line_height"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:layout_toRightOf="@+id/tv_line_num"
+        android:layout_toRightOf="@+id/tv_line_diff"
         android:gravity="center_vertical"
         android:fontFamily="monospace"
         android:singleLine="true"
         android:textSize="@dimen/line_text_size"
         android:text="@string/stub_line_content"/>
-
-    <LinearLayout
-        android:id="@+id/ll_line_footer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/tv_line_content"
-        android:orientation="vertical"
-        android:visibility="gone"/>
 
 </RelativeLayout>

@@ -22,10 +22,12 @@ class CodeWithNotesAdapter : AbstractCodeAdapter<String> {
      *
      * @param context Context
      * @param entity Note content
+     * @param isFirst Is first footer view
      */
-    override fun createFooter(context: Context, entity: String) =
+    override fun createFooter(context: Context, entity: String, isFirst: Boolean) =
             LineNoteView.create(context,
                     text = entity,
+                    isFirst = isFirst,
                     bgColor = colorTheme.bgNum.color(),
                     textColor = colorTheme.noteColor.color())
 }

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="line_num_width">32dp</dimen>
+    <dimen name="line_height">24dp</dimen>
+    <dimen name="line_text_size">12sp</dimen>
+</resources>
