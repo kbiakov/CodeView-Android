@@ -1,7 +1,6 @@
 package io.github.kbiakov.codeview.highlight
 
 import android.graphics.Color
-import android.util.Log
 import io.github.kbiakov.codeview.highlight.prettify.PrettifyParser
 import io.github.kbiakov.codeview.highlight.parser.ParseResult
 import java.util.*
@@ -37,8 +36,6 @@ object CodeHighlighter {
         results.forEach { result ->
             val color = colorsMap.getColor(result)
             val content = parseContent(source, result)
-            //Log.e("!!!", content)
-
             highlighted.append(content.withFontParams(color))
         }
 
@@ -63,7 +60,6 @@ object CodeHighlighter {
     /**
      * Color accessor from built color map for selected color theme.
      *
-     * @param colorsMap Colors map built from color theme
      * @param result Syntax unit
      * @return Color for syntax unit
      */
@@ -231,30 +227,36 @@ fun String.withFontParams(color: String?): String {
     var idx = 0
     var newIdx = indexOf("\n")
 
-    if (newIdx.notFound())
+    if (newIdx.notFound()) // covers expected tag coverage (within only one line)
         parametrizedString.append(inFontTag(color))
-    else while (newIdx.isFound()) {
-        if (idx > 0)
-            parametrizedString.append("\n")
+    else { // may contain multiple lines with line breaks
 
-        val part = substring(idx..newIdx - 1).inFontTag(color)
-        parametrizedString.append(part)
+        // put tag on the borders (end & start of line, ..., end of tag)
+        while (newIdx.isFound()) { // until closing tag is reached
+            val part = substring(idx..newIdx).inFontTag(color)
+            parametrizedString.append(part)
 
-        idx = newIdx
-        newIdx = indexOf("\n", idx + 1)
+            idx = newIdx
+            newIdx = indexOf("\n", idx + 1)
+        }
+
+        if (idx != indexOf("\n")) // if not replaced only once (for multiline tag coverage)
+            parametrizedString.append(substring(idx).inFontTag(color))
     }
-
-    Log.e("!!!", parametrizedString.toString())
 
     return parametrizedString.toString()
 }
 
 /**
+ * @return String with escaped line break at start
+ */
+fun String.escLineBreakAtStart() =
+        if (startsWith("\n") && length >= 2)
+            substring(1)
+        else this
+
+/**
  * @return String surrounded by font tag
  */
 fun String.inFontTag(color: String?) =
-        "<font color=\"$color\">${
-            if (startsWith("\n") && length > 2)
-                substring(2)
-            else this
-        }</font>"
+        "<font color=\"$color\">${escLineBreakAtStart()}</font>"
