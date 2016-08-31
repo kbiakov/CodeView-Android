@@ -122,6 +122,7 @@ class CodeView : RelativeLayout {
     /**
      * Add task to build queue. Otherwise (for prepared view) performs
      * task delayed or immediately (for built view).
+     *
      * A little part of view builder.
      *
      * @param task Task to process
@@ -149,8 +150,8 @@ class CodeView : RelativeLayout {
     // - View builder
 
     /**
-     * Specify color theme: syntax colors (need to highlighting) & related to
-     * code view (numeration color & background, content backgrounds).
+     * Specify color theme: syntax colors (need to highlighting) & related
+     * to code view (numeration color & background, content backgrounds).
      *
      * @param colorTheme Default or custom color theme
      */
@@ -172,7 +173,9 @@ class CodeView : RelativeLayout {
      * @param language Language to highlight
      */
     fun highlightCode(language: String) = addTask {
-        adapter.highlightCode(language)
+        adapter.highlightCode(language) {
+            refreshAnimated()
+        }
     }
 
     /**
@@ -208,7 +211,7 @@ class CodeView : RelativeLayout {
      * @param isVisible Shadows visibility
      */
     fun setShadowsVisible(isVisible: Boolean = true) = addTask {
-        val visibility = if (isVisible) View.VISIBLE else GONE
+        val visibility = if (isVisible) VISIBLE else GONE
         vShadowRight.visibility = visibility
         vShadowBottomLine.visibility = visibility
         vShadowBottomContent.visibility = visibility
@@ -237,7 +240,7 @@ class CodeView : RelativeLayout {
      *
      * When layout have multiple code views it becomes a very expensive task.
      * Some task proceeds asynchronously, some not, but what is key point:
-     * it should starts delayed a little bit to show necessary UI immediately.
+     * it should be started delayed a little bit to show necessary UI immediately.
      *
      * @param content Code content
      */
@@ -293,7 +296,7 @@ class CodeView : RelativeLayout {
 
         vPlaceholder.layoutParams = LayoutParams(
                 LayoutParams.MATCH_PARENT, height)
-        vPlaceholder.visibility = View.VISIBLE
+        vPlaceholder.alpha = 1f
     }
 
     // - Animations
@@ -302,7 +305,7 @@ class CodeView : RelativeLayout {
             .setDuration(350)
             .alpha(0f)
             .didAnimated {
-                vPlaceholder.visibility = View.GONE
+                vPlaceholder.alpha = 0f
             }
 
     private fun refreshAnimated() = animate()
