@@ -159,7 +159,7 @@ See <a href="https://github.com/Softwee/codeview-android/blob/master/example/src
 [![CodeView_Android_Default](https://s10.postimg.org/u2meb8o6x/Screen_Shot_2016_08_31_at_18_49_33.png)](https://s10.postimg.org/u2meb8o6x/Screen_Shot_2016_08_31_at_18_49_33.png)
 
 ## List of available languages & their extensions
-C/C++/Objective-C (```"c"```, ```"cc"```, ```"cpp"```, ```"cxx"```, ```"cyc"```, ```"m"```), C# (```"cs"```), Java (```"java"```),Bash (```"bash"```, ```"bsh"```, ```"csh"```, ```"sh"```), Python (```"cv"```, ```"py"```, ```"python"```), Perl (```"perl"```, ```"pl"```, ```"pm"```), Ruby (```"rb"```, ```"ruby"```), JavaScript (```"javascript"```, ```"js"```), CoffeeScript (```"coffee"```), Rust (```"rc"```, ```"rs"```, ```"rust"```), Appollo (```"apollo"```, ```"agc"```, ```"aea"```), Basic (```"basic"```, ```"cbm"```), Clojure (```"clj"```), Css (```"css"```), Dart (```"dart"```), Erlang (```"erlang"```, ```"erl"```), Go (```"go"```), Haskell (```"hs"```), Lisp (```"cl"```, ```"el"```, ```"lisp"```, ```"lsp"```, ```"scm"```, ```"ss"```, ```"rkt"```), Llvm (```"llvm"```, ```"ll"```), Lua (```"lua"```), Matlab (```"matlab"```), ML (OCaml, SML, F#, etc) (```"fs"```, ```"ml"```), Mumps (```"mumps"```), N (```"n"```, ```"nemerle"```), Pascal (```"pascal"```), R (```"r"```, ```"s"```, ```"R"```, ```"S"```, ```"Splus"```), Rd (```"Rd"```, ```"rd"```), Scala (```"scala"```), SQL (```"sql"```), Tex (```"latex"```, ```"tex"```), VB (```"vb"```, ```"vbs"```), VHDL (```"vhdl"```, ```"vhd"```), Tcl (```"tcl"```), Wiki (```"wiki.meta"```), XQuery (```"xq"```, ```"xquery"```), YAML (```"yaml"```, ```"yml"```), Markdown, (```"md"```, ```"markdown"```), formats (```"json"```, ```"xml"```, ```"proto"```), ```"regex"```
+C/C++/Objective-C (```"c"```, ```"cc"```, ```"cpp"```, ```"cxx"```, ```"cyc"```, ```"m"```), C# (```"cs"```), Java (```"java"```),Bash (```"bash"```, ```"bsh"```, ```"csh"```, ```"sh"```), Python (```"cv"```, ```"py"```, ```"python"```), Perl (```"perl"```, ```"pl"```, ```"pm"```), Ruby (```"rb"```, ```"ruby"```), JavaScript (```"javascript"```, ```"js"```), CoffeeScript (```"coffee"```), Rust (```"rc"```, ```"rs"```, ```"rust"```), Appollo (```"apollo"```, ```"agc"```, ```"aea"```), Basic (```"basic"```, ```"cbm"```), Clojure (```"clj"```), Css (```"css"```), Dart (```"dart"```), Erlang (```"erlang"```, ```"erl"```), Go (```"go"```), Haskell (```"hs"```), Lisp (```"cl"```, ```"el"```, ```"lisp"```, ```"lsp"```, ```"scm"```, ```"ss"```, ```"rkt"```), Llvm (```"llvm"```, ```"ll"```), Lua (```"lua"```), Matlab (```"matlab"```), ML (OCaml, SML, F#, etc) (```"fs"```, ```"ml"```), Mumps (```"mumps"```), N (```"n"```, ```"nemerle"```), Pascal (```"pascal"```), R (```"r"```, ```"s"```, ```"R"```, ```"S"```, ```"Splus"```), Rd (```"Rd"```, ```"rd"```), Scala (```"scala"```), SQL (```"sql"```), Tex (```"latex"```, ```"tex"```), VB (```"vb"```, ```"vbs"```), VHDL (```"vhdl"```, ```"vhd"```), Tcl (```"tcl"```), Wiki (```"wiki.meta"```), XQuery (```"xq"```, ```"xquery"```), YAML (```"yaml"```, ```"yml"```), Markdown (```"md"```, ```"markdown"```), formats (```"json"```, ```"xml"```, ```"proto"```), ```"regex"```
 
 Didn't found yours? Please, open issue to show your interest & I try to add this language in next releases.
 
@@ -177,6 +177,7 @@ Didn't found yours? Please, open issue to show your interest & I try to add this
 ### [Kirill Biakov](https://github.com/kbiakov)
 
 ## License MIT
+```
 Copyright (c) 2016 Softwee
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -196,3 +197,4 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+```
