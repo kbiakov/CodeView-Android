@@ -76,7 +76,7 @@ public class ListingsActivity extends AppCompatActivity {
         codeView.highlightCode("python");
         codeView.removeCodeListener();
 
-        diffsAdapter.addFooterEntity(15, new DiffModel(getString(R.string.py_addition_16), true));
-        diffsAdapter.addFooterEntity(10, new DiffModel(getString(R.string.py_deletion_11), false));
+        diffsAdapter.addFooterEntity(16, new DiffModel(getString(R.string.py_addition_16), true));
+        diffsAdapter.addFooterEntity(11, new DiffModel(getString(R.string.py_deletion_11), false));
     }
 }

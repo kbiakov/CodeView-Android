@@ -219,7 +219,10 @@ fun Int.isFound() = this >= 0
 fun Int.notFound() = this == -1
 
 /**
- * @return String with applied font params
+ * Apply font params to string.
+ *
+ * @param color Color as formatter string
+ * @return Formatted string
  */
 fun String.withFontParams(color: String?): String {
     val parametrizedString = StringBuilder()
@@ -232,13 +235,13 @@ fun String.withFontParams(color: String?): String {
     else { // may contain multiple lines with line breaks
 
         // put tag on the borders (end & start of line, ..., end of tag)
-        while (newIdx.isFound()) { // until closing tag is reached
-            val part = substring(idx..newIdx).inFontTag(color)
+        do { // until closing tag is reached
+            val part = substring(idx..newIdx - 1).inFontTag(color).plus("\n")
             parametrizedString.append(part)
 
-            idx = newIdx
-            newIdx = indexOf("\n", idx + 1)
-        }
+            idx = newIdx + 1
+            newIdx = indexOf("\n", idx)
+        } while (newIdx.isFound())
 
         if (idx != indexOf("\n")) // if not replaced only once (for multiline tag coverage)
             parametrizedString.append(substring(idx).inFontTag(color))
@@ -251,7 +254,7 @@ fun String.withFontParams(color: String?): String {
  * @return String with escaped line break at start
  */
 fun String.escLineBreakAtStart() =
-        if (startsWith("\n") && length >= 2)
+        if (startsWith("\n") && length >= 1)
             substring(1)
         else this
 
