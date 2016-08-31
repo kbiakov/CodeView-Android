@@ -3,12 +3,14 @@ package io.github.kbiakov.codeview.highlight;
 import android.content.Context;
 import android.graphics.Typeface;
 
+import io.github.kbiakov.codeview.adapters.AbstractCodeAdapter;
+
 /**
  * @class MonoFontCache
  *
  * Simple font cache.
  *
- * @see io.github.kbiakov.codeview.CodeContentAdapter
+ * @see AbstractCodeAdapter
  * @author Kirill Biakov
  */
 public class MonoFontCache {

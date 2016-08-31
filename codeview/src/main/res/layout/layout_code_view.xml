@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <io.github.kbiakov.codeview.BidirectionalScrollView
+    <io.github.kbiakov.codeview.views.BidirectionalScrollView
         android:id="@+id/v_scroll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             tools:listitem="@layout/item_code_line"/>
 
-    </io.github.kbiakov.codeview.BidirectionalScrollView>
+    </io.github.kbiakov.codeview.views.BidirectionalScrollView>
 
     <View
         android:id="@+id/v_shadow_right"

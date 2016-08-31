@@ -1,26 +1,29 @@
-package io.github.kbiakov.codeview
+package io.github.kbiakov.codeview.adapters
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
+import io.github.kbiakov.codeview.*
 import io.github.kbiakov.codeview.classifier.CodeProcessor
 import io.github.kbiakov.codeview.highlight.*
 import io.github.kbiakov.codeview.Thread.async
 import io.github.kbiakov.codeview.Thread.ui
 import io.github.kbiakov.codeview.classifier.CodeClassifier
+import io.github.kbiakov.codeview.OnCodeLineClickListener
 import java.util.*
 
 /**
- * @class CodeContentAdapter
+ * @class AbstractCodeAdapter
  *
- * Adapter for code view.
+ * Basic adapter for code view.
  *
  * @author Kirill Biakov
  */
-class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
+abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter.ViewHolder> {
 
     private val mContext: Context
     private var mContent: String
@@ -38,15 +41,22 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
             notifyDataSetChanged()
         }
 
+    internal var footerEntities: HashMap<Int, List<T>>
+        set(footerEntities) {
+            field = footerEntities
+            notifyDataSetChanged()
+        }
+
     init {
         mLines = ArrayList()
         mDroppedLines = null
         isFullShowing = true
         colorTheme = ColorTheme.SOLARIZED_LIGHT.with()
+        footerEntities = HashMap()
     }
 
     /**
-     * Adapter constructor
+     * Adapter constructor.
      *
      * @param content Context
      * @param content Code content
@@ -81,7 +91,7 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
      * @param shortcutNote Note will shown below code for listing shortcut
      */
     private fun initCodeContent(isShowFull: Boolean,
-                                shortcutNote: String = mContext.getString(R.string.show_all)) {
+                                shortcutNote: String = showAllBottomNote()) {
         var lines: MutableList<String> = ArrayList(extractLines(mContent))
         isFullShowing = isShowFull || lines.size <= mMaxLines // limit is not reached
 
@@ -93,7 +103,7 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
         mLines = lines
     }
 
-    // - User interaction interface
+    // - Adapter interface
 
     /**
      * Update code with new content.
@@ -103,6 +113,18 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
     fun updateCodeContent(newContent: String) {
         mContent = newContent
         initCodeContent(isFullShowing)
+        notifyDataSetChanged()
+    }
+
+    /**
+     * Add footer entity for code line.
+     *
+     * @param num Line number
+     * @param entity Footer entity
+     */
+    fun addFooterEntity(num: Int, entity: T) {
+        val notes = footerEntities[num] ?: ArrayList()
+        footerEntities.put(num, notes + entity)
         notifyDataSetChanged()
     }
 
@@ -134,7 +156,17 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
         }
     }
 
-    // - Helpers
+    /**
+     * Mapper from entity to footer view.
+     *
+     * @param context Context
+     * @param entity Entity to init view
+     * @param isFirst Is first footer view
+     * @return Footer view
+     */
+    abstract fun createFooter(context: Context, entity: T, isFirst: Boolean): View
+
+    // - Helpers (for accessors)
 
     private fun updateContent(codeLines: List<String>, onUpdated: () -> Unit) {
         ui {
@@ -152,6 +184,8 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
         val lines = extractLines(code)
         updateContent(lines, onReady)
     }
+
+    private fun showAllBottomNote() = mContext.getString(R.string.show_all)
 
     private fun monoTypeface() = MonoFontCache.getInstance(mContext).typeface
 
@@ -178,59 +212,86 @@ class CodeContentAdapter : RecyclerView.Adapter<CodeContentAdapter.ViewHolder> {
         holder.mItem = codeLine
 
         holder.itemView.setOnClickListener {
-            codeListener?.onCodeLineClicked(position)
+            codeListener?.onCodeLineClicked(position, codeLine)
         }
 
-        holder.tvLineContent.text = html(codeLine)
-
-        if (!isFullShowing && position == MAX_SHORTCUT_LINES) {
-            holder.tvLineNum.textSize = 10f
-            holder.tvLineNum.text = mContext.getString(R.string.dots)
-            holder.tvLineContent.setTextColor(colorTheme.noteColor.color())
-        } else {
-            holder.tvLineNum.textSize = 12f
-            holder.tvLineNum.text = "${position + 1}"
-        }
-
-        addExtraPadding(position, holder.itemView, holder.tvLineNum, holder.tvLineContent)
+        setupLine(position, codeLine, holder)
+        displayLineFooter(position, holder)
+        addExtraPadding(position, holder)
     }
 
     override fun getItemCount() = mLines.size
 
-    private fun addExtraPadding(position: Int, itemView: View,
-                                tvLineNum: TextView, tvLineContent: TextView) {
+    // - Helpers (for view holder)
+
+    private fun setupLine(position: Int, line: String, holder: ViewHolder) {
+        holder.tvLineContent.text = html(line)
+        holder.tvLineContent.setTextColor(colorTheme.noteColor.color())
+
+        if (!isFullShowing && position == MAX_SHORTCUT_LINES) {
+            holder.tvLineNum.textSize = 10f
+            holder.tvLineNum.text = mContext.getString(R.string.dots)
+        } else {
+            holder.tvLineNum.textSize = 12f
+            holder.tvLineNum.text = "${position + 1}"
+        }
+    }
+
+    private fun displayLineFooter(position: Int, holder: ViewHolder) {
+        val entityList = footerEntities[position]
+
+        holder.llLineFooter.removeAllViews()
+
+        entityList?.let {
+            holder.llLineFooter.visibility = if (it.isNotEmpty()) View.VISIBLE else View.GONE
+
+            var isFirst = true
+
+            it.forEach { entity ->
+                val footerView = createFooter(mContext, entity, isFirst)
+
+                holder.llLineFooter.addView(footerView)
+
+                isFirst = false
+            }
+        }
+    }
+
+    private fun addExtraPadding(position: Int, holder: ViewHolder) {
         val dp8 = dpToPx(mContext, 8)
         val isFirst = position == 0
         val isLast = position == itemCount - 1
 
         if (isFirst || isLast) {
-            itemView.layoutParams.height = dp8 * 4
-
             val topPadding = if (isFirst) dp8 else 0
             val bottomPadding = if (isLast) dp8 else 0
-            tvLineNum.setPadding(0, topPadding, 0, bottomPadding)
-            tvLineContent.setPadding(0, topPadding, 0, bottomPadding)
+            holder.tvLineNum.setPadding(0, topPadding, 0, bottomPadding)
+            holder.tvLineContent.setPadding(0, topPadding, 0, bottomPadding)
         } else {
-            itemView.layoutParams.height = dp8 * 3
-
-            tvLineNum.setPadding(0, 0, 0, 0)
-            tvLineContent.setPadding(0, 0, 0, 0)
+            holder.tvLineNum.setPadding(0, 0, 0, 0)
+            holder.tvLineContent.setPadding(0, 0, 0, 0)
         }
     }
 
     companion object {
-        private const val MAX_SHORTCUT_LINES = 6
+        internal const val MAX_SHORTCUT_LINES = 6
     }
 
+    /**
+     * View holder for code adapter.
+     * Stores all views related to code line layout.
+     */
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var tvLineNum: TextView
         var tvLineContent: TextView
+        var llLineFooter: LinearLayout
 
         var mItem: String? = null
 
         init {
             tvLineNum = itemView.findViewById(R.id.tv_line_num) as TextView
             tvLineContent = itemView.findViewById(R.id.tv_line_content) as TextView
+            llLineFooter = itemView.findViewById(R.id.ll_line_footer) as LinearLayout
         }
 
         override fun toString() = "${super.toString()} '$mItem'"
