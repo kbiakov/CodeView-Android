@@ -131,28 +131,13 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
     /**
      * Highlight code content.
      *
+     * @param onReady Callback when content is highlighted
      * @param language Programming language to highlight
      */
-    fun highlightCode(language: String) {
+    fun highlightCode(language: String? = null, onReady: () -> Unit) {
         async() {
-            highlighting(language)
-        }
-    }
-
-    /**
-     * Highlight code content.
-     *
-     * @param onReady Callback when content is highlighted
-     */
-    fun highlightCode(onReady: () -> Unit) {
-        async() {
-            val processor = CodeProcessor.getInstance(mContext)
-
-            val language = if (processor.isTrained)
-                processor.classify(mContent).get()
-            else CodeClassifier.DEFAULT_LANGUAGE
-
-            highlighting(language, onReady)
+            val classifiedLanguage = language ?: classifyContent()
+            highlighting(classifiedLanguage, onReady)
         }
     }
 
@@ -168,21 +153,44 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
 
     // - Helpers (for accessors)
 
+    /**
+     * Classify current code content.
+     *
+     * @return Classified language
+     */
+    private fun classifyContent(): String {
+        val processor = CodeProcessor.getInstance(mContext)
+
+        val language = if (processor.isTrained)
+            processor.classify(mContent).get()
+        else CodeClassifier.DEFAULT_LANGUAGE
+
+        return language
+    }
+
+    /**
+     * Highlight code content by language.
+     *
+     * @param language Language to highlight
+     * @param onReady Callback
+     */
+    private fun highlighting(language: String, onReady: () -> Unit) {
+        val code = CodeHighlighter.highlight(language, mContent, colorTheme)
+        val lines = extractLines(code)
+        updateContent(lines, onReady)
+    }
+
+    /**
+     * Return control to UI-thread when highlighted content is ready.
+     *
+     * @param codeLines Highlighted code lines
+     * @param onUpdated Control callback
+     */
     private fun updateContent(codeLines: List<String>, onUpdated: () -> Unit) {
         ui {
             mLines = codeLines
             onUpdated()
         }
-    }
-
-    private fun refresh() = {
-        notifyDataSetChanged()
-    }
-
-    private fun highlighting(language: String, onReady: () -> Unit = refresh()) {
-        val code = CodeHighlighter.highlight(language, mContent, colorTheme)
-        val lines = extractLines(code)
-        updateContent(lines, onReady)
     }
 
     private fun showAllBottomNote() = mContext.getString(R.string.show_all)
