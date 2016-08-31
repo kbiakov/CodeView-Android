@@ -142,7 +142,11 @@ adapter.addFooterEntity(16, new MyModel(getString(R.string.py_addition_16), true
 adapter.addFooterEntity(11, new MyModel(getString(R.string.py_deletion_11), false));
 ```
 <br>
-6. You can also add a multiple diff entities, see ```AbstractCodeAdapter<MyModel>.addFooterEntities(HashMap<Int, List<MyModel>>)``` method). Here you must provide a map from code line numbers (started from 0) to list of line entities. It will be mapped by adapter to specified footer views.
+6. You can also add a multiple diff entities:
+```java
+AbstractCodeAdapter<MyModel>.addFooterEntities(HashMap<Int, List<MyModel>> myEntities)
+```
+Here you must provide a map from code line numbers (started from 0) to list of line entities. It will be mapped by adapter to specified footer views.
 <br>
 
 See [Github diff](https://github.com/Softwee/codeview-android/blob/master/codeview/src/main/java/io/github/kbiakov/codeview/adapters/CodeWithDiffsAdapter.kt) as example of my "best practice" implementation.
