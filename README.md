@@ -27,7 +27,7 @@ allprojects {
 
 Add the dependency:
 ```groovy
-compile 'com.github.softwee:codeview-android:1.1.1'
+compile 'com.github.softwee:codeview-android:1.1.2'
 ```
 
 ## Usage
@@ -171,7 +171,7 @@ Didn't found yours? Please, open issue to show your interest & I try to add this
 ## Contribute
 1. You can add your theme (see [ColorTheme](https://github.com/Softwee/codeview-android/blob/master/codeview/src/main/java/io/github/kbiakov/codeview/highlight/CodeHighlighter.kt) class). Try to add some classic color themes or create your own if it looks cool. You can find many of them in different open-source text editors.<br>
 2. If you are strong in a regex add missed language as shown [here](https://github.com/Softwee/codeview-android/blob/master/codeview/src/main/java/io/github/kbiakov/codeview/highlight/prettify/lang/LangScala.java). You can find existing regex for some language in different sources of js-libraries, etc, which plays the same role.<br>
-3. Various adapters also welcome, many use cases are impossible to cover.
+3. Various adapters also welcome, customization is unlimited.
 
 ## Author
 ### [Kirill Biakov](https://github.com/kbiakov)
