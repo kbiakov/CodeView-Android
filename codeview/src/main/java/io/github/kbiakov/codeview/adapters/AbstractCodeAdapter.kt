@@ -194,7 +194,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
     }
 
     private fun showAllBottomNote() = mContext.getString(R.string.show_all)
-
+    
     private fun monoTypeface() = MonoFontCache.getInstance(mContext).typeface
 
     // - View holder
@@ -229,6 +229,12 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
     }
 
     override fun getItemCount() = mLines.size
+
+    private fun Int.isFirst() = this == 0
+    private fun Int.isLast() = this == itemCount - 1
+    private fun Int.isJustFirst() = isFirst() && !isLast()
+    private fun Int.isJustLast() = isLast() && !isFirst()
+    private fun Int.isBorder() = isFirst() || isLast()
 
     // - Helpers (for view holder)
 
@@ -266,13 +272,10 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
     }
 
     private fun addExtraPadding(position: Int, holder: ViewHolder) {
-        val dp8 = dpToPx(mContext, 8)
-        val isFirst = position == 0
-        val isLast = position == itemCount - 1
-
-        if (isFirst || isLast) {
-            val topPadding = if (isFirst) dp8 else 0
-            val bottomPadding = if (isLast) dp8 else 0
+        if (position.isBorder()) {
+            val dp8 = dpToPx(mContext, 8)
+            val topPadding = if (position.isJustFirst()) dp8 else 0
+            val bottomPadding = if (position.isJustLast()) dp8 else 0
             holder.tvLineNum.setPadding(0, topPadding, 0, bottomPadding)
             holder.tvLineContent.setPadding(0, topPadding, 0, bottomPadding)
         } else {
