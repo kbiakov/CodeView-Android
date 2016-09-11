@@ -10,8 +10,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewPropertyAnimator
 import android.widget.RelativeLayout
-import io.github.kbiakov.codeview.adapters.AbstractCodeAdapter
 import io.github.kbiakov.codeview.Thread.delayed
+import io.github.kbiakov.codeview.adapters.AbstractCodeAdapter
 import io.github.kbiakov.codeview.adapters.CodeWithNotesAdapter
 import io.github.kbiakov.codeview.highlight.ColorTheme
 import io.github.kbiakov.codeview.highlight.ColorThemeData
@@ -294,14 +294,9 @@ class CodeView : RelativeLayout {
 
         val height = linesCount * lineHeight + padding
 
-<<<<<<< HEAD
-        vPlaceholder.layoutParams = RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.MATCH_PARENT, height)
-
-=======
         vPlaceholder.layoutParams = LayoutParams(
                 LayoutParams.MATCH_PARENT, height)
->>>>>>> Softwee/master
+
         vPlaceholder.alpha = 1f
     }
 
@@ -310,13 +305,7 @@ class CodeView : RelativeLayout {
     private fun hidePlaceholder() = vPlaceholder.animate()
             .setDuration(350)
             .alpha(0f)
-<<<<<<< HEAD
             .didAnimated { vPlaceholder.alpha = 0f }
-=======
-            .didAnimated {
-                vPlaceholder.alpha = 0f
-            }
->>>>>>> Softwee/master
 
     private fun refreshAnimated() = animate()
             .setDuration(150)

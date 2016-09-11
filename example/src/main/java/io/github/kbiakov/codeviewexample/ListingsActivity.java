@@ -2,21 +2,16 @@ package io.github.kbiakov.codeviewexample;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-<<<<<<< HEAD
-import io.github.kbiakov.codeview.CodeView;
-import io.github.kbiakov.codeview.OnCodeLineClickListener;
-=======
 import org.jetbrains.annotations.NotNull;
 
-import io.github.kbiakov.codeview.adapters.CodeWithDiffsAdapter;
-import io.github.kbiakov.codeview.adapters.CodeWithNotesAdapter;
->>>>>>> Softwee/master
-import io.github.kbiakov.codeview.highlight.ColorTheme;
 import io.github.kbiakov.codeview.CodeView;
 import io.github.kbiakov.codeview.OnCodeLineClickListener;
+import io.github.kbiakov.codeview.adapters.CodeWithDiffsAdapter;
+import io.github.kbiakov.codeview.highlight.ColorTheme;
 import io.github.kbiakov.codeview.views.DiffModel;
 
 public class ListingsActivity extends AppCompatActivity {
@@ -48,15 +43,7 @@ public class ListingsActivity extends AppCompatActivity {
         codeView.setCodeContent(getString(R.string.listing_java));
         codeView.setColorTheme(ColorTheme.SOLARIZED_LIGHT);
         codeView.highlightCode("java");
-<<<<<<< HEAD
 
-        codeView.setCodeListener(new OnCodeLineClickListener() {
-            @Override
-            public void onCodeLineClicked(int n) {
-                Log.i("example", "Line: " + n);
-            }
-        });
-=======
         codeView.setCodeListener(new OnCodeLineClickListener() {
             @Override
             public void onCodeLineClicked(int n, @NotNull String line) {
@@ -91,6 +78,5 @@ public class ListingsActivity extends AppCompatActivity {
 
         diffsAdapter.addFooterEntity(16, new DiffModel(getString(R.string.py_addition_16), true));
         diffsAdapter.addFooterEntity(11, new DiffModel(getString(R.string.py_deletion_11), false));
->>>>>>> Softwee/master
     }
 }

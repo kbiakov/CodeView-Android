@@ -7,21 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-<<<<<<< HEAD:codeview/src/main/java/io/github/kbiakov/codeview/CodeContentAdapter.kt
-import io.github.kbiakov.codeview.Thread.async
-import io.github.kbiakov.codeview.Thread.ui
-import io.github.kbiakov.codeview.classifier.CodeClassifier
-import io.github.kbiakov.codeview.classifier.CodeProcessor
-import io.github.kbiakov.codeview.highlight.*
-=======
 import io.github.kbiakov.codeview.*
-import io.github.kbiakov.codeview.classifier.CodeProcessor
-import io.github.kbiakov.codeview.highlight.*
 import io.github.kbiakov.codeview.Thread.async
 import io.github.kbiakov.codeview.Thread.ui
 import io.github.kbiakov.codeview.classifier.CodeClassifier
-import io.github.kbiakov.codeview.OnCodeLineClickListener
->>>>>>> Softwee/master:codeview/src/main/java/io/github/kbiakov/codeview/adapters/AbstractCodeAdapter.kt
+import io.github.kbiakov.codeview.classifier.CodeProcessor
+import io.github.kbiakov.codeview.highlight.*
 import java.util.*
 
 /**
@@ -228,11 +219,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         holder.mItem = codeLine
 
         holder.itemView.setOnClickListener {
-<<<<<<< HEAD:codeview/src/main/java/io/github/kbiakov/codeview/CodeContentAdapter.kt
-            codeListener?.onCodeLineClicked(position + 1)
-=======
             codeListener?.onCodeLineClicked(position, codeLine)
->>>>>>> Softwee/master:codeview/src/main/java/io/github/kbiakov/codeview/adapters/AbstractCodeAdapter.kt
         }
 
         setupLine(position, codeLine, holder)
