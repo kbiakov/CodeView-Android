@@ -1,12 +1,12 @@
-package io.github.kbiakov.codeview
+package io.github.kbiakov.codeview.views
 
 import android.content.Context
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.MeasureSpec.makeMeasureSpec
-import android.view.ViewGroup
 import android.widget.HorizontalScrollView
+import io.github.kbiakov.codeview.dpToPx
 
 /**
  * @class BidirectionalScrollView
@@ -77,7 +77,7 @@ class BidirectionalScrollView : HorizontalScrollView {
     override fun measureChildWithMargins(child: View,
                                          parentWidthMeasureSpec: Int, widthUsed: Int,
                                          parentHeightMeasureSpec: Int, heightUsed: Int) {
-        val params = child.layoutParams as ViewGroup.MarginLayoutParams
+        val params = child.layoutParams as MarginLayoutParams
 
         val childWidthMeasureSpec = makeMeasureSpec(
                 params.leftMargin + params.rightMargin, MeasureSpec.UNSPECIFIED)

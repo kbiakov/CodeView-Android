@@ -3,7 +3,6 @@ package io.github.kbiakov.codeview
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.Context
-import android.os.Handler
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
@@ -11,6 +10,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewPropertyAnimator
 import android.widget.RelativeLayout
+import io.github.kbiakov.codeview.adapters.AbstractCodeAdapter
+import io.github.kbiakov.codeview.Thread.delayed
+import io.github.kbiakov.codeview.adapters.CodeWithNotesAdapter
 import io.github.kbiakov.codeview.highlight.ColorTheme
 import io.github.kbiakov.codeview.highlight.ColorThemeData
 import java.util.*
@@ -54,7 +56,15 @@ class CodeView : RelativeLayout {
      * (and awaiting for build) or view was built & code is presented.
      */
     private var state: ViewState
+        set(newState) {
+            if (newState == ViewState.PRESENTED)
+                hidePlaceholder()
+            field = newState
+        }
 
+    /**
+     * Default constructor.
+     */
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         inflater.inflate(R.layout.layout_code_view, this, true)
@@ -68,13 +78,13 @@ class CodeView : RelativeLayout {
         rvCodeContent.layoutManager = LinearLayoutManager(context)
         rvCodeContent.isNestedScrollingEnabled = true
 
-        tasks = LinkedList()
-
         state = ViewState.BUILD
+
+        tasks = LinkedList()
     }
 
     /**
-     * Code view states.
+     * Code view state to control build flow.
      */
     enum class ViewState {
         BUILD,
@@ -83,22 +93,28 @@ class CodeView : RelativeLayout {
     }
 
     /**
-     * Public getter for accessing view state.
-     * It may be useful if code view state is unknown.
-     * If code view was built it is not safe to use operations chaining.
+     * Public getters for checking view state.
+     * May be useful when code view state is unknown.
+     * If view was built it is unsafe to use operations chaining.
+     *
+     * @return Result of state check
      */
-    fun getState() = state
+    fun isBuilding() = state == ViewState.BUILD
+    fun isPrepared() = state == ViewState.PREPARE
+    fun isPresented() = state == ViewState.PRESENTED
 
     /**
      * Accessor/mutator to reduce frequently used actions.
      */
-    var adapter: CodeContentAdapter
+    var adapter: AbstractCodeAdapter<*>
         get() {
-            return rvCodeContent.adapter as CodeContentAdapter
+            return rvCodeContent.adapter as AbstractCodeAdapter<*>
         }
         set(adapter) {
-            rvCodeContent.adapter = adapter
-            state = ViewState.PRESENTED
+            delayed { // prevent UI overhead & initialization inconsistency
+                rvCodeContent.adapter = adapter
+                state = ViewState.PRESENTED
+            }
         }
 
     // - Build processor
@@ -106,6 +122,7 @@ class CodeView : RelativeLayout {
     /**
      * Add task to build queue. Otherwise (for prepared view) performs
      * task delayed or immediately (for built view).
+     *
      * A little part of view builder.
      *
      * @param task Task to process
@@ -115,7 +132,7 @@ class CodeView : RelativeLayout {
             ViewState.BUILD ->
                 tasks.add(task)
             ViewState.PREPARE ->
-                Thread.delayed(task)
+                delayed(body = task)
             ViewState.PRESENTED ->
                 task()
         }
@@ -133,8 +150,8 @@ class CodeView : RelativeLayout {
     // - View builder
 
     /**
-     * Specify color theme: syntax colors (need to highlighting) & related to
-     * code view (numeration color & background, content backgrounds).
+     * Specify color theme: syntax colors (need to highlighting) & related
+     * to code view (numeration color & background, content backgrounds).
      *
      * @param colorTheme Default or custom color theme
      */
@@ -156,7 +173,9 @@ class CodeView : RelativeLayout {
      * @param language Language to highlight
      */
     fun highlightCode(language: String) = addTask {
-        adapter.highlightCode(language)
+        adapter.highlightCode(language) {
+            refreshAnimated()
+        }
     }
 
     /**
@@ -177,6 +196,13 @@ class CodeView : RelativeLayout {
      */
     fun setCodeListener(listener: OnCodeLineClickListener) = addTask {
         adapter.codeListener = listener
+    }
+
+    /**
+     * Remove code listener.
+     */
+    fun removeCodeListener() = addTask {
+        adapter.codeListener = null
     }
 
     /**
@@ -201,7 +227,7 @@ class CodeView : RelativeLayout {
             ViewState.BUILD ->
                 build(content)
             ViewState.PREPARE ->
-                Thread.delayed {
+                delayed {
                     update(content)
                 }
             ViewState.PRESENTED ->
@@ -214,7 +240,7 @@ class CodeView : RelativeLayout {
      *
      * When layout have multiple code views it becomes a very expensive task.
      * Some task proceeds asynchronously, some not, but what is key point:
-     * it should starts delayed a little bit to show necessary UI immediately.
+     * it should be started delayed a little bit to show necessary UI immediately.
      *
      * @param content Code content
      */
@@ -223,8 +249,8 @@ class CodeView : RelativeLayout {
         measurePlaceholder(linesCount)
         state = ViewState.PREPARE
 
-        Thread.delayed {
-            rvCodeContent.adapter = CodeContentAdapter(context, content)
+        delayed {
+            rvCodeContent.adapter = CodeWithNotesAdapter(context, content)
             processBuildTasks()
             setupShadows()
             hidePlaceholder()
@@ -263,14 +289,19 @@ class CodeView : RelativeLayout {
         val lineHeight = dpToPx(context, 24)
         val topPadding = dpToPx(context, 8)
 
-        // double padding (top & bottom) for big view, one is enough for small
+        // double padding (top & bottom), one is enough for single line view
         val padding = (if (linesCount > 1) 2 else 1) * topPadding
 
         val height = linesCount * lineHeight + padding
 
+<<<<<<< HEAD
         vPlaceholder.layoutParams = RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.MATCH_PARENT, height)
 
+=======
+        vPlaceholder.layoutParams = LayoutParams(
+                LayoutParams.MATCH_PARENT, height)
+>>>>>>> Softwee/master
         vPlaceholder.alpha = 1f
     }
 
@@ -279,7 +310,13 @@ class CodeView : RelativeLayout {
     private fun hidePlaceholder() = vPlaceholder.animate()
             .setDuration(350)
             .alpha(0f)
+<<<<<<< HEAD
             .didAnimated { vPlaceholder.alpha = 0f }
+=======
+            .didAnimated {
+                vPlaceholder.alpha = 0f
+            }
+>>>>>>> Softwee/master
 
     private fun refreshAnimated() = animate()
             .setDuration(150)
@@ -294,15 +331,8 @@ class CodeView : RelativeLayout {
  * Provides listener to code line clicks.
  */
 interface OnCodeLineClickListener {
-    fun onCodeLineClicked(n: Int)
+    fun onCodeLineClicked(n: Int, line: String)
 }
-
-/**
- * Extension for delayed block call.
- *
- * @param body Operation body
- */
-fun Thread.delayed(body: () -> Unit) = Handler().postDelayed(body, 150)
 
 /**
  * More readable form for animation listener (hi, iOS & Cocoa Touch!).
