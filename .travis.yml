@@ -1,6 +1,15 @@
 language: android
 
+jdk:
+- oraclejdk8
+
 android:
   components:
-    - tools
-    
+    - tools # to get the new `repository-11.xml`
+    - tools # to install latest Android SDK tools
+    - platform-tools
+    - build-tools-24.0.1
+    - android-24
+  licenses:
+  - android-sdk-license-.+
+  
