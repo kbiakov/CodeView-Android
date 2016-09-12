@@ -1,8 +1,8 @@
 # CodeView (Android)
 
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-codeview--android-green.svg?style=true)](https://android-arsenal.com/details/1/4216)
-[![Release](https://jitpack.io/v/softwee/codeview-android.svg)](https://jitpack.io/#softwee/codeview-android)
 [![Build Status](https://travis-ci.org/Softwee/codeview-android.svg?branch=master)](https://travis-ci.org/Softwee/codeview-android)
+[![Release](https://jitpack.io/v/softwee/codeview-android.svg)](https://jitpack.io/#softwee/codeview-android)
 
 CodeView helps to show code content with syntax highlighting in native way.
 
