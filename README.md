@@ -2,6 +2,7 @@
 
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-codeview--android-green.svg?style=true)](https://android-arsenal.com/details/1/4216)
 [![Release](https://jitpack.io/v/softwee/codeview-android.svg)](https://jitpack.io/#softwee/codeview-android)
+[![Build Status](https://travis-ci.org/Softwee/codeview-android.svg?branch=master)](https://travis-ci.org/Softwee/codeview-android)
 
 CodeView helps to show code content with syntax highlighting in native way.
 
@@ -72,10 +73,14 @@ or eplixit (see available extensions below):
 codeView.highlightCode("js"); // it will work fast!
 ```
 
-Extend default color theme:
+Use default color theme:
 ```java
-int myColor = ContextCompat.getColor(this, R.color.code_content_background);
-codeView.setColorTheme(ColorTheme.SOLARIZED_LIGHT.withBgContent(myColor));
+codeView.setColorTheme(ColorTheme.SOLARIZED_LIGHT);
+```
+or extend default:
+```java
+int myColor = ContextCompat.getColor(this, R.color.my_color);
+codeView.setColorTheme(ColorTheme.MONOKAI.withBgContent(myColor));
 ```
 or provide your own (don't forget to open PR with this stuff!)
 ```java
@@ -102,7 +107,7 @@ Sometimes you may want to add some content under line. You can create your own i
 
 1. Create your model to store data, for example some ```MyModel``` class.<br>
 2. Extend ```AbstractCodeAdapter<MyModel>``` typed by your model class.<br>
-3. Implement necessary methods in obtained ```MyCodeAdapter<MyModel>```:
+3. Implement necessary methods in obtained ```MyCodeAdapter```:
 ```kotlin
 // Kotlin
 class MyCodeAdapter : AbstractCodeAdapter<MyModel> {
@@ -123,7 +128,7 @@ public class MyCodeAdapter extends AbstractCodeAdapter<MyModel> {
     @NotNull
     @Override
     public View createFooter(@NotNull Context context, CustomModel entity, boolean isFirst) {
-        return /* init your view here */;
+        return /* your initialized view here */;
     }
 }
 ```
