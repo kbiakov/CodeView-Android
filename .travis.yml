@@ -3,5 +3,5 @@ language: android
 android:
   components:
     - build-tools-24.0.1
-    - android-15
+    - android-24
     
