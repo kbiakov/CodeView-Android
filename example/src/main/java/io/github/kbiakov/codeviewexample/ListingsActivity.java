@@ -30,9 +30,9 @@ public class ListingsActivity extends AppCompatActivity {
          */
 
         // use chaining to build view with default adapter
-        codeView.highlightCode("js")
-                .setColorTheme(ColorTheme.DEFAULT.withBgContent(myColor))
-                .setCodeContent(getString(R.string.listing_js));
+        codeView.colorTheme(ColorTheme.DEFAULT.withBgContent(myColor))
+                .codeContent(getString(R.string.listing_js))
+                .highlight("js");
 
         /**
          * 2: updating built view
@@ -40,11 +40,11 @@ public class ListingsActivity extends AppCompatActivity {
 
         // do not use chaining for built view
         // (you can, but it should be performed sequentially)
-        codeView.setCodeContent(getString(R.string.listing_java));
-        codeView.setColorTheme(ColorTheme.SOLARIZED_LIGHT);
-        codeView.highlightCode("java");
+        codeView.codeContent(getString(R.string.listing_java))
+                .colorTheme(ColorTheme.SOLARIZED_LIGHT)
+                .highlight("java");
 
-        codeView.setCodeListener(new OnCodeLineClickListener() {
+        codeView.codeListener(new OnCodeLineClickListener() {
             @Override
             public void onCodeLineClicked(int n, @NotNull String line) {
                 Log.i("ListingsActivity", "On " + (n + 1) + " line clicked");
@@ -58,22 +58,23 @@ public class ListingsActivity extends AppCompatActivity {
         final CustomAdapter adapter = new CustomAdapter(this, getString(R.string.listing_md));
 
         codeView.setAdapter(adapter);
-        codeView.setColorTheme(ColorTheme.MONOKAI);
-        codeView.highlightCode("md");
-        codeView.setCodeListener(new OnCodeLineClickListener() {
-            @Override
-            public void onCodeLineClicked(int n, @NotNull String line) {
-                adapter.addFooterEntity(n, new CustomAdapter.CustomModel("Line " + (n + 1), line));
-            }
-        });
+        codeView.colorTheme(ColorTheme.MONOKAI)
+                .codeListener(new OnCodeLineClickListener() {
+                    @Override
+                    public void onCodeLineClicked(int n, @NotNull String line) {
+                        adapter.addFooterEntity(n, new CustomAdapter.CustomModel("Line " + (n + 1), line));
+                    }
+                })
+                .highlight("md");
 
         /**
          * 4: diff adapter with footer views
          */
 
-        final CodeWithDiffsAdapter diffsAdapter = new CodeWithDiffsAdapter(this, getString(R.string.listing_py));
+        final CodeWithDiffsAdapter diffsAdapter = new CodeWithDiffsAdapter(this, getString(R.string.listing_py),
+                ColorTheme.SOLARIZED_LIGHT.theme());
         codeView.setAdapter(diffsAdapter);
-        codeView.highlightCode("python");
+        codeView.highlight("python");
         codeView.removeCodeListener();
 
         diffsAdapter.addFooterEntity(16, new DiffModel(getString(R.string.py_addition_16), true));

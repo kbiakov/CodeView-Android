@@ -12,7 +12,10 @@ import io.github.kbiakov.codeview.Thread.async
 import io.github.kbiakov.codeview.Thread.ui
 import io.github.kbiakov.codeview.classifier.CodeClassifier
 import io.github.kbiakov.codeview.classifier.CodeProcessor
-import io.github.kbiakov.codeview.highlight.*
+import io.github.kbiakov.codeview.highlight.CodeHighlighter
+import io.github.kbiakov.codeview.highlight.ColorThemeData
+import io.github.kbiakov.codeview.highlight.MonoFontCache
+import io.github.kbiakov.codeview.highlight.color
 import java.util.*
 
 /**
@@ -30,27 +33,23 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
     private val mMaxLines: Int
     private var mDroppedLines: List<String>?
 
+    protected var colorTheme: ColorThemeData
+
     internal var isFullShowing: Boolean
 
     internal var codeListener: OnCodeLineClickListener?
 
-    internal var colorTheme: ColorThemeData
-        set(colorTheme) {
-            field = colorTheme
-            notifyDataSetChanged()
-        }
+
 
     internal var footerEntities: HashMap<Int, List<T>>
         set(footerEntities) {
             field = footerEntities
-            notifyDataSetChanged()
         }
 
     init {
         mLines = ArrayList()
         mDroppedLines = null
         isFullShowing = true
-        colorTheme = ColorTheme.SOLARIZED_LIGHT.with()
         footerEntities = HashMap()
     }
 
@@ -66,6 +65,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
      */
     constructor(context: Context,
                 content: String,
+                theme: ColorThemeData,
                 isShowFull: Boolean = true,
                 maxLines: Int = MAX_SHORTCUT_LINES,
                 shortcutNote: String = context.getString(R.string.show_all),
@@ -74,6 +74,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         mContent = content
         mMaxLines = maxLines
         codeListener = listener
+        colorTheme = theme
 
         if (isShowFull) {
             isFullShowing = true
@@ -124,7 +125,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
     fun addFooterEntity(num: Int, entity: T) {
         val notes = footerEntities[num] ?: ArrayList()
         footerEntities.put(num, notes + entity)
-        notifyDataSetChanged()
+        notifyDataSetChanged()//todo: replace with notifyItemInserted()
     }
 
     /**
@@ -133,7 +134,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
      * @param onReady Callback when content is highlighted
      * @param language Programming language to highlight
      */
-    fun highlightCode(language: String? = null, onReady: () -> Unit) {
+    fun highlight(language: String? = null, onReady: () -> Unit) {
         async() {
             val classifiedLanguage = language ?: classifyContent()
             highlighting(classifiedLanguage, onReady)
@@ -193,7 +194,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
     }
 
     private fun showAllBottomNote() = mContext.getString(R.string.show_all)
-    
+
     private fun monoTypeface() = MonoFontCache.getInstance(mContext).typeface
 
     // - View holder
@@ -211,15 +212,19 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         val tvLineContent = lineView.findViewById(R.id.tv_line_content) as TextView
         tvLineContent.typeface = monoTypeface()
 
-        return ViewHolder(lineView)
+        val holder = ViewHolder(lineView)
+        holder.setIsRecyclable(false)
+        return holder
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val codeLine = mLines[position]
         holder.mItem = codeLine
 
-        holder.itemView.setOnClickListener {
-            codeListener?.onCodeLineClicked(position, codeLine)
+        if (codeListener != null) {
+            holder.itemView.setOnClickListener {
+                codeListener?.onCodeLineClicked(position, codeLine)
+            }
         }
 
         setupLine(position, codeLine, holder)

@@ -41,6 +41,15 @@ class CodeView : RelativeLayout {
     private val vShadowBottomLine: View
     private val vShadowBottomContent: View
 
+    internal var colorTheme: ColorThemeData
+        set(colorTheme) {
+            field = colorTheme
+        }
+
+    init {
+        colorTheme = ColorTheme.SOLARIZED_LIGHT.with()
+    }
+
     /**
      * Core view to draw code by lines.
      */
@@ -57,8 +66,9 @@ class CodeView : RelativeLayout {
      */
     private var state: ViewState
         set(newState) {
-            if (newState == ViewState.PRESENTED)
+            if (newState == ViewState.PRESENTED) {
                 hidePlaceholder()
+            }
             field = newState
         }
 
@@ -86,6 +96,8 @@ class CodeView : RelativeLayout {
     /**
      * Code view state to control build flow.
      */
+    //todo: remove states and tasks
+    //todo: or sort task positions (first we need to set adapter, then other actions and call highlight task on finish)
     enum class ViewState {
         BUILD,
         PREPARE,
@@ -100,19 +112,20 @@ class CodeView : RelativeLayout {
      * @return Result of state check
      */
     fun isBuilding() = state == ViewState.BUILD
+
     fun isPrepared() = state == ViewState.PREPARE
     fun isPresented() = state == ViewState.PRESENTED
 
     /**
      * Accessor/mutator to reduce frequently used actions.
      */
-    var adapter: AbstractCodeAdapter<*>
+    var adapter: AbstractCodeAdapter<*>?
         get() {
             return rvCodeContent.adapter as AbstractCodeAdapter<*>
         }
         set(adapter) {
+            rvCodeContent.adapter = adapter
             delayed { // prevent UI overhead & initialization inconsistency
-                rvCodeContent.adapter = adapter
                 state = ViewState.PRESENTED
             }
         }
@@ -157,13 +170,15 @@ class CodeView : RelativeLayout {
      */
 
     // default color theme provided by enum
-    fun setColorTheme(colorTheme: ColorTheme) = addTask {
-        adapter.colorTheme = colorTheme.with()
+    fun colorTheme(colorTheme: ColorTheme): CodeView {
+        this.colorTheme = colorTheme.with()
+        return this
     }
 
     // custom color theme provided by user
-    fun setColorTheme(colorTheme: ColorThemeData) = addTask {
-        adapter.colorTheme = colorTheme
+    fun colorTheme(colorTheme: ColorThemeData): CodeView {
+        this.colorTheme = colorTheme
+        return this
     }
 
     /**
@@ -172,19 +187,19 @@ class CodeView : RelativeLayout {
      *
      * @param language Language to highlight
      */
-    fun highlightCode(language: String) = addTask {
-        adapter.highlightCode(language) {
-            refreshAnimated()
+    fun highlight(language: String? = null) {
+        if (adapter == null) {
+            throw IllegalStateException("Please set adapter or use codeContent() before highlight()")
         }
-    }
 
-    /**
-     * Highlight code with trying to classify by code snippet.
-     * It shows not highlighted code & then when classified refreshes view.
-     */
-    fun highlightCode() = addTask {
-        adapter.highlightCode {
-            refreshAnimated()
+        adapter?.highlight(language) {
+            animate().setDuration(Utils.DELAY * 2)// * 2 to wait notifyDataSetChanged
+                    .alpha(.1f)
+
+            delayed {
+                animate().alpha(1f)
+                adapter?.notifyDataSetChanged()
+            }
         }
     }
 
@@ -194,15 +209,24 @@ class CodeView : RelativeLayout {
      *
      * @param listener Code line click listener
      */
-    fun setCodeListener(listener: OnCodeLineClickListener) = addTask {
-        adapter.codeListener = listener
+    fun codeListener(listener: OnCodeLineClickListener): CodeView {
+        if (adapter == null) {
+            throw IllegalStateException("Please set adapter or use codeContent() before highlight()")
+        }
+
+        adapter?.codeListener = listener
+        return this
     }
 
     /**
      * Remove code listener.
      */
     fun removeCodeListener() = addTask {
-        adapter.codeListener = null
+        if (adapter == null) {
+            throw IllegalStateException("Please set adapter or use codeContent() before highlight()")
+        }
+
+        adapter?.codeListener = null
     }
 
     /**
@@ -222,7 +246,7 @@ class CodeView : RelativeLayout {
      *
      * @param content Code content
      */
-    fun setCodeContent(content: String) {
+    fun codeContent(content: String): CodeView {
         when (state) {
             ViewState.BUILD ->
                 build(content)
@@ -233,6 +257,8 @@ class CodeView : RelativeLayout {
             ViewState.PRESENTED ->
                 update(content)
         }
+
+        return this
     }
 
     /**
@@ -249,8 +275,9 @@ class CodeView : RelativeLayout {
         measurePlaceholder(linesCount)
         state = ViewState.PREPARE
 
+        rvCodeContent.adapter = CodeWithNotesAdapter(context, content, colorTheme)
+
         delayed {
-            rvCodeContent.adapter = CodeWithNotesAdapter(context, content)
             processBuildTasks()
             setupShadows()
             hidePlaceholder()
@@ -266,7 +293,7 @@ class CodeView : RelativeLayout {
     private fun update(content: String) {
         state = ViewState.PREPARE
         measurePlaceholder(extractLines(content).size)
-        adapter.updateCodeContent(content)
+        adapter?.updateCodeContent(content)
         hidePlaceholder()
         state = ViewState.PRESENTED
     }
@@ -277,7 +304,7 @@ class CodeView : RelativeLayout {
      * Border shadows will shown if presented full code listing.
      * It helps user to see what part of content are scrolled & hidden.
      */
-    private fun setupShadows() = setShadowsVisible(!adapter.isFullShowing)
+    private fun setupShadows() = setShadowsVisible(!adapter?.isFullShowing!!)
 
     /**
      * Placeholder fills space at start and stretched to marked up view size
@@ -287,15 +314,11 @@ class CodeView : RelativeLayout {
      */
     private fun measurePlaceholder(linesCount: Int) {
         val lineHeight = dpToPx(context, 24)
-        val topPadding = dpToPx(context, 8)
+        val verticalPadding = dpToPx(context, 8)
 
-        // double padding (top & bottom), one is enough for single line view
-        val padding = (if (linesCount > 1) 2 else 1) * topPadding
+        val height = linesCount * lineHeight + verticalPadding
 
-        val height = linesCount * lineHeight + padding
-
-        vPlaceholder.layoutParams = LayoutParams(
-                LayoutParams.MATCH_PARENT, height)
+        vPlaceholder.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, height)
 
         vPlaceholder.alpha = 1f
     }
@@ -306,14 +329,6 @@ class CodeView : RelativeLayout {
             .setDuration(350)
             .alpha(0f)
             .didAnimated { vPlaceholder.alpha = 0f }
-
-    private fun refreshAnimated() = animate()
-            .setDuration(150)
-            .alpha(.2f)
-            .didAnimated {
-                adapter.notifyDataSetChanged()
-                animate().alpha(1f)
-            }
 }
 
 /**

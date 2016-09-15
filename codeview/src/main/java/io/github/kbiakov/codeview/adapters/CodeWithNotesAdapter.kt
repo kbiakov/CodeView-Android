@@ -1,6 +1,7 @@
 package io.github.kbiakov.codeview.adapters
 
 import android.content.Context
+import io.github.kbiakov.codeview.highlight.ColorThemeData
 import io.github.kbiakov.codeview.highlight.color
 import io.github.kbiakov.codeview.views.LineNoteView
 
@@ -15,7 +16,7 @@ class CodeWithNotesAdapter : AbstractCodeAdapter<String> {
     /**
      * Default constructor.
      */
-    constructor(context: Context, content: String) : super(context, content)
+    constructor(context: Context, content: String, colorTheme: ColorThemeData) : super(context, content, colorTheme)
 
     /**
      * Create footer view.
