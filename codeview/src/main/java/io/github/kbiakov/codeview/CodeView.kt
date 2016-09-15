@@ -172,12 +172,18 @@ class CodeView : RelativeLayout {
     // default color theme provided by enum
     fun colorTheme(colorTheme: ColorTheme): CodeView {
         this.colorTheme = colorTheme.with()
+        if (rvCodeContent.adapter != null) {
+            adapter?.colorTheme = this.colorTheme
+        }
         return this
     }
 
     // custom color theme provided by user
     fun colorTheme(colorTheme: ColorThemeData): CodeView {
         this.colorTheme = colorTheme
+        if (rvCodeContent.adapter != null) {
+            adapter?.colorTheme = this.colorTheme
+        }
         return this
     }
 
@@ -210,7 +216,7 @@ class CodeView : RelativeLayout {
      * @param listener Code line click listener
      */
     fun codeListener(listener: OnCodeLineClickListener): CodeView {
-        if (adapter == null) {
+        if (adapter == null) {//todo: move code listener to CodeView like codeTheme
             throw IllegalStateException("Please set adapter or use codeContent() before highlight()")
         }
 
@@ -221,12 +227,13 @@ class CodeView : RelativeLayout {
     /**
      * Remove code listener.
      */
-    fun removeCodeListener() = addTask {
-        if (adapter == null) {
+    fun removeCodeListener(): CodeView {
+        if (adapter == null) {//todo: move code listener to CodeView like codeTheme
             throw IllegalStateException("Please set adapter or use codeContent() before highlight()")
         }
 
         adapter?.codeListener = null
+        return this
     }
 
     /**
@@ -234,11 +241,13 @@ class CodeView : RelativeLayout {
      *
      * @param isVisible Shadows visibility
      */
-    fun setShadowsVisible(isVisible: Boolean = true) = addTask {
+    fun setShadowsVisible(isVisible: Boolean = true): CodeView {
         val visibility = if (isVisible) VISIBLE else GONE
         vShadowRight.visibility = visibility
         vShadowBottomLine.visibility = visibility
         vShadowBottomContent.visibility = visibility
+
+        return this
     }
 
     /**

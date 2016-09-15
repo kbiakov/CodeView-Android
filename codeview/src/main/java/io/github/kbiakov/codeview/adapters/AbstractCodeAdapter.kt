@@ -33,7 +33,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
     private val mMaxLines: Int
     private var mDroppedLines: List<String>?
 
-    protected var colorTheme: ColorThemeData
+    internal var colorTheme: ColorThemeData
 
     internal var isFullShowing: Boolean
 
