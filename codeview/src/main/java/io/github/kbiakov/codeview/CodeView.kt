@@ -121,7 +121,7 @@ class CodeView : RelativeLayout {
      */
     var adapter: AbstractCodeAdapter<*>?
         get() {
-            return rvCodeContent.adapter as AbstractCodeAdapter<*>
+            return rvCodeContent.adapter as? AbstractCodeAdapter<*>
         }
         set(adapter) {
             rvCodeContent.adapter = adapter
@@ -172,18 +172,16 @@ class CodeView : RelativeLayout {
     // default color theme provided by enum
     fun colorTheme(colorTheme: ColorTheme): CodeView {
         this.colorTheme = colorTheme.with()
-        if (rvCodeContent.adapter != null) {
-            adapter?.colorTheme = this.colorTheme
-        }
+        adapter?.colorTheme = this.colorTheme
+
         return this
     }
 
     // custom color theme provided by user
     fun colorTheme(colorTheme: ColorThemeData): CodeView {
         this.colorTheme = colorTheme
-        if (rvCodeContent.adapter != null) {
-            adapter?.colorTheme = this.colorTheme
-        }
+        adapter?.colorTheme = this.colorTheme
+
         return this
     }
 
