@@ -27,7 +27,7 @@ allprojects {
 
 Add the dependency:
 ```groovy
-compile 'com.github.softwee:codeview-android:1.1.2'
+compile 'com.github.e16din:codeview-android:1.2.0'
 ```
 
 ## Usage
@@ -49,42 +49,44 @@ Use chaining syntax when build view:
 ```java
 CodeView codeView = (CodeView) findViewById(R.id.code_view);
 
-codeView.highlightCode("js")
-        .setColorTheme(ColorTheme.SOLARIZED_LIGHT.withBgContent(myColor))
-        .setCodeContent(getString(R.string.listing_js));
+codeView.colorTheme(ColorTheme.SOLARIZED_LIGHT.withBgContent(myColor))
+        .codeContent(getString(R.string.listing_js))
+        .highlight("js");
 ```
 
 And perform actions sequentially when view built:
 ```java
-codeView.setCodeContent(getString(R.string.listing_java));
-codeView.highlightCode("java");
+codeView.codeContent(getString(R.string.listing_java));
+codeView.highlight("java");
 ```
 
-You can use both forms for build & built view, but note: ```setCodeContent(String)``` is final step when you build your view, otherwise not. If you firstly highlight and then set code content, code will not be highlighted if view was not built yet. Instructions above helps you to avoid errors. View has state to handle this behavior.
+Please firstly set adapter or use codeView.codeContent(). 
+And finally you must call highlight() to process highlighting once.
+
 
 ## Customizing
 Use implicit form to code highlighting:
 ```java
-codeView.highlightCode();
+codeView.highlight();
 ```
 or eplixit (see available extensions below):
 ```java
-codeView.highlightCode("js"); // it will work fast!
+codeView.highlight("js"); // it will work fast!
 ```
 
 Extend default color theme:
 ```java
 int myColor = ContextCompat.getColor(this, R.color.code_content_background);
-codeView.setColorTheme(ColorTheme.SOLARIZED_LIGHT.withBgContent(myColor));
+codeView.colorTheme(ColorTheme.SOLARIZED_LIGHT.withBgContent(myColor));
 ```
 or provide your own (don't forget to open PR with this stuff!)
 ```java
-codeView.setColorTheme(new ColorThemeData(new SyntaxColors(...), ...));
+codeView.colorTheme(new ColorThemeData(new SyntaxColors(...), ...));
 ```
 
 Handle user clicks on code lines:
 ```java
-codeView.setCodeListener(new OnCodeLineClickListener() {
+codeView.codeListener(new OnCodeLineClickListener() {
     @Override
     public void onCodeLineClicked(int n, @NotNull String line) {
         Log.i("ListingsActivity", "On " + (n + 1) + " line clicked");
@@ -106,7 +108,7 @@ Sometimes you may want to add some content under line. You can create your own i
 ```kotlin
 // Kotlin
 class MyCodeAdapter : AbstractCodeAdapter<MyModel> {
-    constructor(context: Context, content: String) : super(context, content)
+    constructor(context: Context, content: String, colorTheme: ColorThemeData) : super(context, content, colorTheme)
 
     override fun createFooter(context: Context, entity: MyModel, isFirst: Boolean) =
         /* init & return your view here */
@@ -115,9 +117,9 @@ class MyCodeAdapter : AbstractCodeAdapter<MyModel> {
 ```java
 // Java
 public class MyCodeAdapter extends AbstractCodeAdapter<MyModel> {
-    public CustomAdapter(@NotNull Context context, @NotNull String content) {
+    public CustomAdapter(@NotNull Context context, @NotNull String content, @NotNull ColorThemeData colorTheme) {
     	// @see params in AbstractCodeAdapter
-        super(context, content, true, 10, context.getString(R.string.show_all), null);
+        super(context, content, colorTheme, true, 10, context.getString(R.string.show_all), null);
     }
 
     @NotNull
@@ -130,7 +132,7 @@ public class MyCodeAdapter extends AbstractCodeAdapter<MyModel> {
 <br>
 4. Set custom adapter to your code view:
 ```java
-final MyCodeAdapter adapter = new MyCodeAdapter(this, getString(R.string.listing_py));
+final MyCodeAdapter adapter = new MyCodeAdapter(this, getString(R.string.listing_py), ColorTheme.SOLARIZED_LIGHT.theme());
 codeView.setAdapter(diffsAdapter);
 ```
 <br>
