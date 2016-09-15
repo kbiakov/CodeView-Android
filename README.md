@@ -1,7 +1,7 @@
 # CodeView (Android)
 
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-codeview--android-green.svg?style=true)](https://android-arsenal.com/details/1/4216)
-[![Release](https://jitpack.io/v/e16din/codeview-android.svg)](https://jitpack.io/#e16din/codeview-android)
+[![Release](https://jitpack.io/v/softwee/codeview-android.svg)](https://jitpack.io/#softwee/codeview-android)
 
 CodeView helps to show code content with syntax highlighting in native way.
 
@@ -27,7 +27,7 @@ allprojects {
 
 Add the dependency:
 ```groovy
-compile 'com.github.e16din:codeview-android:1.2.0'
+compile 'com.github.softwee:codeview-android:1.2.0'
 ```
 
 ## Usage
@@ -61,7 +61,7 @@ codeView.highlight("java");
 ```
 
 Please firstly set adapter or use codeView.codeContent(). 
-And finally you must call highlight() to process highlighting once.
+And finally you must call highlight() to process highlighting.
 
 
 ## Customizing
