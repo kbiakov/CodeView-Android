@@ -27,7 +27,7 @@ allprojects {
 
 Add the dependency:
 ```groovy
-compile 'com.github.softwee:codeview-android:1.2.0'
+compile 'com.github.softwee:codeview-android:1.3.0'
 ```
 
 ## Usage
@@ -42,73 +42,81 @@ Add view for your layout:
 <io.github.kbiakov.codeview.CodeView
 	android:id="@+id/code_view"
 	android:layout_width="wrap_content"
-	android:layout_height="wrap_content"/>
+	android:layout_height="wrap_content"
+	app:animateOnStart="true" />
 ```
 
 Use chaining syntax when build view:
 ```java
 CodeView codeView = (CodeView) findViewById(R.id.code_view);
 
-codeView.colorTheme(ColorTheme.SOLARIZED_LIGHT.withBgContent(myColor))
-        .codeContent(getString(R.string.listing_js))
-        .highlight("js");
+new Highlighter(this)
+        .theme(ColorTheme.SOLARIZED_LIGHT.withBgContent(myColor))
+        .code(R.string.listing_js)
+        .language("js")
+        .highlight(codeView);
 ```
-
-And perform actions sequentially when view built:
+or
 ```java
-codeView.codeContent(getString(R.string.listing_java));
-codeView.highlight("java");
+Highlighter h = new Highlighter(this)
+        .code(R.string.listing_java)
+        .shortcut(true)
+        .maxLines(10)
+        .shortcutNote("Show all")
+        .language("java");
+
+codeView.init(h);
 ```
 
-Please firstly set adapter or use codeView.codeContent(). 
-And finally you must call highlight() to process highlighting.
-
+Use CodeView.init() or use Highlighter.highlight(codeView) to init adapter and start highlighting.
 
 ## Customizing
-Use implicit form to code highlighting:
 ```java
-codeView.highlight();
-```
-or eplixit (see available extensions below):
-```java
-codeView.highlight("js"); // it will work fast!
+.language("js") // it will work fast!
+.code(content)
+.theme(ColorTheme.DEFAULT)
+.shortcut(true)
+.maxLines(6)
+.shortcutNote("Show All")
+.lineClickListener(new OnCodeLineClickListener(){})
+.shadows(true)
 ```
 
 Extend default color theme:
 ```java
 int myColor = ContextCompat.getColor(this, R.color.code_content_background);
-codeView.colorTheme(ColorTheme.SOLARIZED_LIGHT.withBgContent(myColor));
+.theme(ColorTheme.SOLARIZED_LIGHT.withBgContent(myColor));
 ```
 or provide your own (don't forget to open PR with this stuff!)
 ```java
-codeView.colorTheme(new ColorThemeData(new SyntaxColors(...), ...));
+.theme(new ColorThemeData(new SyntaxColors(...), ...));
 ```
 
 Handle user clicks on code lines:
 ```java
-codeView.codeListener(new OnCodeLineClickListener() {
+.lineClickListener(new OnCodeLineClickListener() {
     @Override
-    public void onCodeLineClicked(int n, @NotNull String line) {
+    public void onLineClicked(int n, @NotNull String line) {
         Log.i("ListingsActivity", "On " + (n + 1) + " line clicked");
     }
 });
 ```
 
-Enable shadows to hide scrolled content:
+Enable shadows to hide scrolled code:
 ```java
-codeView.setShadowsEnabled(true);
+.shadows(true);
 ```
 
 ## Adapter customization
 Sometimes you may want to add some content under line. You can create your own implementation as follows:
 
 1. Create your model to store data, for example some ```MyModel``` class.<br>
-2. Extend ```AbstractCodeAdapter<MyModel>``` typed by your model class.<br>
+2. Extend ```CodeAdapter<MyModel>``` typed by your model class.<br>
 3. Implement necessary methods in obtained ```MyCodeAdapter<MyModel>```:
 ```kotlin
 // Kotlin
-class MyCodeAdapter : AbstractCodeAdapter<MyModel> {
-    constructor(context: Context, content: String, colorTheme: ColorThemeData) : super(context, content, colorTheme)
+class MyCodeAdapter : CodeAdapter<MyModel> {
+    constructor(context: Context, code: String, theme: ColorThemeData) : super(context, code, theme)
 
     override fun createFooter(context: Context, entity: MyModel, isFirst: Boolean) =
         /* init & return your view here */
@@ -116,10 +124,10 @@ class MyCodeAdapter : AbstractCodeAdapter<MyModel> {
 ```
 ```java
 // Java
-public class MyCodeAdapter extends AbstractCodeAdapter<MyModel> {
-    public CustomAdapter(@NotNull Context context, @NotNull String content, @NotNull ColorThemeData colorTheme) {
-    	// @see params in AbstractCodeAdapter
-        super(context, content, colorTheme, true, 10, context.getString(R.string.show_all), null);
+public class MyCodeAdapter extends CodeAdapter<MyModel> {
+    public CustomAdapter(@NotNull Context context, @NotNull String code, @NotNull ColorThemeData theme) {
+    	// @see params in CodeAdapter
+        super(context, code, theme, true, 10, context.getString(R.string.show_all), null);
     }
 
     @NotNull
@@ -133,7 +141,7 @@ public class MyCodeAdapter extends AbstractCodeAdapter<MyModel> {
 4. Set custom adapter to your code view:
 ```java
 final MyCodeAdapter adapter = new MyCodeAdapter(this, getString(R.string.listing_py), ColorTheme.SOLARIZED_LIGHT.theme());
-codeView.setAdapter(diffsAdapter);
+codeView.init(diffsAdapter);
 ```
 <br>
 5. Init footer entities to provide mapper from your view to model:
@@ -146,7 +154,7 @@ adapter.addFooterEntity(11, new MyModel(getString(R.string.py_deletion_11), fals
 <br>
 6. You can also add a multiple diff entities:
 ```java
-AbstractCodeAdapter<MyModel>.addFooterEntities(HashMap<Int, List<MyModel>> myEntities)
+CodeAdapter<MyModel>.addFooterEntities(HashMap<Int, List<MyModel>> myEntities)
 ```
 Here you must provide a map from code line numbers (started from 0) to list of line entities. It will be mapped by adapter to specified footer views.
 <br>

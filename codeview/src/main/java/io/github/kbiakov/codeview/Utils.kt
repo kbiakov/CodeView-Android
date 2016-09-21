@@ -85,12 +85,6 @@ object Thread {
 
     // - Extensions for block manipulations
 
-    fun (() -> Unit).async(isAsync: Boolean = true) {
-        if (isAsync) async() {
-            this()
-        } else this()
-    }
-
     fun (() -> Unit).ui(isUi: Boolean = true) {
         if (isUi) ui {
             this()
