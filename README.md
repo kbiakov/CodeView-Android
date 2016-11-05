@@ -2,6 +2,7 @@
 
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-codeview--android-green.svg?style=true)](https://android-arsenal.com/details/1/4216)
 [![Release](https://jitpack.io/v/softwee/codeview-android.svg)](https://jitpack.io/#softwee/codeview-android)
+[![Build Status](https://travis-ci.org/Softwee/codeview-android.svg?branch=master)](https://travis-ci.org/Softwee/codeview-android)
 
 CodeView helps to show code content with syntax highlighting in native way.
 
@@ -27,7 +28,7 @@ allprojects {
 
 Add the dependency:
 ```groovy
-compile 'com.github.softwee:codeview-android:1.3.0'
+compile 'com.github.softwee:codeview-android:1.1.2'
 ```
 
 ## Usage
@@ -42,81 +43,75 @@ Add view for your layout:
 <io.github.kbiakov.codeview.CodeView
 	android:id="@+id/code_view"
 	android:layout_width="wrap_content"
-	android:layout_height="wrap_content"
-	app:animateOnStart="true" />
+	android:layout_height="wrap_content"/>
 ```
 
 Use chaining syntax when build view:
 ```java
 CodeView codeView = (CodeView) findViewById(R.id.code_view);
 
-new Highlighter(this)
-        .theme(ColorTheme.SOLARIZED_LIGHT.withBgContent(myColor))
-        .code(R.string.listing_js)
-        .language("js")
-        .highlight(codeView);
+codeView.highlightCode("js")
+        .setColorTheme(ColorTheme.SOLARIZED_LIGHT.withBgContent(myColor))
+        .setCodeContent(getString(R.string.listing_js));
 ```
-or
+
+And perform actions sequentially when view built:
 ```java
-Highlighter h = new Highlighter(this)
-        .code(R.string.listing_java)
-        .shortcut(true)
-        .maxLines(10)
-        .shortcutNote("Show all")
-        .language("java");
-
-codeView.init(h);
+codeView.setCodeContent(getString(R.string.listing_java));
+codeView.highlightCode("java");
 ```
 
-Use CodeView.init() or use Highlighter.highlight(codeView) to init adapter and start highlighting.
+You can use both forms for build & built view, but note: ```setCodeContent(String)``` is final step when you build your view, otherwise not. If you firstly highlight and then set code content, code will not be highlighted if view was not built yet. Instructions above helps you to avoid errors. View has state to handle this behavior.
 
 ## Customizing
+Use implicit form to code highlighting:
 ```java
-.language("js") // it will work fast!
-.code(content)
-.theme(ColorTheme.DEFAULT)
-.shortcut(true)
-.maxLines(6)
-.shortcutNote("Show All")
-.lineClickListener(new OnCodeLineClickListener(){})
-.shadows(true)
+codeView.highlightCode();
+```
+or eplixit (see available extensions below):
+```java
+codeView.highlightCode("js"); // it will work fast!
 ```
 
-Extend default color theme:
+Use default color theme:
 ```java
-int myColor = ContextCompat.getColor(this, R.color.code_content_background);
-.theme(ColorTheme.SOLARIZED_LIGHT.withBgContent(myColor));
+codeView.setColorTheme(ColorTheme.SOLARIZED_LIGHT);
+```
+or extend default:
+```java
+int myColor = ContextCompat.getColor(this, R.color.my_color);
+codeView.setColorTheme(ColorTheme.MONOKAI.withBgContent(myColor));
 ```
 or provide your own (don't forget to open PR with this stuff!)
 ```java
-.theme(new ColorThemeData(new SyntaxColors(...), ...));
+codeView.setColorTheme(new ColorThemeData(new SyntaxColors(...), ...));
 ```
 
 Handle user clicks on code lines:
 ```java
-.lineClickListener(new OnCodeLineClickListener() {
+codeView.setCodeListener(new OnCodeLineClickListener() {
     @Override
-    public void onLineClicked(int n, @NotNull String line) {
+    public void onCodeLineClicked(int n, @NotNull String line) {
         Log.i("ListingsActivity", "On " + (n + 1) + " line clicked");
     }
 });
 ```
 
-Enable shadows to hide scrolled code:
+Enable shadows to hide scrolled content:
 ```java
-.shadows(true);
+codeView.setShadowsEnabled(true);
 ```
 
 ## Adapter customization
 Sometimes you may want to add some content under line. You can create your own implementation as follows:
 
 1. Create your model to store data, for example some ```MyModel``` class.<br>
-2. Extend ```CodeAdapter<MyModel>``` typed by your model class.<br>
-3. Implement necessary methods in obtained ```MyCodeAdapter<MyModel>```:
+2. Extend ```AbstractCodeAdapter<MyModel>``` typed by your model class.<br>
+3. Implement necessary methods in obtained ```MyCodeAdapter```:
 ```kotlin
 // Kotlin
-class MyCodeAdapter : CodeAdapter<MyModel> {
-    constructor(context: Context, code: String, theme: ColorThemeData) : super(context, code, theme)
+class MyCodeAdapter : AbstractCodeAdapter<MyModel> {
+    constructor(context: Context, content: String) : super(context, content)
 
     override fun createFooter(context: Context, entity: MyModel, isFirst: Boolean) =
         /* init & return your view here */
@@ -124,24 +119,24 @@ class MyCodeAdapter : CodeAdapter<MyModel> {
 ```
 ```java
 // Java
-public class MyCodeAdapter extends CodeAdapter<MyModel> {
-    public CustomAdapter(@NotNull Context context, @NotNull String code, @NotNull ColorThemeData theme) {
-    	// @see params in CodeAdapter
-        super(context, code, theme, true, 10, context.getString(R.string.show_all), null);
+public class MyCodeAdapter extends AbstractCodeAdapter<MyModel> {
+    public CustomAdapter(@NotNull Context context, @NotNull String content) {
+    	// @see params in AbstractCodeAdapter
+        super(context, content, true, 10, context.getString(R.string.show_all), null);
     }
 
     @NotNull
     @Override
     public View createFooter(@NotNull Context context, CustomModel entity, boolean isFirst) {
-        return /* init your view here */;
+        return /* your initialized view here */;
     }
 }
 ```
 <br>
 4. Set custom adapter to your code view:
 ```java
-final MyCodeAdapter adapter = new MyCodeAdapter(this, getString(R.string.listing_py), ColorTheme.SOLARIZED_LIGHT.theme());
-codeView.init(diffsAdapter);
+final MyCodeAdapter adapter = new MyCodeAdapter(this, getString(R.string.listing_py));
+codeView.setAdapter(diffsAdapter);
 ```
 <br>
 5. Init footer entities to provide mapper from your view to model:
@@ -154,7 +149,7 @@ adapter.addFooterEntity(11, new MyModel(getString(R.string.py_deletion_11), fals
 <br>
 6. You can also add a multiple diff entities:
 ```java
-CodeAdapter<MyModel>.addFooterEntities(HashMap<Int, List<MyModel>> myEntities)
+AbstractCodeAdapter<MyModel>.addFooterEntities(HashMap<Int, List<MyModel>> myEntities)
 ```
 Here you must provide a map from code line numbers (started from 0) to list of line entities. It will be mapped by adapter to specified footer views.
 <br>
@@ -169,9 +164,9 @@ See <a href="https://github.com/Softwee/codeview-android/blob/master/example/src
 [![CodeView_Android_Default](https://s10.postimg.org/u2meb8o6x/Screen_Shot_2016_08_31_at_18_49_33.png)](https://s10.postimg.org/u2meb8o6x/Screen_Shot_2016_08_31_at_18_49_33.png)
 
 ## List of available languages & their extensions
-C/C++/Objective-C (```"c"```, ```"cc"```, ```"cpp"```, ```"cxx"```, ```"cyc"```, ```"m"```), C# (```"cs"```), Java (```"java"```),Bash (```"bash"```, ```"bsh"```, ```"csh"```, ```"sh"```), Python (```"cv"```, ```"py"```, ```"python"```), Perl (```"perl"```, ```"pl"```, ```"pm"```), Ruby (```"rb"```, ```"ruby"```), JavaScript (```"javascript"```, ```"js"```), CoffeeScript (```"coffee"```), Rust (```"rc"```, ```"rs"```, ```"rust"```), Appollo (```"apollo"```, ```"agc"```, ```"aea"```), Basic (```"basic"```, ```"cbm"```), Clojure (```"clj"```), Css (```"css"```), Dart (```"dart"```), Erlang (```"erlang"```, ```"erl"```), Go (```"go"```), Haskell (```"hs"```), Lisp (```"cl"```, ```"el"```, ```"lisp"```, ```"lsp"```, ```"scm"```, ```"ss"```, ```"rkt"```), Llvm (```"llvm"```, ```"ll"```), Lua (```"lua"```), Matlab (```"matlab"```), ML (OCaml, SML, F#, etc) (```"fs"```, ```"ml"```), Mumps (```"mumps"```), N (```"n"```, ```"nemerle"```), Pascal (```"pascal"```), R (```"r"```, ```"s"```, ```"R"```, ```"S"```, ```"Splus"```), Rd (```"Rd"```, ```"rd"```), Scala (```"scala"```), SQL (```"sql"```), Tex (```"latex"```, ```"tex"```), VB (```"vb"```, ```"vbs"```), VHDL (```"vhdl"```, ```"vhd"```), Tcl (```"tcl"```), Wiki (```"wiki.meta"```), XQuery (```"xq"```, ```"xquery"```), YAML (```"yaml"```, ```"yml"```), Markdown (```"md"```, ```"markdown"```), formats (```"json"```, ```"xml"```, ```"proto"```), ```"regex"```
+C/C++/Objective-C (```"c"```, ```"cc"```, ```"cpp"```, ```"cxx"```, ```"cyc"```, ```"m"```), C# (```"cs"```), Java (```"java"```), Bash (```"bash"```, ```"bsh"```, ```"csh"```, ```"sh"```), Python (```"cv"```, ```"py"```, ```"python"```), Perl (```"perl"```, ```"pl"```, ```"pm"```), Ruby (```"rb"```, ```"ruby"```), JavaScript (```"javascript"```, ```"js"```), CoffeeScript (```"coffee"```), Rust (```"rc"```, ```"rs"```, ```"rust"```), Appollo (```"apollo"```, ```"agc"```, ```"aea"```), Basic (```"basic"```, ```"cbm"```), Clojure (```"clj"```), Css (```"css"```), Dart (```"dart"```), Erlang (```"erlang"```, ```"erl"```), Go (```"go"```), Haskell (```"hs"```), Lisp (```"cl"```, ```"el"```, ```"lisp"```, ```"lsp"```, ```"scm"```, ```"ss"```, ```"rkt"```), Llvm (```"llvm"```, ```"ll"```), Lua (```"lua"```), Matlab (```"matlab"```), ML (OCaml, SML, F#, etc) (```"fs"```, ```"ml"```), Mumps (```"mumps"```), N (```"n"```, ```"nemerle"```), Pascal (```"pascal"```), R (```"r"```, ```"s"```, ```"R"```, ```"S"```, ```"Splus"```), Rd (```"Rd"```, ```"rd"```), Scala (```"scala"```), SQL (```"sql"```), Tex (```"latex"```, ```"tex"```), VB (```"vb"```, ```"vbs"```), VHDL (```"vhdl"```, ```"vhd"```), Tcl (```"tcl"```), Wiki (```"wiki.meta"```), XQuery (```"xq"```, ```"xquery"```), YAML (```"yaml"```, ```"yml"```), Markdown (```"md"```, ```"markdown"```), formats (```"json"```, ```"xml"```, ```"proto"```), ```"regex"```
 
-Didn't found yours? Please, open issue to show your interest & I try to add this language in next releases.
+Didn't found yours? Please, open issue to show your interest & I'll try to add this language in next releases.
 
 ## List of available themes
 1. Default (simple light theme)
