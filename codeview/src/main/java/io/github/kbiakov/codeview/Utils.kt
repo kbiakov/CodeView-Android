@@ -10,6 +10,12 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.concurrent.Executors
 
+class Utils {
+    companion object {
+        val DELAY: Long = 250
+    }
+}
+
 /**
  * Get px by dip value.
  *
@@ -75,15 +81,9 @@ object Thread {
      * @param body Operation body
      * @param delayMs Delay in m
      */
-    fun delayed(delayMs: Long = 150, body: () -> Unit) = Handler().postDelayed(body, delayMs)
+    fun delayed(delayMs: Long = Utils.DELAY, body: () -> Unit) = Handler().postDelayed(body, delayMs)
 
     // - Extensions for block manipulations
-
-    fun (() -> Unit).async(isAsync: Boolean = true) {
-        if (isAsync) async() {
-            this()
-        } else this()
-    }
 
     fun (() -> Unit).ui(isUi: Boolean = true) {
         if (isUi) ui {

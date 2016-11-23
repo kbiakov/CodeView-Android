@@ -48,10 +48,4 @@
 
     </LinearLayout>
 
-    <View
-        android:id="@+id/v_placeholder"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/code_content_background"/>
-
 </RelativeLayout>
