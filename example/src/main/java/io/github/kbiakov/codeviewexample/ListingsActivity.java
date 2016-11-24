@@ -9,7 +9,6 @@ import android.util.Log;
 import org.jetbrains.annotations.NotNull;
 
 import io.github.kbiakov.codeview.CodeView;
-import io.github.kbiakov.codeview.Highlighter;
 import io.github.kbiakov.codeview.OnCodeLineClickListener;
 import io.github.kbiakov.codeview.adapters.CodeWithDiffsAdapter;
 import io.github.kbiakov.codeview.highlight.ColorTheme;
@@ -25,20 +24,23 @@ public class ListingsActivity extends AppCompatActivity {
         final CodeView codeView = (CodeView) findViewById(R.id.code_view);
 
         /**
-         * 1: default adapter with chaining build flow
+         * 1: default initialization
          */
 
-        // use chaining to build view with default adapter
-        new Highlighter(this)
+        codeView.init();
+
+        codeView.init(Highlighter.Builder.default(this).
                 .code(R.string.listing_js)
                 .language("js")
-                .theme(ColorTheme.DEFAULT.withBgContent(Color.WHITE))
-                .highlight(codeView);
+                .theme(ColorTheme.DEFAULT.withBgContent(Color.WHITE)));
+        */
+
+        // use chaining to build view with default adapter
 
 
         /**
          * 2: updating built view
-         */
+         *
 
         // do not use chaining for built view
         // (you can, but it should be performed sequentially)
@@ -58,12 +60,12 @@ public class ListingsActivity extends AppCompatActivity {
 
         /**
          * 3: custom adapter with footer views
-         */
+         *
 
         final CustomAdapter adapter = new CustomAdapter(this, getString(R.string.listing_md));
         codeView.init(adapter);
 
-        codeView.update(new Highlighter(this)
+        codeView.updateWithHighlighter(new Highlighter(this)
                 .theme(ColorTheme.MONOKAI)
                 .lineClickListener(new OnCodeLineClickListener() {
                     @Override
@@ -75,16 +77,11 @@ public class ListingsActivity extends AppCompatActivity {
 
         /**
          * 4: diff adapter with footer views
-         */
+         *
 
-        final CodeWithDiffsAdapter diffsAdapter = new CodeWithDiffsAdapter(ListingsActivity.this,
-                getString(R.string.listing_py), ColorTheme.SOLARIZED_LIGHT.theme());
-
-        diffsAdapter.getHighlighter().language("python");
-
-        codeView.removeLineClickListener();
-
-        codeView.init(diffsAdapter);
+        final CodeWithDiffsAdapter diffsAdapter = new CodeWithDiffsAdapter(this, getString(R.string.listing_py));
+        diffsAdapter.getHighlighter().setLanguage("python");
+        codeView.setAdapter(diffsAdapter);
 
         diffsAdapter.addFooterEntity(16, new DiffModel(getString(R.string.py_addition_16), true));
         diffsAdapter.addFooterEntity(11, new DiffModel(getString(R.string.py_deletion_11), false));
@@ -92,12 +89,13 @@ public class ListingsActivity extends AppCompatActivity {
 
         /**
          * 5: shortcut adapter with footer views
-         */
+         *
         new Highlighter(this).code(R.string.listing_py)
                 .shortcut(true)
                 .language("python")
                 .maxLines(3)
                 .shortcutNote("Show All")
                 .highlight(codeView);
+        */
     }
 }

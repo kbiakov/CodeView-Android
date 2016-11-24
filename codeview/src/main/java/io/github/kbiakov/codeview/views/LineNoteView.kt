@@ -37,7 +37,9 @@ class LineNoteView(context: Context?) : TextView(context) {
             val leftPadding = context.resources.getDimension(
                     R.dimen.line_num_width).toInt() + dpToPx(context, 14)
 
-            noteView.setPadding(leftPadding, if (isFirst) dp8 else 0, dp8, dp8)
+            val topPadding = if (isFirst) dp8 else 0
+
+            noteView.setPadding(leftPadding, topPadding, dp8, dp8)
 
             return noteView
         }

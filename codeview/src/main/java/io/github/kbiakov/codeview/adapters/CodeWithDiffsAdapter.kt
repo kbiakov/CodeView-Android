@@ -1,8 +1,6 @@
 package io.github.kbiakov.codeview.adapters
 
 import android.content.Context
-import io.github.kbiakov.codeview.Highlighter
-import io.github.kbiakov.codeview.highlight.ColorThemeData
 import io.github.kbiakov.codeview.views.DiffModel
 import io.github.kbiakov.codeview.views.LineDiffView
 
@@ -15,12 +13,7 @@ import io.github.kbiakov.codeview.views.LineDiffView
  */
 open class CodeWithDiffsAdapter : AbstractCodeAdapter<DiffModel> {
 
-    constructor(context: Context, h: Highlighter) : super(context, h)
-
-    /**
-     * Default constructor.
-     */
-    constructor(context: Context, content: String, theme: ColorThemeData) : super(context, content, theme)
+    constructor(context: Context) : super(context)
 
     /**
      * Create footer view.

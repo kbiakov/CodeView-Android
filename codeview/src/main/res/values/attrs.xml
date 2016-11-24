@@ -3,5 +3,4 @@
     <declare-styleable name="CodeView">
         <attr name="animateOnStart" format="boolean"/>
     </declare-styleable>
-
 </resources>

@@ -12,10 +12,7 @@ import io.github.kbiakov.codeview.Thread.async
 import io.github.kbiakov.codeview.Thread.ui
 import io.github.kbiakov.codeview.classifier.CodeClassifier
 import io.github.kbiakov.codeview.classifier.CodeProcessor
-import io.github.kbiakov.codeview.highlight.CodeHighlighter
-import io.github.kbiakov.codeview.highlight.ColorThemeData
-import io.github.kbiakov.codeview.highlight.MonoFontCache
-import io.github.kbiakov.codeview.highlight.color
+import io.github.kbiakov.codeview.highlight.*
 import java.util.*
 
 /**
@@ -29,79 +26,51 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
 
     protected val context: Context
 
-    var highlighter: Highlighter
+    var opts: Options
         internal set
 
-    protected var lines: List<String> = ArrayList() //items
+    protected var lines: List<String> = ArrayList() // items
     protected var droppedLines: List<String>? = null
 
     private var footerEntities: HashMap<Int, List<T>> = HashMap()
 
-    constructor(context: Context, h: Highlighter) {
+    constructor(context: Context) {
         this.context = context
-        this.highlighter = h
+        this.opts = Options(context)
+        prepareCodeLines()
+    }
 
+    constructor(context: Context, code: String) {
+        this.context = context
+        this.opts = Options(context, code)
+        prepareCodeLines()
+    }
+
+    constructor(context: Context, options: Options) {
+        this.context = context
+        this.opts = options
         prepareCodeLines()
     }
 
     /**
-     * Adapter constructor.
-     *
-     * @param content Context
-     * @param content Code content
-     * @param isShowFull Do you want to show all code content?
-     * @param maxLines Max lines to show (when limit is reached, rest is dropped)
-     * @param shortcutNote When rest lines is dropped, note is shown as last string
-     * @param listener Listener to code line clicks
-     */
-    constructor(context: Context,
-                content: String,
-                theme: ColorThemeData,
-                isShowFull: Boolean = true,
-                maxLines: Int = MAX_SHORTCUT_LINES,
-                shortcutNote: String = context.getString(R.string.show_all),
-                listener: OnCodeLineClickListener? = null) {
-        this.context = context
-
-        highlighter = Highlighter(context)
-
-        highlighter.code = content
-        highlighter.maxLines = maxLines
-        highlighter.lineClickListener = listener
-        highlighter.theme = theme
-        highlighter.shortcut = !isShowFull
-        highlighter.shortcutNote = shortcutNote
-
-        prepareCodeLines()
-    }
-
-    fun isShorted(): Boolean = droppedLines != null
-
-    //todo: showAllNotes()
-
-    /**
-     * Split code content by lines. If listing must not be shown full it shows
-     * only necessary lines & rest are dropped (and stores in named variable).
+     * Split code content by lines. If listing must not be shown full, it shows
+     * only necessary lines & the rest are dropped (and stores in named variable).
      */
     internal fun prepareCodeLines() {
-        val allLines = extractLines(highlighter.code)
-        val isFullShowing = !highlighter.shortcut || allLines.size <= highlighter.maxLines // limit is not reached
+        val allLines = extractLines(opts.code)
+        val isFullShowing = !opts.shortcut || allLines.size <= opts.maxLines // limit is not reached
 
         if (isFullShowing) {
             lines = allLines
-            return
-        } // else
-
-        val resultLines = ArrayList(allLines.subList(0, highlighter.maxLines))
-
-        if (!isFullShowing) {
-            droppedLines = ArrayList(allLines.subList(highlighter.maxLines, allLines.lastIndex))
-            if (highlighter.shortcutNote != null) {
-                resultLines.add(highlighter.shortcutNote!!.toUpperCase())
+        } else {
+            val resultLines = ArrayList(allLines.subList(0, opts.maxLines))
+            opts.shortcutNote?.let {
+                resultLines.add(it.toUpperCase())
             }
-        }
+            lines = resultLines
 
-        lines = resultLines
+            droppedLines = ArrayList(allLines.subList(opts.maxLines, allLines.lastIndex))
+        }
     }
 
     // - Adapter interface
@@ -110,7 +79,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
      * Update code.
      */
     fun updateCode(newContent: String) {
-        highlighter.code = newContent
+        opts.code = newContent
         prepareCodeLines()
         notifyDataSetChanged()
     }
@@ -118,8 +87,8 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
     /**
      * Update code with new Highlighter.
      */
-    fun updateCode(h: Highlighter) {
-        highlighter = h
+    fun updateCode(o: Options) {
+        opts = o
         prepareCodeLines()
         notifyDataSetChanged()
     }
@@ -131,7 +100,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
      * @param entity Footer entity
      */
     fun addFooterEntity(num: Int, entity: T) {
-        var notes = footerEntities[num] ?: ArrayList()
+        val notes = footerEntities[num] ?: ArrayList()
         footerEntities.put(num, notes + entity)
         notifyDataSetChanged()//todo: replace with notifyItemInserted()
     }
@@ -140,12 +109,11 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
      * Highlight code content.
      *
      * @param onReady Callback when content is highlighted
-     * @param language Programming language to highlight
      */
     fun highlight(onReady: () -> Unit) {
         async() {
-            val classifiedLanguage = highlighter.language ?: classifyContent()
-            highlighting(classifiedLanguage, onReady)
+            val language = opts.language ?: classifyContent()
+            highlighting(language, onReady)
         }
     }
 
@@ -170,7 +138,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         val processor = CodeProcessor.getInstance(context)
 
         return if (processor.isTrained)
-            processor.classify(highlighter.code).get()
+            processor.classify(opts.code).get()
         else
             CodeClassifier.DEFAULT_LANGUAGE
     }
@@ -183,7 +151,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
      */
     private fun highlighting(language: String, onReady: () -> Unit) {
         //todo: !!!performance (1) highlight next 10 then repeat (1)
-        val code = CodeHighlighter.highlight(language, highlighter.code, highlighter.theme)
+        val code = CodeHighlighter.highlight(language, opts.code, opts.theme)
 
         updateContent(code, onReady)
     }
@@ -193,8 +161,9 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
      * @param onUpdated Control callback
      */
     private fun updateContent(code: String, onUpdated: () -> Unit) {
-        highlighter.code = code
+        opts.code = code
         prepareCodeLines()
+
         ui {
             onUpdated()
         }
@@ -207,12 +176,12 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val lineView = inflater.inflate(R.layout.item_code_line, parent, false)
-        lineView.setBackgroundColor(highlighter.theme.bgContent.color())
+        lineView.setBackgroundColor(opts.theme.bgContent.color())
 
         val tvLineNum = lineView.findViewById(R.id.tv_line_num) as TextView
         tvLineNum.typeface = monoTypeface()
-        tvLineNum.setTextColor(highlighter.theme.numColor.color())
-        tvLineNum.setBackgroundColor(highlighter.theme.bgNum.color())
+        tvLineNum.setTextColor(opts.theme.numColor.color())
+        tvLineNum.setBackgroundColor(opts.theme.bgNum.color())
 
         val tvLineContent = lineView.findViewById(R.id.tv_line_content) as TextView
         tvLineContent.typeface = monoTypeface()
@@ -226,9 +195,9 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         val codeLine = lines[position]
         holder.mItem = codeLine
 
-        if (highlighter.lineClickListener != null) {
+        if (opts.lineClickListener != null) {
             holder.itemView.setOnClickListener {
-                highlighter.lineClickListener?.onLineClicked(position, codeLine)
+                opts.lineClickListener?.onLineClicked(position, codeLine)
             }
         }
 
@@ -249,9 +218,9 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
 
     private fun setupLine(position: Int, line: String, holder: ViewHolder) {
         holder.tvLineContent.text = html(line)
-        holder.tvLineContent.setTextColor(highlighter.theme.noteColor.color())
+        holder.tvLineContent.setTextColor(opts.theme.noteColor.color())
 
-        if (highlighter.shortcut && position == MAX_SHORTCUT_LINES) {
+        if (opts.shortcut && position == MAX_SHORTCUT_LINES) {
             holder.tvLineNum.textSize = 10f
             holder.tvLineNum.text = context.getString(R.string.dots)
         } else {
@@ -272,9 +241,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
 
             it.forEach { entity ->
                 val footerView = createFooter(context, entity, isFirst)
-
                 holder.llLineFooter.addView(footerView)
-
                 isFirst = false
             }
         }
@@ -302,9 +269,9 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
      * Stores all views related to code line layout.
      */
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var tvLineNum: TextView
-        var tvLineContent: TextView
-        var llLineFooter: LinearLayout
+        val tvLineNum: TextView
+        val tvLineContent: TextView
+        val llLineFooter: LinearLayout
 
         var mItem: String? = null
 
@@ -315,5 +282,85 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         }
 
         override fun toString() = "${super.toString()} '$mItem'"
+    }
+}
+
+/**
+ * @class Options
+ *
+ * All options in one place.
+ *
+ * @param context Context
+ * @param code Code content
+ * @param language Programming language to highlight
+ * @param theme Color theme
+ * @param shadows Is border shadows needed?
+ * @param maxLines Max lines to show (when limit is reached, rest is dropped)
+ * @param shortcut Do you want to show shortcut of code listing?
+ * @param shortcutNote When rest lines is dropped, note is shown as last string
+ * @param lineClickListener Listener to code line clicks
+ *
+ * @author Kirill Biakov
+ */
+data class Options(
+        val context: Context,
+        var code: String = "",
+        var language: String = CodeClassifier.DEFAULT_LANGUAGE,
+        var theme: ColorThemeData = ColorTheme.DEFAULT.theme(),
+        var shadows: Boolean = false,
+        var maxLines: Int = 0,
+        var shortcut: Boolean = false,
+        var shortcutNote: String = context.getString(R.string.show_all),
+        var lineClickListener: OnCodeLineClickListener? = null) {
+
+    fun withCode(code: String): Options {
+        this.code = code
+        return this
+    }
+
+    fun withLanguage(language: String): Options {
+        this.language = language
+        return this
+    }
+
+    fun withTheme(theme: ColorTheme): Options {
+        this.theme = theme.theme()
+        return this
+    }
+
+    fun withTheme(theme: ColorThemeData): Options {
+        this.theme = theme
+        return this
+    }
+
+    fun withShadows(): Options {
+        this.shadows = true
+        return this
+    }
+
+    fun withoutShadows(): Options {
+        this.shadows = false
+        return this
+    }
+
+    fun shortcut(maxLines: Int, shortcutNote: String): Options {
+        this.shortcut = true
+        this.maxLines = maxLines
+        this.shortcutNote = shortcutNote
+        return this
+    }
+
+    fun addLineClickListener(listener: OnCodeLineClickListener): Options {
+        this.lineClickListener = listener
+        return this
+    }
+
+    fun removeLineClickListener(): Options {
+        this.lineClickListener = null
+        return this
+    }
+
+    companion object Default {
+        fun get(ctx: Context): Options = Options(ctx)
     }
 }
