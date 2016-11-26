@@ -15,6 +15,10 @@ open class CodeWithDiffsAdapter : AbstractCodeAdapter<DiffModel> {
 
     constructor(context: Context) : super(context)
 
+    constructor(context: Context, code: String) : super(context, code)
+
+    constructor(context: Context, options: Options) : super(context, options)
+
     /**
      * Create footer view.
      *

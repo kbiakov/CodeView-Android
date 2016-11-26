@@ -59,13 +59,8 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
     }
 
     /**
-     * Code adapter accessor.
-     */
-    private fun getAdapter() = vCodeList.adapter as? AbstractCodeAdapter<*>
-
-    /**
-     * Highlight code by defined programming language.
-     * It holds the placeholder on the view until code is not highlighted.
+     * Highlight code with defined programming language.
+     * It holds the placeholder on view until code is not highlighted.
      */
     private fun highlight() {
         getAdapter()?.highlight {
@@ -97,51 +92,95 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
     /**
      * Prepare view with default adapter & options.
      */
-    private fun prepare() {
-        setAdapter(CodeWithNotesAdapter(context))
-    }
+    private fun prepare() = setAdapter(CodeWithNotesAdapter(context))
+
+    /**
+     * View options accessor.
+     */
+    fun getOptions(): Options? = getAdapter()?.options
 
     /**
      * Initialize with options.
      *
-     * @param opts Options
+     * @param options Options
      */
-    fun setOptions(opts: Options) {
-        setAdapter(CodeWithNotesAdapter(context, opts))
+    fun setOptions(options: Options) = setOptions(options, false)
+
+    /**
+     * Set options & initialize if needed.
+     *
+     * @param options Options
+     * @param isSaveAdapter Save adapter?
+     */
+    fun setOptions(options: Options, isSaveAdapter: Boolean = true) {
+        setAdapter(if (isSaveAdapter)
+            getAdapter() ?: CodeWithNotesAdapter(context, options)
+        else
+            CodeWithNotesAdapter(context, options))
     }
+
+    /**
+     * Code adapter accessor.
+     */
+    fun getAdapter() = vCodeList.adapter as? AbstractCodeAdapter<*>
 
     /**
      * Initialize with adapter.
      *
      * @param adapter Adapter
      */
-    fun setAdapter(adapter: AbstractCodeAdapter<*>) {
+    fun setAdapter(adapter: AbstractCodeAdapter<*>) = setAdapter(adapter, false)
+
+    /**
+     * Set adapter & initialize if needed.
+     *
+     * @param adapter Adapter
+     * @param isSaveOptions Save options?
+     */
+    fun setAdapter(adapter: AbstractCodeAdapter<*>, isSaveOptions: Boolean = true) {
+        if (isSaveOptions)
+            adapter.options = getOptions() ?: Options(context)
+
         vCodeList.adapter = adapter
-        setupShadows(adapter.opts.shadows)
+        setupShadows(adapter.options.shadows)
         highlight()
     }
 
     /**
      * Set code content.
-     * At this point view should be prepared, otherwise it
-     * will be configured automatically with default params.
+     *
+     * There are two ways before code will be highlighted:
+     * 1) view is not initialized (adapter or options are not set),
+     *    prepare with default params & try to classify language
+     * 2) view initialized with some params, language:
+     *    a) is set: used defined programming language
+     *    b) not set: try to classify
      *
      * @param code Code content
      */
     fun setCode(code: String) {
         getAdapter() ?: prepare()
-        getAdapter()?.updateCode(code)
+        getAdapter()!!.updateCode(code)
     }
 
     /**
      * Set code content.
      *
+     * There are two ways before code will be highlighted:
+     * 1) view is not initialized, prepare with default params
+     * 2) view initialized with some params, set new language
+     *
      * @param code Code content
      * @param language Programming language
      */
     fun setCode(code: String, language: String) {
-        getAdapter() ?: setOptions(Options(context, language = language))
-        getAdapter()?.updateCode(code)
+        val options = if (getAdapter() == null)
+            Options(context)
+        else
+            getAdapter()!!.options
+
+        setOptions(options.withLanguage(language))
+        getAdapter()!!.updateCode(code)
     }
 }
 

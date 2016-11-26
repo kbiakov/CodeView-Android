@@ -33,9 +33,9 @@ object CodeHighlighter {
         val colorsMap = buildColorsMap(colorTheme)
         val highlighted = StringBuilder()
 
-        results.forEach { result ->
-            val color = colorsMap.getColor(result)
-            val content = parseContent(source, result)
+        results.forEach {
+            val color = colorsMap.getColor(it)
+            val content = parseContent(source, it)
             highlighted.append(content.withFontParams(color))
         }
 

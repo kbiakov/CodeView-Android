@@ -15,6 +15,8 @@ open class CodeWithNotesAdapter : AbstractCodeAdapter<String> {
 
     constructor(context: Context) : super(context)
 
+    constructor(context: Context, code: String) : super(context, code)
+
     constructor(context: Context, options: Options) : super(context, options)
 
     /**
@@ -27,6 +29,6 @@ open class CodeWithNotesAdapter : AbstractCodeAdapter<String> {
             LineNoteView.create(context,
                     text = entity,
                     isFirst = isFirst,
-                    bgColor = opts.theme.bgNum.color(),
-                    textColor = opts.theme.noteColor.color())
+                    bgColor = options.theme.bgNum.color(),
+                    textColor = options.theme.noteColor.color())
 }

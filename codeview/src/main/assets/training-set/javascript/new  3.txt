@@ -67,32 +67,32 @@ var minExpectedLifetime = '20s';
  * @api public
  */
 
-function UpServer (server, file, opts) {
-  if (this == global) return new UpServer(server, file, opts);
+function UpServer (server, file, options) {
+  if (this == global) return new UpServer(server, file, options);
 
   Distributor.call(this, server);
 
   var self = this;
-  opts = opts || {};
+  options = options || {};
 
   this.file = file;
-  this.numWorkers = eq(opts.numWorkers || numWorkers, { cpus: cpus });
-  this.workerTimeout = ms(null != opts.workerTimeout
-    ? opts.workerTimeout : workerTimeout);
-  this.requires = opts.requires || [];
-  this.assumeReady = opts.assumeReady === undefined ? true : !!opts.assumeReady;
-  this.keepAlive = opts.keepAlive || false;
-  this.minExpectedLifetime = ms(opts.minExpectedLifetime != null ? opts.minExpectedLifetime : minExpectedLifetime);
-  if (false !== opts.workerPingInterval) {
-    this.workerPingInterval = ms(opts.workerPingInterval || '1m');
+  this.numWorkers = eq(options.numWorkers || numWorkers, { cpus: cpus });
+  this.workerTimeout = ms(null != options.workerTimeout
+    ? options.workerTimeout : workerTimeout);
+  this.requires = options.requires || [];
+  this.assumeReady = options.assumeReady === undefined ? true : !!options.assumeReady;
+  this.keepAlive = options.keepAlive || false;
+  this.minExpectedLifetime = ms(options.minExpectedLifetime != null ? options.minExpectedLifetime : minExpectedLifetime);
+  if (false !== options.workerPingInterval) {
+    this.workerPingInterval = ms(options.workerPingInterval || '1m');
   }
 
   this.workers = [];
   this.spawning = [];
   this.lastIndex = -1;
 
-  if (opts.title) {
-    this.title = opts.title;
+  if (options.title) {
+    this.title = options.title;
     process.title = this.title + ' master';
   }
 
@@ -290,7 +290,7 @@ function Worker (server) {
   this.server = server;
   this.readyState = 'spawning';
 
-  var opts = JSON.stringify({
+  var options = JSON.stringify({
       file: server.file
     , requires: server.requires
     , assumeReady: server.assumeReady
@@ -298,7 +298,7 @@ function Worker (server) {
     , title: server.title
   });
 
-  this.proc = fork(__dirname + '/worker.js', [opts], { env: process.env });
+  this.proc = fork(__dirname + '/worker.js', [options], { env: process.env });
   this.proc.on('message', this.onMessage.bind(this));
   this.proc.on('exit', this.onExit.bind(this));
   this.pid = this.proc.pid;

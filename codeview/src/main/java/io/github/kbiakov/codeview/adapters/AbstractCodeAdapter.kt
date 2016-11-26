@@ -25,30 +25,28 @@ import java.util.*
 abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter.ViewHolder> {
 
     protected val context: Context
-
-    var opts: Options
-        internal set
-
     protected var lines: List<String> = ArrayList() // items
     protected var droppedLines: List<String>? = null
+
+    internal var options: Options
 
     private var footerEntities: HashMap<Int, List<T>> = HashMap()
 
     constructor(context: Context) {
         this.context = context
-        this.opts = Options(context)
+        this.options = Options(context)
         prepareCodeLines()
     }
 
     constructor(context: Context, code: String) {
         this.context = context
-        this.opts = Options(context, code)
+        this.options = Options(context, code)
         prepareCodeLines()
     }
 
     constructor(context: Context, options: Options) {
         this.context = context
-        this.opts = options
+        this.options = options
         prepareCodeLines()
     }
 
@@ -57,19 +55,17 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
      * only necessary lines & the rest are dropped (and stores in named variable).
      */
     internal fun prepareCodeLines() {
-        val allLines = extractLines(opts.code)
-        val isFullShowing = !opts.shortcut || allLines.size <= opts.maxLines // limit is not reached
+        val allLines = extractLines(options.code)
+        val isFullShowing = !options.shortcut || allLines.size <= options.maxLines // limit is not reached
 
-        if (isFullShowing) {
+        if (isFullShowing)
             lines = allLines
-        } else {
-            val resultLines = ArrayList(allLines.subList(0, opts.maxLines))
-            opts.shortcutNote?.let {
-                resultLines.add(it.toUpperCase())
-            }
+        else {
+            val resultLines = ArrayList(allLines.subList(0, options.maxLines))
+            resultLines.add(options.shortcutNote.toUpperCase())
             lines = resultLines
 
-            droppedLines = ArrayList(allLines.subList(opts.maxLines, allLines.lastIndex))
+            droppedLines = ArrayList(allLines.subList(options.maxLines, allLines.lastIndex))
         }
     }
 
@@ -78,8 +74,8 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
     /**
      * Update code.
      */
-    fun updateCode(newContent: String) {
-        opts.code = newContent
+    internal fun updateCode(newContent: String) {
+        options.code = newContent
         prepareCodeLines()
         notifyDataSetChanged()
     }
@@ -87,8 +83,8 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
     /**
      * Update code with new Highlighter.
      */
-    fun updateCode(o: Options) {
-        opts = o
+    internal fun updateCode(opts: Options) {
+        options = opts
         prepareCodeLines()
         notifyDataSetChanged()
     }
@@ -102,7 +98,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
     fun addFooterEntity(num: Int, entity: T) {
         val notes = footerEntities[num] ?: ArrayList()
         footerEntities.put(num, notes + entity)
-        notifyDataSetChanged()//todo: replace with notifyItemInserted()
+        notifyDataSetChanged() // TODO: replace with notifyItemInserted()
     }
 
     /**
@@ -110,9 +106,9 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
      *
      * @param onReady Callback when content is highlighted
      */
-    fun highlight(onReady: () -> Unit) {
+    internal fun highlight(onReady: () -> Unit) {
         async() {
-            val language = opts.language ?: classifyContent()
+            val language = options.language ?: classifyContent()
             highlighting(language, onReady)
         }
     }
@@ -138,7 +134,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         val processor = CodeProcessor.getInstance(context)
 
         return if (processor.isTrained)
-            processor.classify(opts.code).get()
+            processor.classify(options.code).get()
         else
             CodeClassifier.DEFAULT_LANGUAGE
     }
@@ -150,8 +146,8 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
      * @param onReady Callback
      */
     private fun highlighting(language: String, onReady: () -> Unit) {
-        //todo: !!!performance (1) highlight next 10 then repeat (1)
-        val code = CodeHighlighter.highlight(language, opts.code, opts.theme)
+        // TODO: highlight by 10 lines
+        val code = CodeHighlighter.highlight(language, options.code, options.theme)
 
         updateContent(code, onReady)
     }
@@ -161,7 +157,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
      * @param onUpdated Control callback
      */
     private fun updateContent(code: String, onUpdated: () -> Unit) {
-        opts.code = code
+        options.code = code
         prepareCodeLines()
 
         ui {
@@ -176,12 +172,12 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val lineView = inflater.inflate(R.layout.item_code_line, parent, false)
-        lineView.setBackgroundColor(opts.theme.bgContent.color())
+        lineView.setBackgroundColor(options.theme.bgContent.color())
 
         val tvLineNum = lineView.findViewById(R.id.tv_line_num) as TextView
         tvLineNum.typeface = monoTypeface()
-        tvLineNum.setTextColor(opts.theme.numColor.color())
-        tvLineNum.setBackgroundColor(opts.theme.bgNum.color())
+        tvLineNum.setTextColor(options.theme.numColor.color())
+        tvLineNum.setBackgroundColor(options.theme.bgNum.color())
 
         val tvLineContent = lineView.findViewById(R.id.tv_line_content) as TextView
         tvLineContent.typeface = monoTypeface()
@@ -195,9 +191,9 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         val codeLine = lines[position]
         holder.mItem = codeLine
 
-        if (opts.lineClickListener != null) {
+        options.lineClickListener?.let {
             holder.itemView.setOnClickListener {
-                opts.lineClickListener?.onLineClicked(position, codeLine)
+                options.lineClickListener?.onLineClicked(position, codeLine)
             }
         }
 
@@ -218,9 +214,9 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
 
     private fun setupLine(position: Int, line: String, holder: ViewHolder) {
         holder.tvLineContent.text = html(line)
-        holder.tvLineContent.setTextColor(opts.theme.noteColor.color())
+        holder.tvLineContent.setTextColor(options.theme.noteColor.color())
 
-        if (opts.shortcut && position == MAX_SHORTCUT_LINES) {
+        if (options.shortcut && position == MAX_SHORTCUT_LINES) {
             holder.tvLineNum.textSize = 10f
             holder.tvLineNum.text = context.getString(R.string.dots)
         } else {
@@ -305,12 +301,12 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
 data class Options(
         val context: Context,
         var code: String = "",
-        var language: String = CodeClassifier.DEFAULT_LANGUAGE,
+        var language: String? = null,
         var theme: ColorThemeData = ColorTheme.DEFAULT.theme(),
         var shadows: Boolean = false,
-        var maxLines: Int = 0,
         var shortcut: Boolean = false,
         var shortcutNote: String = context.getString(R.string.show_all),
+        var maxLines: Int = 0,
         var lineClickListener: OnCodeLineClickListener? = null) {
 
     fun withCode(code: String): Options {
@@ -361,6 +357,6 @@ data class Options(
     }
 
     companion object Default {
-        fun get(ctx: Context): Options = Options(ctx)
+        fun get(context: Context): Options = Options(context)
     }
 }

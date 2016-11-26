@@ -1,20 +1,24 @@
 package io.github.kbiakov.codeviewexample;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
 import org.jetbrains.annotations.NotNull;
 
+import io.github.kbiakov.codeview.OnCodeLineClickListener;
 import io.github.kbiakov.codeview.adapters.AbstractCodeAdapter;
+import io.github.kbiakov.codeview.adapters.Options;
 import io.github.kbiakov.codeview.highlight.ColorTheme;
 
-public class CustomAdapter { //extends AbstractCodeAdapter<CustomAdapter.CustomModel> {
+public class CustomAdapter extends AbstractCodeAdapter<CustomAdapter.CustomModel> {
 
-    /*
     public CustomAdapter(@NotNull Context context, @NotNull String content) {
-        super(context, content, ColorTheme.DEFAULT.theme(), true, 10, context.getString(R.string.show_all), null);
+        super(context, Options.Default.get(context)
+                .withCode(content)
+                .withTheme(ColorTheme.SOLARIZED_LIGHT.theme()));
     }
 
     @NotNull
@@ -43,5 +47,4 @@ public class CustomAdapter { //extends AbstractCodeAdapter<CustomAdapter.CustomM
             return lastName;
         }
     }
-    */
 }
