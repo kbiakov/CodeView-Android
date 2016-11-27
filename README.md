@@ -154,7 +154,7 @@ final MyCodeAdapter adapter = new MyCodeAdapter(this, getString(R.string.listing
 codeView.setAdapter(diffsAdapter);
 ```
 <br>
-5. Init footer entities to provide mapper from your view to model:
+5. Init footer entities to provide mapper from your model to view:
 ```java
 // it will add an addition diff to code line
 adapter.addFooterEntity(16, new MyModel(getString(R.string.py_addition_16), true));
