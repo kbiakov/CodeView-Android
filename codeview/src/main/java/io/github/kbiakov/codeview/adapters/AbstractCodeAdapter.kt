@@ -117,7 +117,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
      * Mapper from entity to footer view.
      *
      * @param context Context
-     * @param entity Entity to init view
+     * @param entity Entity to setOptions view
      * @param isFirst Is first footer view
      * @return Footer view
      */
@@ -193,7 +193,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
 
         options.lineClickListener?.let {
             holder.itemView.setOnClickListener {
-                options.lineClickListener?.onLineClicked(position, codeLine)
+                options.lineClickListener?.onCodeLineClicked(position, codeLine)
             }
         }
 
@@ -314,8 +314,22 @@ data class Options(
         return this
     }
 
+    fun withCode(codeResId: Int): Options {
+        this.code = context.getString(codeResId)
+        return this
+    }
+
+    fun setCode(codeResId: Int) {
+        withCode(codeResId)
+    }
+
     fun withLanguage(language: String): Options {
         this.language = language
+        return this
+    }
+
+    fun withTheme(theme: ColorThemeData): Options {
+        this.theme = theme
         return this
     }
 
@@ -324,9 +338,8 @@ data class Options(
         return this
     }
 
-    fun withTheme(theme: ColorThemeData): Options {
-        this.theme = theme
-        return this
+    fun setTheme(theme: ColorTheme) {
+        withTheme(theme)
     }
 
     fun withShadows(): Options {
@@ -346,7 +359,7 @@ data class Options(
         return this
     }
 
-    fun addLineClickListener(listener: OnCodeLineClickListener): Options {
+    fun addCodeLineClickListener(listener: OnCodeLineClickListener): Options {
         this.lineClickListener = listener
         return this
     }
