@@ -12,6 +12,7 @@ import io.github.kbiakov.codeview.OnCodeLineClickListener;
 import io.github.kbiakov.codeview.adapters.CodeWithDiffsAdapter;
 import io.github.kbiakov.codeview.adapters.Options;
 import io.github.kbiakov.codeview.highlight.ColorTheme;
+import io.github.kbiakov.codeview.highlight.ColorThemeData;
 import io.github.kbiakov.codeview.views.DiffModel;
 
 public class ListingsActivity extends AppCompatActivity {
@@ -37,13 +38,15 @@ public class ListingsActivity extends AppCompatActivity {
          * 2: working with options
          */
 
-        // you can change params as follows (for initialized view)
-        codeView.getOptions().setTheme(ColorTheme.MONOKAI.theme());
+        // you can change params as follows (unsafe, initialized view only)
+        codeView.getOptions()
+                .withCode(R.string.listing_java)
+                .withTheme(ColorTheme.MONOKAI);
 
         // short initialization with default params (can be expanded using with() methods)
         codeView.setOptions(Options.Default.get(this)
                 .withLanguage("python")
-                .withCode(getString(R.string.listing_py))
+                .withCode(R.string.listing_py)
                 .withTheme(ColorTheme.MONOKAI));
 
         // expanded form of initialization
@@ -58,42 +61,55 @@ public class ListingsActivity extends AppCompatActivity {
                 10,                             // max lines
                 new OnCodeLineClickListener() { // line click listener
                     @Override
-                    public void onLineClicked(int n, @NotNull String line) {
+                    public void onCodeLineClicked(int n, @NotNull String line) {
                         Log.i("ListingsActivity", "On " + (n + 1) + " line clicked");
                     }
                 }));
 
         /**
-         * 3: custom adapter with footer views
+         * 3: color themes
+         */
+
+        codeView.getOptions().setTheme(ColorTheme.SOLARIZED_LIGHT);
+
+        // custom theme
+        ColorThemeData myTheme = ColorTheme.SOLARIZED_LIGHT.theme()
+                .withBgContent(android.R.color.black)
+                .withNoteColor(android.R.color.white);
+
+        codeView.getOptions().setTheme(myTheme);
+
+        /**
+         * 4: custom adapter with footer views
          */
 
         final CustomAdapter myAdapter = new CustomAdapter(this, getString(R.string.listing_md));
         codeView.setAdapter(myAdapter);
         codeView.getOptions()
                 .withLanguage("md")
-                .addLineClickListener(new OnCodeLineClickListener() {
+                .addCodeLineClickListener(new OnCodeLineClickListener() {
                     @Override
-                    public void onLineClicked(int n, @NotNull String line) {
+                    public void onCodeLineClicked(int n, @NotNull String line) {
                         myAdapter.addFooterEntity(n, new CustomAdapter.CustomModel("Line " + (n + 1), line));
                     }
                 });
 
         /**
-         * 4: diff adapter with footer views
+         * 5: diff adapter with footer views
          */
 
         final CodeWithDiffsAdapter diffsAdapter = new CodeWithDiffsAdapter(this);
         codeView.getOptions()
                 .withLanguage("python")
                 .setCode(getString(R.string.listing_py));
-        codeView.setAdapter(diffsAdapter, true);
+        codeView.updateAdapter(diffsAdapter);
 
         diffsAdapter.addFooterEntity(16, new DiffModel(getString(R.string.py_addition_16), true));
         diffsAdapter.addFooterEntity(11, new DiffModel(getString(R.string.py_deletion_11), false));
 
 
         /**
-         * 5: shortcut adapter with footer views
+         * 6: shortcut adapter with footer views
          */
 
         codeView.getOptions()

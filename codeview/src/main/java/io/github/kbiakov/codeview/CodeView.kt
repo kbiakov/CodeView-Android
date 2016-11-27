@@ -45,7 +45,8 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
         inflate(context, R.layout.layout_code_view, this)
 
         if (isAnimateOnStart)
-            animate().setDuration(Consts.DELAY * 5)
+            animate()
+                    .setDuration(Consts.DELAY * 5)
                     .alpha(Consts.ALPHA)
 
         // TODO: add shadow color customization
@@ -65,18 +66,19 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
     private fun highlight() {
         getAdapter()?.highlight {
 
-            animate().setDuration(Consts.DELAY * 2)
+            animate()
+                    .setDuration(Consts.DELAY * 2)
                     .alpha(.1f)
 
             delayed {
                 animate().alpha(1f)
-                vCodeList.adapter?.notifyDataSetChanged()
+                getAdapter()?.notifyDataSetChanged()
             }
         }
     }
 
     /**
-     * Border shadows will shown if presented full code listing.
+     * Border shadows will shown if full listing presented.
      * It helps to see what part of code is scrolled & hidden.
      *
      * @param isShadows Is shadows needed
@@ -89,35 +91,52 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
         vShadowBottomContent.visibility = visibility
     }
 
+    // - Initialization
+
     /**
      * Prepare view with default adapter & options.
      */
     private fun prepare() = setAdapter(CodeWithNotesAdapter(context))
 
     /**
-     * View options accessor.
-     */
-    fun getOptions(): Options? = getAdapter()?.options
-
-    /**
      * Initialize with options.
      *
      * @param options Options
      */
-    fun setOptions(options: Options) = setOptions(options, false)
+    fun setOptions(options: Options) = setAdapter(CodeWithNotesAdapter(context, options))
 
     /**
-     * Set options & initialize if needed.
+     * Initialize with adapter.
+     *
+     * @param adapter Adapter
+     */
+    fun setAdapter(adapter: AbstractCodeAdapter<*>) {
+        vCodeList.adapter = adapter
+        setupShadows(adapter.options.shadows)
+        highlight()
+    }
+
+    // - Options
+
+    /**
+     * View options accessor.
+     */
+    fun getOptions(): Options? = getAdapter()?.options
+    fun getOptionsOrDefault() = getOptions() ?: Options(context)
+
+    /**
+     * Update options or initialize if needed.
      *
      * @param options Options
-     * @param isSaveAdapter Save adapter?
      */
-    fun setOptions(options: Options, isSaveAdapter: Boolean = true) {
-        setAdapter(if (isSaveAdapter)
-            getAdapter() ?: CodeWithNotesAdapter(context, options)
+    fun updateOptions(options: Options) {
+        if (getAdapter() == null)
+            setOptions(options)
         else
-            CodeWithNotesAdapter(context, options))
+            getAdapter()!!.options = options
     }
+
+    // - Adapter
 
     /**
      * Code adapter accessor.
@@ -125,26 +144,16 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
     fun getAdapter() = vCodeList.adapter as? AbstractCodeAdapter<*>
 
     /**
-     * Initialize with adapter.
+     * Update adapter or initialize if needed.
      *
      * @param adapter Adapter
      */
-    fun setAdapter(adapter: AbstractCodeAdapter<*>) = setAdapter(adapter, false)
-
-    /**
-     * Set adapter & initialize if needed.
-     *
-     * @param adapter Adapter
-     * @param isSaveOptions Save options?
-     */
-    fun setAdapter(adapter: AbstractCodeAdapter<*>, isSaveOptions: Boolean = true) {
-        if (isSaveOptions)
-            adapter.options = getOptions() ?: Options(context)
-
-        vCodeList.adapter = adapter
-        setupShadows(adapter.options.shadows)
-        highlight()
+    fun updateAdapter(adapter: AbstractCodeAdapter<*>) {
+        adapter.options = getOptionsOrDefault()
+        setAdapter(adapter)
     }
+
+    // - Set code
 
     /**
      * Set code content.
@@ -174,12 +183,8 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
      * @param language Programming language
      */
     fun setCode(code: String, language: String) {
-        val options = if (getAdapter() == null)
-            Options(context)
-        else
-            getAdapter()!!.options
-
-        setOptions(options.withLanguage(language))
+        val options = getOptionsOrDefault()
+        updateOptions(options.withLanguage(language))
         getAdapter()!!.updateCode(code)
     }
 }
@@ -188,5 +193,5 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
  * Provide listener to code line clicks.
  */
 interface OnCodeLineClickListener {
-    fun onLineClicked(n: Int, line: String)
+    fun onCodeLineClicked(n: Int, line: String)
 }

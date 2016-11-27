@@ -139,6 +139,24 @@ enum class ColorTheme(
             bgNum = 0xF2F2F6,
             noteColor = 0x4C5D6E);
 
+    fun theme() = ColorThemeData(
+            syntaxColors,
+            numColor,
+            bgContent,
+            bgNum,
+            noteColor)
+}
+
+/**
+ * Custom color theme.
+ */
+data class ColorThemeData(
+        val syntaxColors: SyntaxColors = SyntaxColors(),
+        val numColor: Int,
+        val bgContent: Int,
+        val bgNum: Int,
+        val noteColor: Int) {
+
     /**
      * Decompose preset color theme to data.
      * Use this form for using from Kotlin.
@@ -149,19 +167,7 @@ enum class ColorTheme(
             myBgContent: Int = bgContent,
             myBgNum: Int = bgNum,
             myNoteColor: Int = noteColor
-    ) = ColorThemeData(
-            mySyntaxColors,
-            myNumColor,
-            myBgContent,
-            myBgNum,
-            myNoteColor)
-
-    fun theme() = ColorThemeData(
-            syntaxColors,
-            numColor,
-            bgContent,
-            bgNum,
-            noteColor)
+    ) = this
 
     /**
      * Decompose preset color theme to data.
@@ -182,16 +188,6 @@ enum class ColorTheme(
     fun withNoteColor(myNoteColor: Int) =
             with(myNoteColor = myNoteColor)
 }
-
-/**
- * Custom color theme.
- */
-data class ColorThemeData(
-        val syntaxColors: SyntaxColors = SyntaxColors(),
-        val numColor: Int,
-        val bgContent: Int,
-        val bgNum: Int,
-        val noteColor: Int)
 
 /**
  * Colors for highlighting code units.
