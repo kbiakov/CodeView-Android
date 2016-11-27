@@ -10,8 +10,8 @@ android:
     - tools # to get the new `repository-11.xml`
     - tools # to install latest Android SDK tools
     - platform-tools
-    - build-tools-24.0.1
-    - android-24
+    - build-tools-25.0.1
+    - android-25
     - extra-android-m2repository # Design Support library
     - sys-img-armeabi-v7a-android-21 # system image (emulator)
   licenses:
