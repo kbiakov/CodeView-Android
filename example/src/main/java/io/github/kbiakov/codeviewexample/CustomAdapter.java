@@ -8,12 +8,15 @@ import android.widget.TextView;
 import org.jetbrains.annotations.NotNull;
 
 import io.github.kbiakov.codeview.adapters.AbstractCodeAdapter;
+import io.github.kbiakov.codeview.adapters.Options;
 import io.github.kbiakov.codeview.highlight.ColorTheme;
 
 public class CustomAdapter extends AbstractCodeAdapter<CustomAdapter.CustomModel> {
 
-    public CustomAdapter(@NotNull Context context, @NotNull String content) {
-        super(context, content, ColorTheme.DEFAULT.theme(), true, 10, context.getString(R.string.show_all), null);
+    public CustomAdapter(@NotNull Context context, @NotNull String code) {
+        super(context, Options.Default.get(context)
+                .withCode(code)
+                .withTheme(ColorTheme.SOLARIZED_LIGHT));
     }
 
     @NotNull

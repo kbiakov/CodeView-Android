@@ -10,10 +10,9 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.concurrent.Executors
 
-class Utils {
-    companion object {
-        val DELAY: Long = 250
-    }
+object Consts {
+    val ALPHA = 0.7F
+    val DELAY = 250L
 }
 
 /**
@@ -81,7 +80,8 @@ object Thread {
      * @param body Operation body
      * @param delayMs Delay in m
      */
-    fun delayed(delayMs: Long = Utils.DELAY, body: () -> Unit) = Handler().postDelayed(body, delayMs)
+    fun delayed(delayMs: Long = Consts.DELAY, body: () -> Unit) =
+            Handler().postDelayed(body, delayMs)
 
     // - Extensions for block manipulations
 

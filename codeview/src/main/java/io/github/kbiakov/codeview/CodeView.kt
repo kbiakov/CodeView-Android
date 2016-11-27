@@ -9,66 +9,50 @@ import android.widget.RelativeLayout
 import io.github.kbiakov.codeview.Thread.delayed
 import io.github.kbiakov.codeview.adapters.AbstractCodeAdapter
 import io.github.kbiakov.codeview.adapters.CodeWithNotesAdapter
+import io.github.kbiakov.codeview.adapters.Options
 
 /**
  * @class CodeView
  *
- * Presents your code content.
- *
- * Before view built or started to, as the first step, placeholder
- * measures & prepare place for code view. Amount of view params is
- * not big, view has mutable state & non-standard initialization behavior.
- * That is why there is no usual & well-known Builder pattern implementation.
- *
- * To control interaction state, being & built, was selected tasks queue.
- * If user has already built view his task performs immediately, otherwise
- * it puts in queue to awaiting adapter creation & processing by build flow.
- * This helps to avoid errors & solve the init tasks in more elegant way.
+ * View for showing code content with syntax highlighting.
  *
  * @author Kirill Biakov
  */
-open class CodeView : RelativeLayout {
+class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, attrs) {
 
     private val vShadowRight: View
     private val vShadowBottomLine: View
     private val vShadowBottomContent: View
 
-    /**
-     * Core view to draw code by lines.
-     */
     private val vCodeList: RecyclerView
 
-    fun getRecyclerView(): RecyclerView {
-        return vCodeList
-    }
-
     /**
-     * Default constructor.
+     * Primary constructor.
      */
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
-        val defaultAlpha = 0.7531f
-        var animateOnStart = true
+    init {
+        val isAnimateOnStart = visibility == VISIBLE && { ctx: Context, ats: AttributeSet ->
+            val a = ctx.theme.obtainStyledAttributes(ats, R.styleable.CodeView, 0, 0)
 
-        val a = context.theme.obtainStyledAttributes(attrs, R.styleable.CodeView, 0, 0)
-        try {
-            animateOnStart = a.getBoolean(R.styleable.CodeView_animateOnStart, animateOnStart)
-        } finally {
-            a.recycle()
-        }
-        animateOnStart = animateOnStart && visibility == View.VISIBLE
+            try {
+                a.getBoolean(R.styleable.CodeView_animateOnStart, true)
+            } finally {
+                a.recycle()
+            }
+        }(context, attrs)
 
-        alpha = if (animateOnStart) 0f else defaultAlpha
+        alpha = if (isAnimateOnStart) 0f else Consts.ALPHA
 
         inflate(context, R.layout.layout_code_view, this)
 
-        if (animateOnStart) {
-            animate().setDuration(Utils.DELAY * 5)
-                    .alpha(defaultAlpha)
-        }
+        if (isAnimateOnStart)
+            animate()
+                    .setDuration(Consts.DELAY * 5)
+                    .alpha(Consts.ALPHA)
 
-        vShadowRight = findViewById(R.id.v_shadow_right)//todo: shadow color customization
-        vShadowBottomLine = findViewById(R.id.v_shadow_bottom_line)//todo: shadow color customization
-        vShadowBottomContent = findViewById(R.id.v_shadow_bottom_content)//todo: shadow color customization
+        // TODO: add shadow color customization
+        vShadowRight = findViewById(R.id.v_shadow_right)
+        vShadowBottomLine = findViewById(R.id.v_shadow_bottom_line)
+        vShadowBottomContent = findViewById(R.id.v_shadow_bottom_content)
 
         vCodeList = findViewById(R.id.rv_code_content) as RecyclerView
         vCodeList.layoutManager = LinearLayoutManager(context)
@@ -76,98 +60,138 @@ open class CodeView : RelativeLayout {
     }
 
     /**
-     * Initialize RecyclerView with adapter
-     * then start highlighting
+     * Highlight code with defined programming language.
+     * It holds the placeholder on view until code is not highlighted.
      */
-    fun init(h: Highlighter, adapter: AbstractCodeAdapter<*>) {
-        if (h.code.isEmpty()) {
-            throw IllegalStateException("Please set code() before init/highlight")
-        }
+    private fun highlight() {
+        getAdapter()?.highlight {
 
-        vCodeList.adapter = adapter
-
-        setupShadows(adapter.highlighter.shadows)
-
-        highlight()
-    }
-
-    /**
-     * Initialize RecyclerView with adapter
-     * then start highlighting
-     */
-    fun init(adapter: AbstractCodeAdapter<*>) {
-        init(adapter.highlighter, adapter)
-    }
-
-    /**
-     * Initialize RecyclerView with adapter
-     * then start highlighting
-     */
-    fun init(h: Highlighter) {
-        init(h, CodeWithNotesAdapter(context, h))
-    }
-
-    /**
-     * Highlight code by defined programming language.
-     * It holds the placeholder on the view until code is highlighted.
-     */
-    fun highlight() {
-        if (vCodeList.adapter == null) {
-            throw IllegalStateException("Please set adapter or use init(highlighter) before highlight()")
-        }
-
-        getAdapter()?.highlight() {
-            animate().setDuration(Utils.DELAY * 2)
+            animate()
+                    .setDuration(Consts.DELAY * 2)
                     .alpha(.1f)
 
             delayed {
                 animate().alpha(1f)
-                vCodeList.adapter?.notifyDataSetChanged()
+                getAdapter()?.notifyDataSetChanged()
             }
         }
     }
 
     /**
-     * Remove code listener.
+     * Border shadows will shown if full listing presented.
+     * It helps to see what part of code is scrolled & hidden.
+     *
+     * @param isShadows Is shadows needed
      */
-    fun removeLineClickListener() {
-        getAdapter()?.highlighter?.lineClickListener = null
-    }
-
-    fun getAdapter() = vCodeList.adapter as? AbstractCodeAdapter<*>
-
-    /**
-     * Update code.
-     */
-    fun update(code: String) {
-        getAdapter()?.updateCode(code)
-    }
-
-    /**
-     * Update code.
-     */
-    fun update(h: Highlighter) {
-        init(getAdapter()!!.highlighter.update(h))
-    }
-
-    // - Setup actions
-
-    /**
-     * Border shadows will shown if presented full code listing.
-     * It helps user to see what part of code are scrolled & hidden.
-     */
-    private fun setupShadows(shadows: Boolean) {
-        val visibility = if (shadows) VISIBLE else GONE
+    private fun setupShadows(isShadows: Boolean) {
+        val visibility = if (isShadows) VISIBLE else GONE
 
         vShadowRight.visibility = visibility
         vShadowBottomLine.visibility = visibility
         vShadowBottomContent.visibility = visibility
     }
+
+    // - Initialization
+
+    /**
+     * Prepare view with default adapter & options.
+     */
+    private fun prepare() = setAdapter(CodeWithNotesAdapter(context))
+
+    /**
+     * Initialize with options.
+     *
+     * @param options Options
+     */
+    fun setOptions(options: Options) = setAdapter(CodeWithNotesAdapter(context, options))
+
+    /**
+     * Initialize with adapter.
+     *
+     * @param adapter Adapter
+     */
+    fun setAdapter(adapter: AbstractCodeAdapter<*>) {
+        vCodeList.adapter = adapter
+        setupShadows(adapter.options.shadows)
+        highlight()
+    }
+
+    // - Options
+
+    /**
+     * View options accessor.
+     */
+    fun getOptions(): Options? = getAdapter()?.options
+    fun getOptionsOrDefault() = getOptions() ?: Options(context)
+
+    /**
+     * Update options or initialize if needed.
+     *
+     * @param options Options
+     */
+    fun updateOptions(options: Options) {
+        if (getAdapter() == null)
+            setOptions(options)
+        else
+            getAdapter()!!.options = options
+    }
+
+    // - Adapter
+
+    /**
+     * Code adapter accessor.
+     */
+    fun getAdapter() = vCodeList.adapter as? AbstractCodeAdapter<*>
+
+    /**
+     * Update adapter or initialize if needed.
+     *
+     * @param adapter Adapter
+     */
+    fun updateAdapter(adapter: AbstractCodeAdapter<*>) {
+        adapter.options = getOptionsOrDefault()
+        setAdapter(adapter)
+    }
+
+    // - Set code
+
+    /**
+     * Set code content.
+     *
+     * There are two ways before code will be highlighted:
+     * 1) view is not initialized (adapter or options are not set),
+     *    prepare with default params & try to classify language
+     * 2) view initialized with some params, language:
+     *    a) is set: used defined programming language
+     *    b) not set: try to classify
+     *
+     * @param code Code content
+     */
+    fun setCode(code: String) {
+        getAdapter() ?: prepare()
+        getAdapter()!!.updateCode(code)
+    }
+
+    /**
+     * Set code content.
+     *
+     * There are two ways before code will be highlighted:
+     * 1) view is not initialized, prepare with default params
+     * 2) view initialized with some params, set new language
+     *
+     * @param code Code content
+     * @param language Programming language
+     */
+    fun setCode(code: String, language: String) {
+        val options = getOptionsOrDefault()
+        updateOptions(options.withLanguage(language))
+        getAdapter()!!.updateCode(code)
+    }
 }
 
 /**
- * Provides listener to code line clicks.
+ * Provide listener to code line clicks.
  */
 interface OnCodeLineClickListener {
-    fun onLineClicked(n: Int, line: String)
+    fun onCodeLineClicked(n: Int, line: String)
 }

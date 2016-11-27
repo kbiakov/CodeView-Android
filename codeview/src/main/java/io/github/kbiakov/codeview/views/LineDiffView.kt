@@ -48,7 +48,8 @@ class LineDiffView : RelativeLayout {
             diffView.setBackgroundColor(ContextCompat.getColor(context,
                     if (model.isAddition)
                         R.color.diff_add_background
-                    else R.color.diff_del_background))
+                    else
+                        R.color.diff_del_background))
 
             return diffView
         }

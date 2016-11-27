@@ -4,16 +4,16 @@
 [![Release](https://jitpack.io/v/softwee/codeview-android.svg)](https://jitpack.io/#softwee/codeview-android)
 [![Build Status](https://travis-ci.org/Softwee/codeview-android.svg?branch=master)](https://travis-ci.org/Softwee/codeview-android)
 
-CodeView helps to show code content with syntax highlighting in native way.
+<b>CodeView</b> helps to show code content with syntax highlighting in native way.
 
 ## Description
-CodeView contains 3 core parts to implement necessary logic:<br>
+<b>CodeView</b> contains 3 core parts to implement necessary logic:<br>
 
-1. <b>CodeClassifier</b> is trying to define what language presented in code snippet. It built upon [Naive Bayes classifier](https://github.com/ptnplanet/Java-Naive-Bayes-Classifier). There is no need to work with this class directly & you must just follow instructions below. (Experimental module, may not work properly!)<br>
+1. <b>CodeView</b> & related abstract adapter to provide options & customization (see below).<br>
 
 2. For highlighting it uses <b>CodeHighlighter</b>, just highlights your code & returns formatted content. It based on [Google Prettify](https://github.com/google/code-prettify) and their Java implementation & [fork](https://github.com/google/code-prettify).<br>
 
-3. <b>CodeView</b> & related abstract adapter to provide customization (see below).<br>
+3. <b>CodeClassifier</b> is trying to define what language presented in code snippet. It built using [Naive Bayes classifier](https://en.wikipedia.org/wiki/Naive_Bayes_classifier) upon found open-source [implementation](https://github.com/ptnplanet/Java-Naive-Bayes-Classifier), which I rewrote in Kotlin. There is no need to work with this class directly & you must just follow instructions below. (Experimental module, may not work properly!)<br>
 
 ## Download
 Add it in your root ```build.gradle``` at the end of repositories:
@@ -28,7 +28,7 @@ allprojects {
 
 Add the dependency:
 ```groovy
-compile 'com.github.softwee:codeview-android:1.1.2'
+compile 'com.github.softwee:codeview-android:1.2.0'
 ```
 
 ## Usage
@@ -38,72 +38,87 @@ If you want to use code classifier to auto language recognizing just add to your
 CodeProcessor.init(this);
 ```
 
-Add view for your layout:
+Having done ones on app start you can classify language for different snippets more faster, because algorithm needs time for training on sets for presented listings of languages which library has.
+
+Add view to your layout & bind as usual:
 ```xml
 <io.github.kbiakov.codeview.CodeView
 	android:id="@+id/code_view"
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content"/>
 ```
-
-Use chaining syntax when build view:
 ```java
 CodeView codeView = (CodeView) findViewById(R.id.code_view);
-
-codeView.highlightCode("js")
-        .setColorTheme(ColorTheme.SOLARIZED_LIGHT.withBgContent(myColor))
-        .setCodeContent(getString(R.string.listing_js));
 ```
 
-And perform actions sequentially when view built:
+So now you can set code using implicit form:
 ```java
-codeView.setCodeContent(getString(R.string.listing_java));
-codeView.highlightCode("java");
+// auto language recognition
+codeView.setCode(getString(R.string.listing_js));
 ```
 
-You can use both forms for build & built view, but note: ```setCodeContent(String)``` is final step when you build your view, otherwise not. If you firstly highlight and then set code content, code will not be highlighted if view was not built yet. Instructions above helps you to avoid errors. View has state to handle this behavior.
-
-## Customizing
-Use implicit form to code highlighting:
+Or explicit (see available extensions below):
 ```java
-codeView.highlightCode();
-```
-or eplixit (see available extensions below):
-```java
-codeView.highlightCode("js"); // it will work fast!
+// will work faster!
+codeView.setCode(getString(R.string.listing_py), "py");
 ```
 
-Use default color theme:
+## Customization
+When you call ```setCode(...)``` view will prepared with default params if view was not initialized before. So if you want some customization, it can be done using options and/or adapter.
+
+### Initialization
+You can initialize view with options:
 ```java
-codeView.setColorTheme(ColorTheme.SOLARIZED_LIGHT);
-```
-or extend default:
-```java
-int myColor = ContextCompat.getColor(this, R.color.my_color);
-codeView.setColorTheme(ColorTheme.MONOKAI.withBgContent(myColor));
-```
-or provide your own (don't forget to open PR with this stuff!)
-```java
-codeView.setColorTheme(new ColorThemeData(new SyntaxColors(...), ...));
+codeView.setOptions(Options.Default.get(this)
+    .withLanguage("python")
+    .withCode(R.string.listing_py)
+    .withTheme(ColorTheme.MONOKAI));
 ```
 
-Handle user clicks on code lines:
+Or using adapter (see <b>Adapter</b> or example for more details):
 ```java
-codeView.setCodeListener(new OnCodeLineClickListener() {
-    @Override
-    public void onCodeLineClicked(int n, @NotNull String line) {
-        Log.i("ListingsActivity", "On " + (n + 1) + " line clicked");
-    }
-});
+final CustomAdapter myAdapter = new CustomAdapter(this, getString(R.string.listing_md));
+codeView.setAdapter(myAdapter);
 ```
 
-Enable shadows to hide scrolled content:
+<b>Note:</b> Each <b>CodeView</b> has adapter and each adapter has options. When calling ```setOptions(...)``` or ```setAdapter(...)``` current adapter "flushed" with current options. If you want to save the state and just update options saving adapter or set adapter saving options you must call ```updateOptions(...)``` or ```updateAdapter(...)``` accordingly.
+
+### Options
+Options helps to easily set necessary params, such as code & language, color theme, shortcut params (max lines, note), code line click listener. Some params are unnecessary.
+
+When view initialized (options or adapter are set) you can manipulate options in various ways:
 ```java
-codeView.setShadowsEnabled(true);
+codeView.getOptions()
+    .withCode(R.string.listing_java)
+    .withLanguage("java")
+    .withTheme(ColorTheme.MONOKAI);
 ```
 
-## Adapter customization
-Sometimes you may want to add some content under line. You can create your own implementation as follows:
+### Color theme
+There are some default themes (see full list below):
+```java
+codeView.getOptions().setTheme(ColorTheme.SOLARIZED_LIGHT);
+```
+
+But you can build your own from existing one:
+```java
+ColorThemeData myTheme = ColorTheme.SOLARIZED_LIGHT.theme()
+    .withBgContent(android.R.color.black)
+    .withNoteColor(android.R.color.white);
+
+codeView.getOptions().setTheme(myTheme);
+```
+
+Or create your own from scratch (don't forget to open PR with this stuff!):
+```java
+ColorThemeData customTheme = new ColorThemeData(new SyntaxColors(...), ...);
+codeView.getOptions().setTheme(customTheme);
+```
+
+### Adapter
+Sometimes you may want to take code lines under your control, and that's why you need <b>Adapter</b>.
+
+You can create your own implementation as follows:
 
 1. Create your model to store data, for example some ```MyModel``` class.<br>
 2. Extend ```AbstractCodeAdapter<MyModel>``` typed by your model class.<br>
@@ -169,14 +184,14 @@ C/C++/Objective-C (```"c"```, ```"cc"```, ```"cpp"```, ```"cxx"```, ```"cyc"```,
 Didn't found yours? Please, open issue to show your interest & I'll try to add this language in next releases.
 
 ## List of available themes
-1. Default (simple light theme)
-2. Solarized Light
-3. Monokai
+1. Default (simple light theme).
+2. Solarized Light.
+3. Monokai.
 
 ## Contribute
 1. You can add your theme (see [ColorTheme](https://github.com/Softwee/codeview-android/blob/master/codeview/src/main/java/io/github/kbiakov/codeview/highlight/CodeHighlighter.kt) class). Try to add some classic color themes or create your own if it looks cool. You can find many of them in different open-source text editors.<br>
-2. If you are strong in a regex add missed language as shown [here](https://github.com/Softwee/codeview-android/blob/master/codeview/src/main/java/io/github/kbiakov/codeview/highlight/prettify/lang/LangScala.java). You can find existing regex for some language in different sources of js-libraries, etc, which plays the same role.<br>
-3. Various adapters also welcome, customization is unlimited.
+2. If you are strong in regex, add missed language as shown [here](https://github.com/Softwee/codeview-android/blob/master/codeview/src/main/java/io/github/kbiakov/codeview/highlight/prettify/lang/LangScala.java). You can find existing regex for some language in different sources of libraries, which plays the same role.<br>
+3. Various adapters also welcome.
 
 ## Author
 ### [Kirill Biakov](https://github.com/kbiakov)
