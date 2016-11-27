@@ -40,21 +40,26 @@ CodeProcessor.init(this);
 
 Having done ones on app start you can classify language for different snippets more faster, because algorithm needs time for training on sets for presented listings of languages library have.
 
-Add view to your layout:
+Add view to your layout & bind as usual:
 ```xml
 <io.github.kbiakov.codeview.CodeView
 	android:id="@+id/code_view"
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content"/>
 ```
-
-So now you can set code:
 ```java
-// bind view
 CodeView codeView = (CodeView) findViewById(R.id.code_view);
+```
+
+So now you can set code using implicit form:
+```java
 // auto language recognition
 codeView.setCode(getString(R.string.listing_js));
-// explicit form (will work faster!), see available extensions below
+```
+
+Or explicit (see available extensions below):
+```java
+// will work faster!
 codeView.setCode(getString(R.string.listing_py), "py");
 ```
 
@@ -70,16 +75,16 @@ codeView.setOptions(Options.Default.get(this)
     .withTheme(ColorTheme.MONOKAI));
 ```
 
-Or using adapter (see <b>Adapter customization<b/> or example for more details):
+Or using adapter (see <b>Adapter</b> or example for more details):
 ```java
 final CustomAdapter myAdapter = new CustomAdapter(this, getString(R.string.listing_md));
 codeView.setAdapter(myAdapter);
 ```
 
 ### Options
-<b>Options</b> helps to easily set necessary params, such as code & language, color theme, shortcut params & line click listener. Some params are unnecessary.
+Options helps to easily set necessary params, such as code & language, color theme, shortcut params & code line click listener. Some params are unnecessary.
 
-When view initialized (options or adapter set) you can manipulate options in various ways:
+When view initialized (options or adapter are set) you can manipulate options in various ways:
 ```java
 codeView.getOptions()
     .withCode(R.string.listing_java)
@@ -93,7 +98,7 @@ There are some default themes (see full list below):
 codeView.getOptions().setTheme(ColorTheme.SOLARIZED_LIGHT);
 ```
 
-But you can build your own from existing:
+But you can build your own from existing one:
 ```java
 ColorThemeData myTheme = ColorTheme.SOLARIZED_LIGHT.theme()
     .withBgContent(android.R.color.black)
