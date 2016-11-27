@@ -38,7 +38,7 @@ If you want to use code classifier to auto language recognizing just add to your
 CodeProcessor.init(this);
 ```
 
-Having done ones on app start you can classify language for different snippets more faster, because algorithm needs time for training on sets for presented listings of languages library have.
+Having done ones on app start you can classify language for different snippets more faster, because algorithm needs time for training on sets for presented listings of languages which library has.
 
 Add view to your layout & bind as usual:
 ```xml
@@ -81,8 +81,10 @@ final CustomAdapter myAdapter = new CustomAdapter(this, getString(R.string.listi
 codeView.setAdapter(myAdapter);
 ```
 
+<b>Note:</b> Each <b>CodeView</b> has adapter and each adapter has options. When calling ```setOptions(...)``` or ```setAdapter(...)``` current adapter "flushed" with current options. If you want to save the state and just update options saving adapter or set adapter saving options you must call ```updateOptions(...)``` or ```updateAdapter(...)``` accordingly.
+
 ### Options
-Options helps to easily set necessary params, such as code & language, color theme, shortcut params & code line click listener. Some params are unnecessary.
+Options helps to easily set necessary params, such as code & language, color theme, shortcut params (max lines, note), code line click listener. Some params are unnecessary.
 
 When view initialized (options or adapter are set) you can manipulate options in various ways:
 ```java
@@ -92,7 +94,7 @@ codeView.getOptions()
     .withTheme(ColorTheme.MONOKAI);
 ```
 
-### Color themes
+### Color theme
 There are some default themes (see full list below):
 ```java
 codeView.getOptions().setTheme(ColorTheme.SOLARIZED_LIGHT);
