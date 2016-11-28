@@ -15,9 +15,7 @@ android:
     - extra-android-m2repository # Design Support library
     - sys-img-armeabi-v7a-android-21 # system image (emulator)
   licenses:
-    - android-sdk-preview-license-.+
-    - android-sdk-license-.+
-    - google-gdk-license-.+
+  - android-sdk-license-.+
   
 env:
   global:
@@ -32,5 +30,6 @@ before_script:
 
 script:
   - android list target
+  - android update sdk --no-ui --filter build-tools-24.0.0,android-24,extra-android-m2repository
   - ./gradlew build connectedCheck
   - ./gradlew connectedAndroidTest
