@@ -57,8 +57,8 @@ class LineDiffView : RelativeLayout {
 }
 
 /**
- * Model to provide code difference (additions & deletions).
+ * Model for code difference (additions & deletions).
  *
- * @author Kirill Biako
+ * @author Kirill Biakov
  */
 data class DiffModel(val content: String, val isAddition: Boolean = true)
