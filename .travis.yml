@@ -15,7 +15,9 @@ android:
     - extra-android-m2repository # Design Support library
     - sys-img-armeabi-v7a-android-21 # system image (emulator)
   licenses:
-  - android-sdk-license-.+
+    - android-sdk-preview-license-.+
+    - android-sdk-license-.+
+    - google-gdk-license-.+
   
 env:
   global:
