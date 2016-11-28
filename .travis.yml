@@ -21,8 +21,10 @@ env:
   global:
   - ADB_INSTALL_TIMEOUT=8 # timeout (in minutes)
 
-# Emulator Management: create, start & wait
 before_script:
+  # Automatically accept all SDK licences
+  - echo yes | android update sdk --no-ui --all --filter build-tools-24.0.2,android-24,extra-android-m2repository
+  # Emulator Management: create, start & wait
   - echo no | android create avd --force -n test -t android-21 --abi armeabi-v7a
   - emulator -avd test -no-skin -no-audio -no-window &
   - android-wait-for-emulator
@@ -30,6 +32,5 @@ before_script:
 
 script:
   - android list target
-  - android update sdk --no-ui --filter build-tools-24.0.2,android-24,extra-android-m2repository
   - ./gradlew build connectedCheck
   - ./gradlew connectedAndroidTest
