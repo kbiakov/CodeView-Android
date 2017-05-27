@@ -148,12 +148,14 @@ public class MyCodeAdapter extends AbstractCodeAdapter<MyModel> {
 }
 ```
 <br>
+
 4. Set custom adapter to your code view:
 ```java
 final MyCodeAdapter adapter = new MyCodeAdapter(this, getString(R.string.listing_py));
 codeView.setAdapter(diffsAdapter);
 ```
 <br>
+
 5. Init footer entities to provide mapper from your model to view:
 ```java
 // it will add an addition diff to code line
@@ -162,6 +164,7 @@ adapter.addFooterEntity(16, new MyModel(getString(R.string.py_addition_16), true
 adapter.addFooterEntity(11, new MyModel(getString(R.string.py_deletion_11), false));
 ```
 <br>
+
 6. You can also add a multiple diff entities:
 ```java
 AbstractCodeAdapter<MyModel>.addFooterEntities(HashMap<Int, List<MyModel>> myEntities)
