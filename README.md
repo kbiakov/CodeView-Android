@@ -11,9 +11,9 @@
 
 1. <b>CodeView</b> & related abstract adapter to provide options & customization (see below).<br>
 
-2. For highlighting it uses <b>CodeHighlighter</b>, just highlights your code & returns formatted content. It based on [Google Prettify](https://github.com/google/code-prettify) and their Java implementation & [fork](https://github.com/google/code-prettify).<br>
+2. For highlighting it uses <b>CodeHighlighter</b>, it highlights your code & returns formatted content. It's based on [Google Prettify](https://github.com/google/code-prettify) and their Java implementation & [fork](https://github.com/google/code-prettify).<br>
 
-3. <b>CodeClassifier</b> is trying to define what language presented in code snippet. It built using [Naive Bayes classifier](https://en.wikipedia.org/wiki/Naive_Bayes_classifier) upon found open-source [implementation](https://github.com/ptnplanet/Java-Naive-Bayes-Classifier), which I rewrote in Kotlin. There is no need to work with this class directly & you must just follow instructions below. (Experimental module, may not work properly!)<br>
+3. <b>CodeClassifier</b> is trying to define what language is presented in the code snippet. It's built using [Naive Bayes classifier](https://en.wikipedia.org/wiki/Naive_Bayes_classifier) upon found open-source [implementation](https://github.com/ptnplanet/Java-Naive-Bayes-Classifier), which I rewrote in Kotlin. There is no need to work with this class directly & you must just follow instructions below. (Experimental module, may not work properly!)<br>
 
 ## Download
 Add it in your root ```build.gradle``` at the end of repositories:
@@ -38,7 +38,7 @@ If you want to use code classifier to auto language recognizing just add to your
 CodeProcessor.init(this);
 ```
 
-Having done ones on app start you can classify language for different snippets more faster, because algorithm needs time for training on sets for presented listings of languages which library has.
+Having done ones on app start you can classify language for different snippets even faster, because the algorithm needs time for training on sets for the presented listings of the languages which the library has.
 
 Add view to your layout & bind as usual:
 ```xml
@@ -64,10 +64,10 @@ codeView.setCode(getString(R.string.listing_py), "py");
 ```
 
 ## Customization
-When you call ```setCode(...)``` view will prepared with default params if view was not initialized before. So if you want some customization, it can be done using options and/or adapter.
+When you call ```setCode(...)``` the view will be prepared with the default params if the view was not initialized before. So if you want some customization, it can be done using the options and/or adapter.
 
 ### Initialization
-You can initialize view with options:
+You can initialize the view with options:
 ```java
 codeView.setOptions(Options.Default.get(this)
     .withLanguage("python")
@@ -81,12 +81,12 @@ final CustomAdapter myAdapter = new CustomAdapter(this, getString(R.string.listi
 codeView.setAdapter(myAdapter);
 ```
 
-<b>Note:</b> Each <b>CodeView</b> has adapter and each adapter has options. When calling ```setOptions(...)``` or ```setAdapter(...)``` current adapter "flushed" with current options. If you want to save the state and just update options saving adapter or set adapter saving options you must call ```updateOptions(...)``` or ```updateAdapter(...)``` accordingly.
+<b>Note:</b> Each <b>CodeView</b> has a adapter and each adapter has options. When calling ```setOptions(...)``` or ```setAdapter(...)``` the current adapter is "flushed" with the current options. If you want to save the state and just update options saving adapter or set adapter saving options you must call ```updateOptions(...)``` or ```updateAdapter(...)``` accordingly.
 
 ### Options
 Options helps to easily set necessary params, such as code & language, color theme, shortcut params (max lines, note), code line click listener. Some params are unnecessary.
 
-When view initialized (options or adapter are set) you can manipulate options in various ways:
+When the view is initialized (options or adapter are set) you can manipulate the options in various ways:
 ```java
 codeView.getOptions()
     .withCode(R.string.listing_java)
@@ -100,7 +100,7 @@ There are some default themes (see full list below):
 codeView.getOptions().setTheme(ColorTheme.SOLARIZED_LIGHT);
 ```
 
-But you can build your own from existing one:
+But you can build your own from a existing one:
 ```java
 ColorThemeData myTheme = ColorTheme.SOLARIZED_LIGHT.theme()
     .withBgContent(android.R.color.black)
@@ -116,7 +116,7 @@ codeView.getOptions().setTheme(customTheme);
 ```
 
 ### Adapter
-Sometimes you may want to take code lines under your control, and that's why you need <b>Adapter</b>.
+Sometimes you may want to take code lines under your control, and that's why you need a <b>Adapter</b>.
 
 You can create your own implementation as follows:
 
