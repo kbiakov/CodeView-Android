@@ -30,24 +30,17 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
      * Primary constructor.
      */
     init {
-        val isAnimateOnStart = visibility == VISIBLE && { ctx: Context, ats: AttributeSet ->
-            val a = ctx.theme.obtainStyledAttributes(ats, R.styleable.CodeView, 0, 0)
-
-            try {
-                a.getBoolean(R.styleable.CodeView_animateOnStart, true)
-            } finally {
-                a.recycle()
-            }
-        }(context, attrs)
-
-        alpha = if (isAnimateOnStart) 0f else Consts.ALPHA
-
         inflate(context, R.layout.layout_code_view, this)
 
-        if (isAnimateOnStart)
+        if (visibility == VISIBLE && isAnimateOnStart(context, attrs)) {
+            alpha = Const.Alpha.Invisible
+
             animate()
-                    .setDuration(Consts.DELAY * 5)
-                    .alpha(Consts.ALPHA)
+                    .setDuration(Const.DefaultDelay * 5)
+                    .alpha(Const.Alpha.Initial)
+        } else {
+            alpha = Const.Alpha.Initial
+        }
 
         // TODO: add shadow color customization
         vShadowRight = findViewById(R.id.v_shadow_right)
@@ -67,7 +60,7 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
         getAdapter()?.highlight {
 
             animate()
-                    .setDuration(Consts.DELAY * 2)
+                    .setDuration(Const.DefaultDelay * 2)
                     .alpha(.1f)
 
             delayed {
@@ -121,7 +114,7 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
     /**
      * View options accessor.
      */
-    fun getOptions(): Options? = getAdapter()?.options
+    fun getOptions() = getAdapter()?.options
     fun getOptionsOrDefault() = getOptions() ?: Options(context)
 
     /**
@@ -130,10 +123,8 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
      * @param options Options
      */
     fun updateOptions(options: Options) {
-        if (getAdapter() == null)
-            setOptions(options)
-        else
-            getAdapter()!!.options = options
+        getAdapter() ?: setOptions(options)
+        getAdapter()?.options = options
     }
 
     // - Adapter
@@ -169,7 +160,7 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
      */
     fun setCode(code: String) {
         getAdapter() ?: prepare()
-        getAdapter()!!.updateCode(code)
+        getAdapter()?.updateCode(code)
     }
 
     /**
@@ -185,7 +176,19 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
     fun setCode(code: String, language: String) {
         val options = getOptionsOrDefault()
         updateOptions(options.withLanguage(language))
-        getAdapter()!!.updateCode(code)
+        getAdapter()?.updateCode(code)
+    }
+
+    companion object {
+
+        private fun isAnimateOnStart(context: Context, attr: AttributeSet): Boolean {
+            context.theme.obtainStyledAttributes(attr, R.styleable.CodeView, 0, 0).apply {
+                val flag = getBoolean(R.styleable.CodeView_animateOnStart, false)
+                recycle()
+                return@isAnimateOnStart flag
+            }
+            return false
+        }
     }
 }
 

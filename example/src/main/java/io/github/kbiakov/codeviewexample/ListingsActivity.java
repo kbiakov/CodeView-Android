@@ -24,7 +24,7 @@ public class ListingsActivity extends AppCompatActivity {
 
         final CodeView codeView = (CodeView) findViewById(R.id.code_view);
 
-        /**
+        /*
          * 1: set code content
          */
 
@@ -34,7 +34,7 @@ public class ListingsActivity extends AppCompatActivity {
         // specify language for code listing
         codeView.setCode(getString(R.string.listing_py), "py");
 
-        /**
+        /*
          * 2: working with options
          */
 
@@ -66,7 +66,7 @@ public class ListingsActivity extends AppCompatActivity {
                     }
                 }));
 
-        /**
+        /*
          * 3: color themes
          */
 
@@ -79,7 +79,7 @@ public class ListingsActivity extends AppCompatActivity {
 
         codeView.getOptions().setTheme(myTheme);
 
-        /**
+        /*
          * 4: custom adapter with footer views
          */
 
@@ -94,7 +94,7 @@ public class ListingsActivity extends AppCompatActivity {
                     }
                 });
 
-        /**
+        /*
          * 5: diff adapter with footer views
          */
 
@@ -107,8 +107,7 @@ public class ListingsActivity extends AppCompatActivity {
         diffsAdapter.addFooterEntity(16, new DiffModel(getString(R.string.py_addition_16), true));
         diffsAdapter.addFooterEntity(11, new DiffModel(getString(R.string.py_deletion_11), false));
 
-
-        /**
+        /*
          * 6: shortcut adapter with footer views
          */
 
