@@ -4,9 +4,11 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.text.Html
+import android.text.Spanned
 import android.util.TypedValue
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.util.*
 import java.util.concurrent.Executors
 
 object Const {
@@ -47,6 +49,14 @@ fun spaceSplit(source: String) = source.split("\\s".toRegex())
 fun extractLines(source: String) = listOf(*source.split("\n").toTypedArray())
 
 /**
+ * Slice list by index.
+ *
+ * @param idx Index to slice
+ * @return Pair of lists with head and tail
+ */
+fun <T> List<T>.slice(idx: Int) = Pair(this.subList(0, idx), this.subList(idx, this.lastIndex))
+
+/**
  * Get HTML from string.
  *
  * @param content Source
@@ -55,9 +65,11 @@ fun extractLines(source: String) = listOf(*source.split("\n").toTypedArray())
 @Suppress("deprecation")
 fun html(content: String) =
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N)
-            Html.fromHtml(content, Html.FROM_HTML_MODE_LEGACY)
+            Html.fromHtml(content.htmlSafe(), Html.FROM_HTML_MODE_LEGACY)
         else
-            Html.fromHtml(content)
+            Html.fromHtml(content.htmlSafe())
+
+fun String.htmlSafe() = replace(" ", "&nbsp;")
 
 object Thread {
     /**
