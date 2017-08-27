@@ -261,7 +261,7 @@ fun String.withFontParams(color: String?): String {
 
         // put tag on the borders (end & start of line, ..., end of tag)
         do { // until closing tag is reached
-            val part = substring(idx..newIdx - 1).inFontTag(color).plus("\n")
+            val part = substring(idx .. newIdx - 1).inFontTag(color).plus("\n")
             parametrizedString.append(part)
 
             idx = newIdx + 1

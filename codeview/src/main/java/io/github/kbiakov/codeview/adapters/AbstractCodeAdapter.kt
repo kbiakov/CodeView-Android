@@ -146,7 +146,6 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
     private fun highlighting(language: String, onReady: () -> Unit) {
         // TODO: highlight by 10 lines
         val code = CodeHighlighter.highlight(language, options.code, options.theme)
-
         updateContent(code, onReady)
     }
 

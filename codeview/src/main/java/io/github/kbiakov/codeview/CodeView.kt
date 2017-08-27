@@ -20,18 +20,29 @@ import io.github.kbiakov.codeview.adapters.Options
  */
 class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, attrs) {
 
-    private val vShadowRight: View
-    private val vShadowBottomLine: View
-    private val vShadowBottomContent: View
-
     private val vCodeList: RecyclerView
+    private val vShadows: List<View>
 
     /**
      * Primary constructor.
      */
     init {
         inflate(context, R.layout.layout_code_view, this)
+        checkInitialAnimation(attrs)
 
+        // TODO: add shadow color customization
+        vShadows = listOf(
+                R.id.v_shadow_right,
+                R.id.v_shadow_bottom_line,
+                R.id.v_shadow_bottom_content
+        ).map(this::findViewById)
+
+        vCodeList = findViewById(R.id.rv_code_content) as RecyclerView
+        vCodeList.layoutManager = LinearLayoutManager(context)
+        vCodeList.isNestedScrollingEnabled = true
+    }
+
+    private fun checkInitialAnimation(attrs: AttributeSet) {
         if (visibility == VISIBLE && isAnimateOnStart(context, attrs)) {
             alpha = Const.Alpha.Invisible
 
@@ -41,15 +52,6 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
         } else {
             alpha = Const.Alpha.Initial
         }
-
-        // TODO: add shadow color customization
-        vShadowRight = findViewById(R.id.v_shadow_right)
-        vShadowBottomLine = findViewById(R.id.v_shadow_bottom_line)
-        vShadowBottomContent = findViewById(R.id.v_shadow_bottom_content)
-
-        vCodeList = findViewById(R.id.rv_code_content) as RecyclerView
-        vCodeList.layoutManager = LinearLayoutManager(context)
-        vCodeList.isNestedScrollingEnabled = true
     }
 
     /**
@@ -58,13 +60,11 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
      */
     private fun highlight() {
         getAdapter()?.highlight {
-
             animate()
                     .setDuration(Const.DefaultDelay * 2)
                     .alpha(.1f)
-
             delayed {
-                animate().alpha(1f)
+                animate().alpha(Const.Alpha.Visible)
                 getAdapter()?.notifyDataSetChanged()
             }
         }
@@ -78,10 +78,7 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
      */
     private fun setupShadows(isShadows: Boolean) {
         val visibility = if (isShadows) VISIBLE else GONE
-
-        vShadowRight.visibility = visibility
-        vShadowBottomLine.visibility = visibility
-        vShadowBottomContent.visibility = visibility
+        vShadows.forEach { it.visibility = visibility }
     }
 
     // - Initialization
