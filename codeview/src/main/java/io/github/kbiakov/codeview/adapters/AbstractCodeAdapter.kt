@@ -2,6 +2,7 @@ package io.github.kbiakov.codeview.adapters
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Typeface
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -159,8 +160,6 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         ui(onUpdated)
     }
 
-    private fun monoTypeface() = MonoFontCache.getInstance(context).typeface
-
     // - View holder
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -169,12 +168,12 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         lineView.setBackgroundColor(options.theme.bgContent.color())
 
         val tvLineNum = lineView.findViewById(R.id.tv_line_num) as TextView
-        tvLineNum.typeface = monoTypeface()
+        tvLineNum.typeface = options.font
         tvLineNum.setTextColor(options.theme.numColor.color())
         tvLineNum.setBackgroundColor(options.theme.bgNum.color())
 
         val tvLineContent = lineView.findViewById(R.id.tv_line_content) as TextView
-        tvLineContent.typeface = monoTypeface()
+        tvLineContent.typeface = options.font
 
         val holder = ViewHolder(lineView)
         holder.setIsRecyclable(false)
@@ -292,6 +291,7 @@ data class Options(
         var code: String = "",
         var language: String? = null,
         var theme: ColorThemeData = ColorTheme.DEFAULT.theme(),
+        var font: Typeface = FontCache.get(context).getTypeface(context),
         var shadows: Boolean = false,
         var shortcut: Boolean = false,
         var shortcutNote: String = context.getString(R.string.show_all),
@@ -329,6 +329,24 @@ data class Options(
 
     fun setTheme(theme: ColorTheme) {
         withTheme(theme)
+    }
+
+    fun withFont(fontPath: String): Options {
+        this.font = FontCache.get(context).getTypeface(context, fontPath)
+        return this
+    }
+
+    fun withFont(font: Font): Options {
+        this.font = FontCache.get(context).getTypeface(context, font)
+        return this
+    }
+
+    fun setFont(fontPath: String) {
+        withFont(fontPath)
+    }
+
+    fun setFont(font: Font) {
+        withFont(font)
     }
 
     fun withShadows(): Options {

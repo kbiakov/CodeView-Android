@@ -14,8 +14,8 @@ import java.util.*
 object CodeHighlighter {
 
     private val LT_BRACE = "<".toRegex()
-    private val LT_REGULAR = "&lt;"
-    private val LT_TMP = "^"
+    private const val LT_REGULAR = "&lt;"
+    private const val LT_TMP = "^"
 
     private val parser = PrettifyParser()
 
@@ -38,7 +38,6 @@ object CodeHighlighter {
             val content = parseContent(source, it)
             highlighted.append(content.withFontParams(color))
         }
-
         return highlighted.toString()
     }
 
@@ -204,6 +203,24 @@ data class SyntaxColors(
         val declaration: Int = 0x268BD2,
         val attrName: Int = 0x268BD2,
         val attrValue: Int = 0x269186)
+
+/**
+ * Font presets.
+ */
+enum class Font {
+    Consolas,
+    CourierNew,
+    DejaVuSansMono,
+    DroidSansMonoSlashed,
+    Inconsolata,
+    Monaco;
+
+    companion object {
+        val Default = DroidSansMonoSlashed
+    }
+}
+
+// - Helpers
 
 /**
  * @return Converted hex int to color by adding alpha-channel

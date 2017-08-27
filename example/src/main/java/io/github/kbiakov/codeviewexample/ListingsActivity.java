@@ -13,6 +13,8 @@ import io.github.kbiakov.codeview.adapters.CodeWithDiffsAdapter;
 import io.github.kbiakov.codeview.adapters.Options;
 import io.github.kbiakov.codeview.highlight.ColorTheme;
 import io.github.kbiakov.codeview.highlight.ColorThemeData;
+import io.github.kbiakov.codeview.highlight.Font;
+import io.github.kbiakov.codeview.highlight.FontCache;
 import io.github.kbiakov.codeview.views.DiffModel;
 
 public class ListingsActivity extends AppCompatActivity {
@@ -47,19 +49,21 @@ public class ListingsActivity extends AppCompatActivity {
         codeView.setOptions(Options.Default.get(this)
                 .withLanguage("python")
                 .withCode(R.string.listing_py)
-                .withTheme(ColorTheme.MONOKAI));
+                .withTheme(ColorTheme.MONOKAI)
+                .withFont(Font.Consolas));
 
         // expanded form of initialization
         codeView.setOptions(new Options(
-                this,                           // context
-                getString(R.string.listing_js), // code
-                "js",                           // language
-                ColorTheme.MONOKAI.theme(),     // theme (data)
-                true,                           // shadows
-                true,                           // shortcut
-                getString(R.string.show_all),   // shortcut note
-                10,                             // max lines
-                new OnCodeLineClickListener() { // line click listener
+                this,                                   // context
+                getString(R.string.listing_js),         // code
+                "js",                                   // language
+                ColorTheme.MONOKAI.theme(),             // theme (data)
+                FontCache.get(this).getTypeface(this),  // font
+                true,                                   // shadows
+                true,                                   // shortcut
+                getString(R.string.show_all),           // shortcut note
+                10,                                     // max lines
+                new OnCodeLineClickListener() {         // line click listener
                     @Override
                     public void onCodeLineClicked(int n, @NotNull String line) {
                         Log.i("ListingsActivity", "On " + (n + 1) + " line clicked");

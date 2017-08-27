@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.widget.RelativeLayout
 import android.widget.TextView
 import io.github.kbiakov.codeview.R
-import io.github.kbiakov.codeview.highlight.MonoFontCache
+import io.github.kbiakov.codeview.highlight.FontCache
 
 /**
  * @class CodeDiffView
@@ -43,7 +43,7 @@ class LineDiffView : RelativeLayout {
             val diffView = LineDiffView(context)
             diffView.tvLineDiff.text = if (model.isAddition) "+" else "-"
             diffView.tvLineContent.text = model.content
-            diffView.tvLineContent.typeface = MonoFontCache.getInstance(context).typeface
+            diffView.tvLineContent.typeface = FontCache.get(context).getTypeface(context)
 
             diffView.setBackgroundColor(ContextCompat.getColor(context,
                     if (model.isAddition)
