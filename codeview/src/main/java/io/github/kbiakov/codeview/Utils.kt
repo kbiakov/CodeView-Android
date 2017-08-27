@@ -8,11 +8,17 @@ import android.text.Spanned
 import android.util.TypedValue
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.util.*
 import java.util.concurrent.Executors
 
-object Consts {
-    val ALPHA = 0.7F
-    val DELAY = 250L
+object Const {
+    val DefaultDelay = 250L
+
+    object Alpha {
+        val Initial = 0.7f
+        val Invisible = 0f
+        val Visible = 1f
+    }
 }
 
 /**
@@ -22,7 +28,7 @@ object Consts {
  * @param dp Dip value
  * @return Converted to px value
  */
-fun dpToPx(context: Context, dp: Int): Int =
+fun dpToPx(context: Context, dp: Int) =
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 dp.toFloat(), context.resources.displayMetrics).toInt()
 
@@ -43,17 +49,27 @@ fun spaceSplit(source: String) = source.split("\\s".toRegex())
 fun extractLines(source: String) = listOf(*source.split("\n").toTypedArray())
 
 /**
+ * Slice list by index.
+ *
+ * @param idx Index to slice
+ * @return Pair of lists with head and tail
+ */
+fun <T> List<T>.slice(idx: Int) = Pair(this.subList(0, idx), this.subList(idx, this.lastIndex))
+
+/**
  * Get HTML from string.
  *
  * @param content Source
  * @return Spanned HTML string
  */
 @Suppress("deprecation")
-fun html(content: String): Spanned =
+fun html(content: String) =
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N)
-            Html.fromHtml(content, Html.FROM_HTML_MODE_LEGACY)
+            Html.fromHtml(content.htmlSafe(), Html.FROM_HTML_MODE_LEGACY)
         else
-            Html.fromHtml(content)
+            Html.fromHtml(content.htmlSafe())
+
+fun String.htmlSafe() = replace(" ", "&nbsp;")
 
 object Thread {
     /**
@@ -80,15 +96,14 @@ object Thread {
      * @param body Operation body
      * @param delayMs Delay in m
      */
-    fun delayed(delayMs: Long = Consts.DELAY, body: () -> Unit) =
-            Handler().postDelayed(body, delayMs)
+    fun delayed(delayMs: Long = Const.DefaultDelay, body: () -> Unit) {
+        Handler().postDelayed(body, delayMs)
+    }
 
     // - Extensions for block manipulations
 
     fun (() -> Unit).ui(isUi: Boolean = true) {
-        if (isUi) ui {
-            this()
-        } else this()
+        if (isUi) ui(this) else this()
     }
 }
 
@@ -113,15 +128,12 @@ object Files {
         var content = ""
 
         ls(context, path).forEach { filename ->
-            val input = context.assets.open(path + '/' + filename)
+            val input = context.assets.open("$path/$filename")
 
             BufferedReader(InputStreamReader(input, "UTF-8")).useLines {
-                it.forEach { line ->
-                    content += line
-                }
+                content += it.reduce { acc, line -> acc + line }
             }
         }
-
         return content
     }
 }
