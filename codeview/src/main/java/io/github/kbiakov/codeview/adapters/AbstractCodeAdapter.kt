@@ -161,7 +161,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         ui(onUpdated)
     }
 
-    // - View holder
+    // - View holder callbacks
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -177,8 +177,8 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         tvLineContent.typeface = options.font
 
         val isLine = viewType == ViewHolderType.Line.viewType
-        val lineViewHeight = if (isLine) R.dimen.line_height else R.dimen.line_border_height
-        lineView.layoutParams.height = context.resources.getDimension(lineViewHeight).toInt()
+        val viewHeight = if (isLine) R.dimen.line_height else R.dimen.line_border_height
+        lineView.layoutParams.height = context.resources.getDimension(viewHeight).toInt()
 
         if (isLine) {
             val holder = LineViewHolder(lineView)
@@ -191,21 +191,21 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
 
     override fun onBindViewHolder(holder: ViewHolder, pos: Int) {
         if (holder is LineViewHolder) {
-            val lineNum = pos - LineStartIdx
-            val lineCode = lines[lineNum]
-            holder.mItem = lineCode
+            val num = pos - LineStartIdx
+            val line = lines[num]
+            holder.mItem = line
 
             options.lineClickListener?.let {
                 holder.itemView.setOnClickListener {
-                    options.lineClickListener?.onCodeLineClicked(lineNum, lineCode)
+                    options.lineClickListener?.onCodeLineClicked(num, line)
                 }
             }
-            setupLine(lineNum, lineCode, holder)
-            displayLineFooter(lineNum, holder)
+            setupLine(num, line, holder)
+            displayLineFooter(num, holder)
         }
     }
 
-    override fun getItemCount() = lines.size + BordersCount // lines + borders
+    override fun getItemCount() = lines.size + BordersCount
 
     override fun getItemViewType(pos: Int) = ViewHolderType.get(pos, itemCount)
 
@@ -247,7 +247,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         private fun Pair<List<String>, List<String>>.droppedLines() = second
     }
 
-    // - ViewHolder
+    // - View holder types
 
     enum class ViewHolderType(val viewType: Int) {
         Line(0), Border(1);
