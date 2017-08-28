@@ -12,6 +12,8 @@ import android.widget.TextView
 import io.github.kbiakov.codeview.*
 import io.github.kbiakov.codeview.Thread.async
 import io.github.kbiakov.codeview.Thread.ui
+import io.github.kbiakov.codeview.adapters.AbstractCodeAdapter.ViewHolderType.Companion.BordersCount
+import io.github.kbiakov.codeview.adapters.AbstractCodeAdapter.ViewHolderType.Companion.LineStartIdx
 import io.github.kbiakov.codeview.classifier.CodeClassifier
 import io.github.kbiakov.codeview.classifier.CodeProcessor
 import io.github.kbiakov.codeview.highlight.*
@@ -174,33 +176,38 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         val tvLineContent = lineView.findViewById(R.id.tv_line_content) as TextView
         tvLineContent.typeface = options.font
 
-        val holder = ViewHolder(lineView)
-        holder.setIsRecyclable(false)
-        return holder
+        val isLine = viewType == ViewHolderType.Line.viewType
+        val lineViewHeight = if (isLine) R.dimen.line_height else R.dimen.line_border_height
+        lineView.layoutParams.height = context.resources.getDimension(lineViewHeight).toInt()
+
+        if (isLine) {
+            val holder = LineViewHolder(lineView)
+            holder.setIsRecyclable(false)
+            return holder
+        } else {
+            return BorderViewHolder(lineView)
+        }
     }
 
     override fun onBindViewHolder(holder: ViewHolder, pos: Int) {
-        val codeLine = lines[pos]
-        holder.mItem = codeLine
+        if (holder is LineViewHolder) {
+            val lineNum = pos - LineStartIdx
+            val lineCode = lines[lineNum]
+            holder.mItem = lineCode
 
-        options.lineClickListener?.let {
-            holder.itemView.setOnClickListener {
-                options.lineClickListener?.onCodeLineClicked(pos, codeLine)
+            options.lineClickListener?.let {
+                holder.itemView.setOnClickListener {
+                    options.lineClickListener?.onCodeLineClicked(lineNum, lineCode)
+                }
             }
+            setupLine(lineNum, lineCode, holder)
+            displayLineFooter(lineNum, holder)
         }
-
-        setupLine(pos, codeLine, holder)
-        displayLineFooter(pos, holder)
-        addExtraPadding(pos, holder)
     }
 
-    override fun getItemCount() = lines.size
+    override fun getItemCount() = lines.size + BordersCount // lines + borders
 
-    private fun Int.isFirst() = this == 0
-    private fun Int.isLast() = this == itemCount - 1
-    private fun Int.isJustFirst() = isFirst() && !isLast()
-    private fun Int.isJustLast() = isLast() && !isFirst()
-    private fun Int.isBorder() = isFirst() || isLast()
+    override fun getItemViewType(pos: Int) = ViewHolderType.get(pos, itemCount)
 
     // - Helpers (for view holder)
 
@@ -209,7 +216,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         holder.tvLineContent.text = html(line)
         holder.tvLineContent.setTextColor(options.theme.noteColor.color())
 
-        if (options.shortcut && pos == MAX_SHORTCUT_LINES) {
+        if (options.shortcut && pos == MaxShortcutLines) {
             holder.tvLineNum.textSize = 10f
             holder.tvLineNum.text = context.getString(R.string.dots)
         } else {
@@ -233,31 +240,38 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         }
     }
 
-    private fun addExtraPadding(pos: Int, holder: ViewHolder) {
-        if (pos.isBorder()) {
-            val dp8 = dpToPx(context, 8)
-            val topPadding = if (pos.isJustFirst()) dp8 else 0
-            val bottomPadding = if (pos.isJustLast()) dp8 else 0
-            holder.tvLineNum.setPadding(0, topPadding, 0, bottomPadding)
-            holder.tvLineContent.setPadding(0, topPadding, 0, bottomPadding)
-        } else {
-            holder.tvLineNum.setPadding(0, 0, 0, 0)
-            holder.tvLineContent.setPadding(0, 0, 0, 0)
-        }
-    }
-
     companion object {
-        private const val MAX_SHORTCUT_LINES = 6
+        private const val MaxShortcutLines = 6
 
         private fun Pair<List<String>, List<String>>.linesToShow() = first
         private fun Pair<List<String>, List<String>>.droppedLines() = second
+    }
+
+    // - ViewHolder
+
+    enum class ViewHolderType(val viewType: Int) {
+        Line(0), Border(1);
+
+        companion object {
+            const val LineStartIdx = 1
+            const val BordersCount = 2
+
+            fun Int.lineEndIdx() = this - BordersCount
+
+            fun get(pos: Int, n: Int) = when (pos) {
+                in LineStartIdx .. n.lineEndIdx() ->
+                    ViewHolderType.Line.viewType
+                else ->
+                    ViewHolderType.Border.viewType
+            }
+        }
     }
 
     /**
      * View holder for code adapter.
      * Stores all views related to code line layout.
      */
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    open class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvLineNum = itemView.findViewById(R.id.tv_line_num) as TextView
         val tvLineContent = itemView.findViewById(R.id.tv_line_content) as TextView
         val llLineFooter = itemView.findViewById(R.id.ll_line_footer) as LinearLayout
@@ -266,6 +280,14 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
 
         override fun toString() = "${super.toString()} '$mItem'"
     }
+
+    class LineViewHolder(itemView: View) : ViewHolder(itemView)
+
+    /**
+     * View holder for padding.
+     * Stores all views related to code line layout.
+     */
+    class BorderViewHolder(itemView: View) : ViewHolder(itemView)
 }
 
 /**

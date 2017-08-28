@@ -7,12 +7,10 @@ import android.text.Html
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextUtils
-import android.util.Log
 import android.util.TypedValue
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.concurrent.Executors
-import java.util.stream.IntStream
 
 object Const {
     val DefaultDelay = 250L
