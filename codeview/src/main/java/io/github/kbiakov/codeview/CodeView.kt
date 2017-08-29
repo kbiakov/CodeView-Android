@@ -28,7 +28,7 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
      */
     init {
         inflate(context, R.layout.layout_code_view, this)
-        checkInitialAnimation(attrs)
+        checkStartAnimation(attrs)
 
         // TODO: add shadow color customization
         vShadows = listOf(
@@ -42,16 +42,27 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
         vCodeList.isNestedScrollingEnabled = true
     }
 
-    private fun checkInitialAnimation(attrs: AttributeSet) {
-        if (visibility == VISIBLE && isAnimateOnStart(context, attrs)) {
+    private fun checkStartAnimation(attrs: AttributeSet) {
+        if (visibility == VISIBLE && attrs.isAnimateOnStart(context)) {
             alpha = Const.Alpha.Invisible
 
             animate()
                     .setDuration(Const.DefaultDelay * 5)
                     .alpha(Const.Alpha.Initial)
-        } else {
+        } else
             alpha = Const.Alpha.Initial
-        }
+    }
+
+    private fun AbstractCodeAdapter<*>.checkHighlightAnimation(action: () -> Unit) {
+        if (options.animateOnHighlight) {
+            animate()
+                    .setDuration(Const.DefaultDelay * 2)
+                    .alpha(Const.Alpha.AlmostInvisible)
+            delayed {
+                animate().alpha(Const.Alpha.Visible)
+                action()
+            }
+        } else action()
     }
 
     /**
@@ -59,13 +70,9 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
      * It holds the placeholder on view until code is not highlighted.
      */
     private fun highlight() {
-        getAdapter()?.highlight {
-            animate()
-                    .setDuration(Const.DefaultDelay * 2)
-                    .alpha(.1f)
-            delayed {
-                animate().alpha(Const.Alpha.Visible)
-                getAdapter()?.notifyDataSetChanged()
+        getAdapter()?.apply {
+            highlight {
+                checkHighlightAnimation(this::notifyDataSetChanged)
             }
         }
     }
@@ -124,6 +131,12 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
         getAdapter()?.options = options
     }
 
+    fun updateOptions(): Options {
+        val options = getOptions() ?: getOptionsOrDefault()
+        updateOptions(options)
+        return options
+    }
+
     // - Adapter
 
     /**
@@ -178,8 +191,8 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
 
     companion object {
 
-        private fun isAnimateOnStart(context: Context, attr: AttributeSet): Boolean {
-            context.theme.obtainStyledAttributes(attr, R.styleable.CodeView, 0, 0).apply {
+        private fun AttributeSet.isAnimateOnStart(context: Context): Boolean {
+            context.theme.obtainStyledAttributes(this, R.styleable.CodeView, 0, 0).apply {
                 val flag = getBoolean(R.styleable.CodeView_animateOnStart, false)
                 recycle()
                 return@isAnimateOnStart flag

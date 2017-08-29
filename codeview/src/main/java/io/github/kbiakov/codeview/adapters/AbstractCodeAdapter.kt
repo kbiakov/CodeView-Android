@@ -191,16 +191,11 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
     override fun onBindViewHolder(holder: ViewHolder, pos: Int) {
         if (holder is LineViewHolder) {
             val num = pos - LineStartIdx
-            val line = lines[num]
-            holder.mItem = line
+            holder.mItem = lines[num]
 
-            options.lineClickListener?.let {
-                holder.itemView.setOnClickListener {
-                    options.lineClickListener?.onCodeLineClicked(num, line)
-                }
-            }
-            setupLine(num, line, holder)
-            displayLineFooter(num, holder)
+            bindClickListener(num, holder)
+            setupContent(num, holder)
+            displayFooter(num, holder)
         }
     }
 
@@ -210,24 +205,36 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
 
     // - Helpers (for view holder)
 
-    @SuppressLint("SetTextI18n")
-    private fun setupLine(pos: Int, line: String, holder: ViewHolder) {
-        val fontSize = options.format.fontSize
-
-        holder.tvLineContent.textSize = fontSize
-        holder.tvLineContent.text = html(line)
-        holder.tvLineContent.setTextColor(options.theme.noteColor.color())
-
-        if (options.shortcut && pos == MaxShortcutLines) {
-            holder.tvLineNum.textSize = fontSize * Format.ShortcutScale
-            holder.tvLineNum.text = context.getString(R.string.dots)
-        } else {
-            holder.tvLineNum.textSize = fontSize
-            holder.tvLineNum.text = "${pos + 1}"
+    private fun bindClickListener(pos: Int, holder: ViewHolder) {
+        options.lineClickListener?.let {
+            holder.itemView.setOnClickListener {
+                options.lineClickListener?.onCodeLineClicked(pos, lines[pos])
+            }
         }
     }
 
-    private fun displayLineFooter(pos: Int, holder: ViewHolder) {
+    @SuppressLint("SetTextI18n")
+    private fun setupContent(pos: Int, holder: ViewHolder) {
+        holder.apply {
+            val fontSize = options.format.fontSize
+            tvLineNum.apply {
+                if (!options.shortcut || pos < MaxShortcutLines) {
+                    text = "${pos + 1}"
+                    textSize = fontSize
+                } else {
+                    text = context.getString(R.string.dots)
+                    textSize = fontSize * Format.ShortcutScale
+                }
+            }
+            tvLineContent.apply {
+                text = html(lines[pos])
+                textSize = fontSize
+                setTextColor(options.theme.noteColor.color())
+            }
+        }
+    }
+
+    private fun displayFooter(pos: Int, holder: ViewHolder) {
         val entityList = footerEntities[pos]
 
         holder.llLineFooter.removeAllViews()
@@ -301,6 +308,9 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
  * @param code Code content
  * @param language Programming language to highlight
  * @param theme Color theme
+ * @param font Font typeface
+ * @param format How much space is content took?
+ * @param animateOnHighlight Is animate on highlight?
  * @param shadows Is border shadows needed?
  * @param maxLines Max lines to show (when limit is reached, rest is dropped)
  * @param shortcut Do you want to show shortcut of code listing?
@@ -316,6 +326,7 @@ data class Options(
         var theme: ColorThemeData = ColorTheme.DEFAULT.theme(),
         var font: Typeface = FontCache.get(context).getTypeface(context),
         var format: Format = Format.Compact,
+        var animateOnHighlight: Boolean = true,
         var shadows: Boolean = false,
         var shortcut: Boolean = false,
         var shortcutNote: String = context.getString(R.string.show_all),
@@ -371,6 +382,21 @@ data class Options(
 
     fun setFont(font: Font) {
         withFont(font)
+    }
+
+    fun withFormat(format: Format): Options {
+        this.format = format
+        return this
+    }
+
+    fun animateOnHighlight(): Options {
+        this.animateOnHighlight = true
+        return this
+    }
+
+    fun disableHighlightAnimation(): Options {
+        this.animateOnHighlight = false
+        return this
     }
 
     fun withShadows(): Options {

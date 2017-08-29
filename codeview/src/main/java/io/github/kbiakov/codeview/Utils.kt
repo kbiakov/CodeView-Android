@@ -16,9 +16,11 @@ object Const {
     val DefaultDelay = 250L
 
     object Alpha {
-        val Initial = 0.7f
-        val Invisible = 0f
         val Visible = 1f
+        val Initial = 0.7f
+
+        val AlmostInvisible = 0.1f
+        val Invisible = 0f
     }
 }
 
