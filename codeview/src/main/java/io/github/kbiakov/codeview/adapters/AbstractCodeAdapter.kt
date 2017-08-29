@@ -177,16 +177,15 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         tvLineContent.typeface = options.font
 
         val isLine = viewType == ViewHolderType.Line.viewType
-        val viewHeight = if (isLine) R.dimen.line_height else R.dimen.line_border_height
-        lineView.layoutParams.height = context.resources.getDimension(viewHeight).toInt()
-
-        if (isLine) {
+        options.format.apply {
+            val height = if (isLine) lineHeight else borderHeight
+            lineView.layoutParams.height = dpToPx(context, height)
+        }
+        return if (isLine) {
             val holder = LineViewHolder(lineView)
             holder.setIsRecyclable(false)
-            return holder
-        } else {
-            return BorderViewHolder(lineView)
-        }
+            holder
+        } else BorderViewHolder(lineView)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, pos: Int) {
@@ -213,14 +212,17 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
 
     @SuppressLint("SetTextI18n")
     private fun setupLine(pos: Int, line: String, holder: ViewHolder) {
+        val fontSize = options.format.fontSize
+
+        holder.tvLineContent.textSize = fontSize
         holder.tvLineContent.text = html(line)
         holder.tvLineContent.setTextColor(options.theme.noteColor.color())
 
         if (options.shortcut && pos == MaxShortcutLines) {
-            holder.tvLineNum.textSize = 10f
+            holder.tvLineNum.textSize = fontSize * Format.ShortcutScale
             holder.tvLineNum.text = context.getString(R.string.dots)
         } else {
-            holder.tvLineNum.textSize = 12f
+            holder.tvLineNum.textSize = fontSize
             holder.tvLineNum.text = "${pos + 1}"
         }
     }
@@ -313,6 +315,7 @@ data class Options(
         var language: String? = null,
         var theme: ColorThemeData = ColorTheme.DEFAULT.theme(),
         var font: Typeface = FontCache.get(context).getTypeface(context),
+        var format: Format = Format.Compact,
         var shadows: Boolean = false,
         var shortcut: Boolean = false,
         var shortcutNote: String = context.getString(R.string.show_all),
@@ -399,5 +402,23 @@ data class Options(
 
     companion object Default {
         fun get(context: Context) = Options(context)
+    }
+}
+
+data class Format(val scaleFactor: Float = 1f,
+                  val lineHeight: Int = (LineHeight * scaleFactor).toInt(),
+                  val borderHeight: Int = (BorderHeight * scaleFactor).toInt(),
+                  val fontSize: Float = FontSize.toFloat()) {
+
+    companion object Default {
+        private const val LineHeight = 18
+        private const val BorderHeight = 3
+        private const val FontSize = 12
+
+        internal const val ShortcutScale = 0.83f
+
+        val ExtraCompact = Format(0.88f)
+        val Compact = Format()
+        val Medium = Format(1.33f)
     }
 }
