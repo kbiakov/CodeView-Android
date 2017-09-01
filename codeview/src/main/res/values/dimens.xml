@@ -4,4 +4,6 @@
     <dimen name="line_height">24dp</dimen>
     <dimen name="line_border_height">4dp</dimen>
     <dimen name="line_text_size">12sp</dimen>
+    <dimen name="shadow_width">24dp</dimen>
+    <dimen name="shadow_height">16dp</dimen>
 </resources>

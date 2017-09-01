@@ -222,6 +222,8 @@ enum class Font {
 
 // - Helpers
 
+const val transparent = "#00000000"
+
 /**
  * @return Converted hex int to color by adding alpha-channel
  */
@@ -271,7 +273,6 @@ fun String.withFontParams(color: String?): String {
         if (idx != indexOf("\n")) // if not replaced only once (for multiline tag coverage)
             parametrizedString.append(substring(idx).inFontTag(color))
     }
-
     return parametrizedString.toString()
 }
 
