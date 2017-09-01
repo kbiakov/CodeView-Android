@@ -4,20 +4,23 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.text.Html
+import android.text.SpannableString
 import android.text.Spanned
+import android.text.TextUtils
 import android.util.TypedValue
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import java.util.*
 import java.util.concurrent.Executors
 
 object Const {
     val DefaultDelay = 250L
 
     object Alpha {
-        val Initial = 0.7f
-        val Invisible = 0f
         val Visible = 1f
+        val Initial = 0.7f
+
+        val AlmostInvisible = 0.1f
+        val Invisible = 0f
     }
 }
 
@@ -54,7 +57,7 @@ fun extractLines(source: String) = listOf(*source.split("\n").toTypedArray())
  * @param idx Index to slice
  * @return Pair of lists with head and tail
  */
-fun <T> List<T>.slice(idx: Int) = Pair(this.subList(0, idx), this.subList(idx, this.lastIndex))
+fun <T> List<T>.slice(idx: Int) = Pair(subList(0, idx), subList(idx, lastIndex))
 
 /**
  * Get HTML from string.
@@ -63,13 +66,21 @@ fun <T> List<T>.slice(idx: Int) = Pair(this.subList(0, idx), this.subList(idx, t
  * @return Spanned HTML string
  */
 @Suppress("deprecation")
-fun html(content: String) =
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N)
-            Html.fromHtml(content.htmlSafe(), Html.FROM_HTML_MODE_LEGACY)
-        else
-            Html.fromHtml(content.htmlSafe())
+fun html(content: String): Spanned {
+    val spanned = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N)
+        Html.fromHtml(content, Html.FROM_HTML_MODE_LEGACY)
+    else
+        Html.fromHtml(content)
+    val spaces = content.startSpacesForTaggedString()
+    return SpannableString(TextUtils.concat(spaces, spanned))
+}
 
-fun String.htmlSafe() = replace(" ", "&nbsp;")
+private fun String.startSpacesForTaggedString(): String {
+    val startIdx = indexOf('>') + 1
+    val escaped = substring(startIdx)
+    val count = escaped.indexOf(escaped.trim())
+    return " ".repeat(count)
+}
 
 object Thread {
     /**

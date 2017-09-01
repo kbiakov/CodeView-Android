@@ -14,8 +14,8 @@ import java.util.*
 object CodeHighlighter {
 
     private val LT_BRACE = "<".toRegex()
-    private val LT_REGULAR = "&lt;"
-    private val LT_TMP = "^"
+    private const val LT_REGULAR = "&lt;"
+    private const val LT_TMP = "^"
 
     private val parser = PrettifyParser()
 
@@ -38,7 +38,6 @@ object CodeHighlighter {
             val content = parseContent(source, it)
             highlighted.append(content.withFontParams(color))
         }
-
         return highlighted.toString()
     }
 
@@ -206,6 +205,26 @@ data class SyntaxColors(
         val attrValue: Int = 0x269186)
 
 /**
+ * Font presets.
+ */
+enum class Font {
+    Consolas,
+    CourierNew,
+    DejaVuSansMono,
+    DroidSansMonoSlashed,
+    Inconsolata,
+    Monaco;
+
+    companion object {
+        val Default = DroidSansMonoSlashed
+    }
+}
+
+// - Helpers
+
+const val transparent = "#00000000"
+
+/**
  * @return Converted hex int to color by adding alpha-channel
  */
 fun Int.color() = try {
@@ -244,7 +263,7 @@ fun String.withFontParams(color: String?): String {
 
         // put tag on the borders (end & start of line, ..., end of tag)
         do { // until closing tag is reached
-            val part = substring(idx..newIdx - 1).inFontTag(color).plus("\n")
+            val part = substring(idx .. newIdx - 1).inFontTag(color).plus("\n")
             parametrizedString.append(part)
 
             idx = newIdx + 1
@@ -254,7 +273,6 @@ fun String.withFontParams(color: String?): String {
         if (idx != indexOf("\n")) // if not replaced only once (for multiline tag coverage)
             parametrizedString.append(substring(idx).inFontTag(color))
     }
-
     return parametrizedString.toString()
 }
 

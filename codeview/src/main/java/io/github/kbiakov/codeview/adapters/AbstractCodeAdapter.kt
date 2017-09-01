@@ -2,6 +2,7 @@ package io.github.kbiakov.codeview.adapters
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Typeface
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,8 @@ import android.widget.TextView
 import io.github.kbiakov.codeview.*
 import io.github.kbiakov.codeview.Thread.async
 import io.github.kbiakov.codeview.Thread.ui
+import io.github.kbiakov.codeview.adapters.AbstractCodeAdapter.ViewHolderType.Companion.BordersCount
+import io.github.kbiakov.codeview.adapters.AbstractCodeAdapter.ViewHolderType.Companion.LineStartIdx
 import io.github.kbiakov.codeview.classifier.CodeClassifier
 import io.github.kbiakov.codeview.classifier.CodeProcessor
 import io.github.kbiakov.codeview.highlight.*
@@ -145,7 +148,6 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
     private fun highlighting(language: String, onReady: () -> Unit) {
         // TODO: highlight by 10 lines
         val code = CodeHighlighter.highlight(language, options.code, options.theme)
-
         updateContent(code, onReady)
     }
 
@@ -159,9 +161,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         ui(onUpdated)
     }
 
-    private fun monoTypeface() = MonoFontCache.getInstance(context).typeface
-
-    // - View holder
+    // - View holder callbacks
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -169,58 +169,72 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         lineView.setBackgroundColor(options.theme.bgContent.color())
 
         val tvLineNum = lineView.findViewById(R.id.tv_line_num) as TextView
-        tvLineNum.typeface = monoTypeface()
+        tvLineNum.typeface = options.font
         tvLineNum.setTextColor(options.theme.numColor.color())
         tvLineNum.setBackgroundColor(options.theme.bgNum.color())
 
         val tvLineContent = lineView.findViewById(R.id.tv_line_content) as TextView
-        tvLineContent.typeface = monoTypeface()
+        tvLineContent.typeface = options.font
 
-        val holder = ViewHolder(lineView)
-        holder.setIsRecyclable(false)
-        return holder
+        val isLine = viewType == ViewHolderType.Line.viewType
+        options.format.apply {
+            val height = if (isLine) lineHeight else borderHeight
+            lineView.layoutParams.height = dpToPx(context, height)
+        }
+        return if (isLine) {
+            val holder = LineViewHolder(lineView)
+            holder.setIsRecyclable(false)
+            holder
+        } else BorderViewHolder(lineView)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, pos: Int) {
-        val codeLine = lines[pos]
-        holder.mItem = codeLine
+        if (holder is LineViewHolder) {
+            val num = pos - LineStartIdx
+            holder.mItem = lines[num]
 
-        options.lineClickListener?.let {
-            holder.itemView.setOnClickListener {
-                options.lineClickListener?.onCodeLineClicked(pos, codeLine)
-            }
+            bindClickListener(num, holder)
+            setupContent(num, holder)
+            displayFooter(num, holder)
         }
-
-        setupLine(pos, codeLine, holder)
-        displayLineFooter(pos, holder)
-        addExtraPadding(pos, holder)
     }
 
-    override fun getItemCount() = lines.size
+    override fun getItemCount() = lines.size + BordersCount
 
-    private fun Int.isFirst() = this == 0
-    private fun Int.isLast() = this == itemCount - 1
-    private fun Int.isJustFirst() = isFirst() && !isLast()
-    private fun Int.isJustLast() = isLast() && !isFirst()
-    private fun Int.isBorder() = isFirst() || isLast()
+    override fun getItemViewType(pos: Int) = ViewHolderType.get(pos, itemCount)
 
     // - Helpers (for view holder)
 
-    @SuppressLint("SetTextI18n")
-    private fun setupLine(pos: Int, line: String, holder: ViewHolder) {
-        holder.tvLineContent.text = html(line)
-        holder.tvLineContent.setTextColor(options.theme.noteColor.color())
-
-        if (options.shortcut && pos == MAX_SHORTCUT_LINES) {
-            holder.tvLineNum.textSize = 10f
-            holder.tvLineNum.text = context.getString(R.string.dots)
-        } else {
-            holder.tvLineNum.textSize = 12f
-            holder.tvLineNum.text = "${pos + 1}"
+    private fun bindClickListener(pos: Int, holder: ViewHolder) {
+        options.lineClickListener?.let {
+            holder.itemView.setOnClickListener {
+                options.lineClickListener?.onCodeLineClicked(pos, lines[pos])
+            }
         }
     }
 
-    private fun displayLineFooter(pos: Int, holder: ViewHolder) {
+    @SuppressLint("SetTextI18n")
+    private fun setupContent(pos: Int, holder: ViewHolder) {
+        holder.apply {
+            val fontSize = options.format.fontSize
+            tvLineNum.apply {
+                if (!options.shortcut || pos < MaxShortcutLines) {
+                    text = "${pos + 1}"
+                    textSize = fontSize
+                } else {
+                    text = context.getString(R.string.dots)
+                    textSize = fontSize * Format.ShortcutScale
+                }
+            }
+            tvLineContent.apply {
+                text = html(lines[pos])
+                textSize = fontSize
+                setTextColor(options.theme.noteColor.color())
+            }
+        }
+    }
+
+    private fun displayFooter(pos: Int, holder: ViewHolder) {
         val entityList = footerEntities[pos]
 
         holder.llLineFooter.removeAllViews()
@@ -235,31 +249,38 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         }
     }
 
-    private fun addExtraPadding(pos: Int, holder: ViewHolder) {
-        if (pos.isBorder()) {
-            val dp8 = dpToPx(context, 8)
-            val topPadding = if (pos.isJustFirst()) dp8 else 0
-            val bottomPadding = if (pos.isJustLast()) dp8 else 0
-            holder.tvLineNum.setPadding(0, topPadding, 0, bottomPadding)
-            holder.tvLineContent.setPadding(0, topPadding, 0, bottomPadding)
-        } else {
-            holder.tvLineNum.setPadding(0, 0, 0, 0)
-            holder.tvLineContent.setPadding(0, 0, 0, 0)
-        }
-    }
-
     companion object {
-        private const val MAX_SHORTCUT_LINES = 6
+        private const val MaxShortcutLines = 6
 
         private fun Pair<List<String>, List<String>>.linesToShow() = first
         private fun Pair<List<String>, List<String>>.droppedLines() = second
+    }
+
+    // - View holder types
+
+    enum class ViewHolderType(val viewType: Int) {
+        Line(0), Border(1);
+
+        companion object {
+            const val LineStartIdx = 1
+            const val BordersCount = 2
+
+            fun Int.lineEndIdx() = this - BordersCount
+
+            fun get(pos: Int, n: Int) = when (pos) {
+                in LineStartIdx .. n.lineEndIdx() ->
+                    ViewHolderType.Line.viewType
+                else ->
+                    ViewHolderType.Border.viewType
+            }
+        }
     }
 
     /**
      * View holder for code adapter.
      * Stores all views related to code line layout.
      */
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    open class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvLineNum = itemView.findViewById(R.id.tv_line_num) as TextView
         val tvLineContent = itemView.findViewById(R.id.tv_line_content) as TextView
         val llLineFooter = itemView.findViewById(R.id.ll_line_footer) as LinearLayout
@@ -268,6 +289,14 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
 
         override fun toString() = "${super.toString()} '$mItem'"
     }
+
+    class LineViewHolder(itemView: View) : ViewHolder(itemView)
+
+    /**
+     * View holder for padding.
+     * Stores all views related to code line layout.
+     */
+    class BorderViewHolder(itemView: View) : ViewHolder(itemView)
 }
 
 /**
@@ -279,6 +308,9 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
  * @param code Code content
  * @param language Programming language to highlight
  * @param theme Color theme
+ * @param font Font typeface
+ * @param format How much space is content took?
+ * @param animateOnHighlight Is animate on highlight?
  * @param shadows Is border shadows needed?
  * @param maxLines Max lines to show (when limit is reached, rest is dropped)
  * @param shortcut Do you want to show shortcut of code listing?
@@ -292,6 +324,9 @@ data class Options(
         var code: String = "",
         var language: String? = null,
         var theme: ColorThemeData = ColorTheme.DEFAULT.theme(),
+        var font: Typeface = FontCache.get(context).getTypeface(context),
+        var format: Format = Format.Compact,
+        var animateOnHighlight: Boolean = true,
         var shadows: Boolean = false,
         var shortcut: Boolean = false,
         var shortcutNote: String = context.getString(R.string.show_all),
@@ -331,6 +366,39 @@ data class Options(
         withTheme(theme)
     }
 
+    fun withFont(fontPath: String): Options {
+        this.font = FontCache.get(context).getTypeface(context, fontPath)
+        return this
+    }
+
+    fun withFont(font: Font): Options {
+        this.font = FontCache.get(context).getTypeface(context, font)
+        return this
+    }
+
+    fun setFont(fontPath: String) {
+        withFont(fontPath)
+    }
+
+    fun setFont(font: Font) {
+        withFont(font)
+    }
+
+    fun withFormat(format: Format): Options {
+        this.format = format
+        return this
+    }
+
+    fun animateOnHighlight(): Options {
+        this.animateOnHighlight = true
+        return this
+    }
+
+    fun disableHighlightAnimation(): Options {
+        this.animateOnHighlight = false
+        return this
+    }
+
     fun withShadows(): Options {
         this.shadows = true
         return this
@@ -353,12 +421,30 @@ data class Options(
         return this
     }
 
-    fun removeLineClickListener(): Options {
+    fun removeCodeLineClickListener(): Options {
         this.lineClickListener = null
         return this
     }
 
     companion object Default {
         fun get(context: Context) = Options(context)
+    }
+}
+
+data class Format(val scaleFactor: Float = 1f,
+                  val lineHeight: Int = (LineHeight * scaleFactor).toInt(),
+                  val borderHeight: Int = (BorderHeight * scaleFactor).toInt(),
+                  val fontSize: Float = FontSize.toFloat()) {
+
+    companion object Default {
+        private const val LineHeight = 18
+        private const val BorderHeight = 3
+        private const val FontSize = 12
+
+        internal const val ShortcutScale = 0.83f
+
+        val ExtraCompact = Format(0.88f)
+        val Compact = Format()
+        val Medium = Format(1.33f)
     }
 }

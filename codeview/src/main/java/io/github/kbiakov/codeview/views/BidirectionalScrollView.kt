@@ -33,25 +33,20 @@ class BidirectionalScrollView : HorizontalScrollView {
                 currentY = event.rawY.toInt()
                 return super.dispatchTouchEvent(event)
             }
-
             MotionEvent.ACTION_MOVE -> {
                 val deltaX = Math.abs(currentX - event.rawX)
                 val deltaY = Math.abs(currentY - event.rawY)
                 scroll(event)
 
                 val movedOnDistance = dpToPx(context, 2)
-
                 if (deltaX > movedOnDistance || deltaY > movedOnDistance)
                     isMoved = true
             }
-
             MotionEvent.ACTION_UP -> {
                 if (!isMoved)
                     return super.dispatchTouchEvent(event)
-
                 isMoved = false
             }
-
             MotionEvent.ACTION_CANCEL -> isMoved = false
         }
         return true
@@ -69,21 +64,18 @@ class BidirectionalScrollView : HorizontalScrollView {
     }
 
     override fun measureChild(child: View, parentWidthMeasureSpec: Int, parentHeightMeasureSpec: Int) {
-        val childWidthMeasureSpec = makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
-        val childHeightMeasureSpec = makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
-        child.measure(childWidthMeasureSpec, childHeightMeasureSpec)
+        val measureSpecZero = makeMeasureSpec(0)
+        child.measure(measureSpecZero, measureSpecZero)
     }
 
     override fun measureChildWithMargins(child: View,
                                          parentWidthMeasureSpec: Int, widthUsed: Int,
                                          parentHeightMeasureSpec: Int, heightUsed: Int) {
         val params = child.layoutParams as MarginLayoutParams
-
-        val childWidthMeasureSpec = makeMeasureSpec(
-                params.leftMargin + params.rightMargin, MeasureSpec.UNSPECIFIED)
-        val childHeightMeasureSpec = makeMeasureSpec(
-                params.topMargin + params.bottomMargin, MeasureSpec.UNSPECIFIED)
-
+        val childWidthMeasureSpec = makeMeasureSpec(params.leftMargin + params.rightMargin)
+        val childHeightMeasureSpec = makeMeasureSpec(params.topMargin + params.bottomMargin)
         child.measure(childWidthMeasureSpec, childHeightMeasureSpec)
     }
+
+    private fun makeMeasureSpec(size: Int) = makeMeasureSpec(size, MeasureSpec.UNSPECIFIED)
 }
