@@ -421,7 +421,7 @@ data class Options(
         return this
     }
 
-    fun removeLineClickListener(): Options {
+    fun removeCodeLineClickListener(): Options {
         this.lineClickListener = null
         return this
     }
