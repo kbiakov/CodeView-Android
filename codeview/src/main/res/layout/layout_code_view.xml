@@ -23,6 +23,7 @@
         android:id="@+id/shadow_right_border"
         android:layout_width="@dimen/shadow_width"
         android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"/>
 
     <LinearLayout

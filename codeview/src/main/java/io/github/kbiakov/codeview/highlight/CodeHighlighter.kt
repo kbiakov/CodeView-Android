@@ -32,10 +32,10 @@ object CodeHighlighter {
     // - Helpers
 
     /**
-     * Parse user input by extracting highlighted content.
+     * Parse input by extracting highlighted content.
      *
      * @param result Syntax unit
-     * @return Parsed content to highlight
+     * @return Content to highlight
      */
     private infix fun String.highlight(result: ParseResult) = safeLT {
         substring(result.offset, result.offset + result.length)
