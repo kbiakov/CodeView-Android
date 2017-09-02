@@ -222,8 +222,8 @@ Didn't found yours? Please, open issue to show your interest & I'll try to add t
 * Inconsolata
 * Monaco
 
-## Used By
-List of apps on Play Store where this library ised. Ping me if you want to be here too!
+## Used by
+List of apps on Play Store where this library used. Ping me if you want to be here too!
 
 Icon | Application
 ------------ | -------------
