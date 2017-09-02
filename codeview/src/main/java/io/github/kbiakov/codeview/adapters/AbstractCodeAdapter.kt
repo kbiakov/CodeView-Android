@@ -366,13 +366,19 @@ data class Options(
         withTheme(theme)
     }
 
-    fun withFont(fontPath: String): Options {
-        this.font = FontCache.get(context).getTypeface(context, fontPath)
+    fun withFont(font: Font): Options {
+        this.font = FontCache.get(context).getTypeface(context, font)
         return this
     }
 
-    fun withFont(font: Font): Options {
-        this.font = FontCache.get(context).getTypeface(context, font)
+    fun withFont(font: Typeface): Options {
+        FontCache.get(context).saveTypeface(font)
+        this.font = font
+        return this
+    }
+
+    fun withFont(fontPath: String): Options {
+        this.font = FontCache.get(context).getTypeface(context, fontPath)
         return this
     }
 

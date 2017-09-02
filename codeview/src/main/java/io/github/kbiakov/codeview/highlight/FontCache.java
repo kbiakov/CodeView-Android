@@ -77,4 +77,8 @@ public class FontCache {
             return font;
         }
     }
+
+    public void saveTypeface(Typeface fontTypeface) {
+        fonts.put(fontTypeface.toString(), fontTypeface);
+    }
 }
