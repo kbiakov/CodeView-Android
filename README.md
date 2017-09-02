@@ -2,7 +2,7 @@
 
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-codeview--android-blue.svg)](https://android-arsenal.com/details/1/4216)
 [![Release](https://jitpack.io/v/kbiakov/CodeView-android.svg)](https://jitpack.io/#kbiakov/CodeView-android)
-[![Build Status](https://travis-ci.org/Softwee/codeview-android.svg?branch=master)](https://travis-ci.org/Softwee/codeview-android)
+[![Build Status](https://travis-ci.org/kbiakov/CodeView-android.svg?branch=master)](https://travis-ci.org/kbiakov/CodeView-android)
 
 <b>CodeView</b> helps to show code content with syntax highlighting in native way.
 
@@ -221,6 +221,15 @@ Didn't found yours? Please, open issue to show your interest & I'll try to add t
 * Inconsolata
 * Monaco
 
+## Used By
+List of apps on Play Store where this library ised. Ping me if you want to be here too!
+
+Icon | Application
+------------ | -------------
+<img src="https://goo.gl/ijEiBp" width="48" height="48" /> | [GeekBrains]
+<img src="https://goo.gl/UPsE9F" width="48" height="48" /> | [GitJourney for GitHub]
+<img src="https://goo.gl/kNqAc7" width="48" height="48" /> | [Source Code - Lập Trình]
+
 ## Contribute
 1. You can add your theme (see [ColorTheme](https://github.com/Softwee/codeview-android/blob/master/codeview/src/main/java/io/github/kbiakov/codeview/highlight/CodeHighlighter.kt) class). Try to add some classic color themes or create your own if it looks cool. You can find many of them in different open-source text editors.<br>
 2. If you are strong in regex, add missed language as shown [here](https://github.com/Softwee/codeview-android/blob/master/codeview/src/main/java/io/github/kbiakov/codeview/highlight/prettify/lang/LangScala.java). You can find existing regex for some language in different sources of libraries, which plays the same role.<br>
@@ -251,3 +260,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+[GeekBrains]:https://play.google.com/store/apps/details?id=ru.geekbrains
+[GitJourney for GitHub]:https://play.google.com/store/apps/details?id=com.oklab.githubjourney
+[Source Code - Lập Trình]:https://play.google.com/store/apps/details?id=com.noah.truongpq.codeview
