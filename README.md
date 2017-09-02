@@ -28,7 +28,7 @@ allprojects {
 
 Add the dependency:
 ```groovy
-compile 'com.github.softwee:codeview-android:1.2.0'
+compile 'com.github.kbiakov:CodeView-android:1.3.0'
 ```
 
 ## Usage
@@ -84,7 +84,7 @@ codeView.setAdapter(myAdapter);
 <b>Note:</b> Each <b>CodeView</b> has a adapter and each adapter has options. When calling ```setOptions(...)``` or ```setAdapter(...)``` the current adapter is "flushed" with the current options. If you want to save the state and just update options saving adapter or set adapter saving options you must call ```updateOptions(...)``` or ```updateAdapter(...)``` accordingly.
 
 ### Options
-Options helps to easily set necessary params, such as code & language, color theme, shortcut params (max lines, note), code line click listener. Some params are unnecessary.
+Options helps to easily set necessary params, such as code & language, color theme, font, format, shortcut params (max lines, note) and code line click listener. Some params are unnecessary.
 
 When the view is initialized (options or adapter are set) you can manipulate the options in various ways:
 ```java
@@ -114,6 +114,28 @@ Or create your own from scratch (don't forget to open PR with this stuff!):
 ColorThemeData customTheme = new ColorThemeData(new SyntaxColors(...), ...);
 codeView.getOptions().setTheme(customTheme);
 ```
+
+### Font
+Set font for your code content:
+```java
+codeView.getOptions().withFont(Font.Consolas);
+```
+
+`Font.Consolas` is a font preset (see the list of available below).
+To use your own font you can use similar method by providing `Typeface` or font path. Fonts are internally cached.
+
+### Format
+Manage the space that code line take. There are 3 types: `Compact`, `ExtraCompact` and `Medium`.
+Setup is similar:
+```kotlin
+// Kotlin
+codeView.getOptions().withFont(Font.Compact)
+```
+```java
+// Java
+codeView.getOptions().withFont(Format.Default.getCompact());
+```
+Also you can create custom `Format` by providing params such as `scaleFactor`, `lineHeight`, `borderHeight` (above first line and below last) and `fontSize`.
 
 ### Adapter
 Sometimes you may want to take code lines under your control, and that's why you need a <b>Adapter</b>.
@@ -187,9 +209,17 @@ C/C++/Objective-C (```"c"```, ```"cc"```, ```"cpp"```, ```"cxx"```, ```"cyc"```,
 Didn't found yours? Please, open issue to show your interest & I'll try to add this language in next releases.
 
 ## List of available themes
-1. Default (simple light theme).
-2. Solarized Light.
-3. Monokai.
+* Default (simple light theme).
+* Solarized Light.
+* Monokai.
+
+## List of available fonts
+* Consolas
+* CourierNew
+* DejaVuSansMono
+* DroidSansMonoSlashed
+* Inconsolata
+* Monaco
 
 ## Contribute
 1. You can add your theme (see [ColorTheme](https://github.com/Softwee/codeview-android/blob/master/codeview/src/main/java/io/github/kbiakov/codeview/highlight/CodeHighlighter.kt) class). Try to add some classic color themes or create your own if it looks cool. You can find many of them in different open-source text editors.<br>
