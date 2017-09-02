@@ -231,7 +231,7 @@ Didn't found yours? Please, open issue to show your interest & I'll try to add t
 
 ## License MIT
 ```
-Copyright (c) 2016 Softwee
+Copyright (c) 2016 Kirill Biakov
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
