@@ -1,6 +1,8 @@
 package io.github.kbiakov.codeview
 
 import android.content.Context
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
@@ -10,6 +12,8 @@ import io.github.kbiakov.codeview.Thread.delayed
 import io.github.kbiakov.codeview.adapters.AbstractCodeAdapter
 import io.github.kbiakov.codeview.adapters.CodeWithNotesAdapter
 import io.github.kbiakov.codeview.adapters.Options
+import io.github.kbiakov.codeview.highlight.ColorThemeData
+import io.github.kbiakov.codeview.highlight.color
 
 /**
  * @class CodeView
@@ -20,43 +24,48 @@ import io.github.kbiakov.codeview.adapters.Options
  */
 class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, attrs) {
 
-    private val vShadowRight: View
-    private val vShadowBottomLine: View
-    private val vShadowBottomContent: View
-
     private val vCodeList: RecyclerView
+    private val vShadows: Map<ShadowPosition, View>
 
     /**
      * Primary constructor.
      */
     init {
-        val isAnimateOnStart = visibility == VISIBLE && { ctx: Context, ats: AttributeSet ->
-            val a = ctx.theme.obtainStyledAttributes(ats, R.styleable.CodeView, 0, 0)
-
-            try {
-                a.getBoolean(R.styleable.CodeView_animateOnStart, true)
-            } finally {
-                a.recycle()
-            }
-        }(context, attrs)
-
-        alpha = if (isAnimateOnStart) 0f else Consts.ALPHA
-
         inflate(context, R.layout.layout_code_view, this)
-
-        if (isAnimateOnStart)
-            animate()
-                    .setDuration(Consts.DELAY * 5)
-                    .alpha(Consts.ALPHA)
-
-        // TODO: add shadow color customization
-        vShadowRight = findViewById(R.id.v_shadow_right)
-        vShadowBottomLine = findViewById(R.id.v_shadow_bottom_line)
-        vShadowBottomContent = findViewById(R.id.v_shadow_bottom_content)
+        checkStartAnimation(attrs)
 
         vCodeList = findViewById(R.id.rv_code_content) as RecyclerView
         vCodeList.layoutManager = LinearLayoutManager(context)
         vCodeList.isNestedScrollingEnabled = true
+
+        vShadows = mapOf(
+                ShadowPosition.RightBorder to R.id.shadow_right_border,
+                ShadowPosition.NumBottom to R.id.shadow_num_bottom,
+                ShadowPosition.ContentBottom to R.id.shadow_content_bottom
+        ).mapValues { findViewById(it.value) }
+    }
+
+    private fun checkStartAnimation(attrs: AttributeSet) {
+        if (visibility == VISIBLE && attrs.isAnimateOnStart(context)) {
+            alpha = Const.Alpha.Invisible
+
+            animate()
+                    .setDuration(Const.DefaultDelay * 5)
+                    .alpha(Const.Alpha.Initial)
+        } else
+            alpha = Const.Alpha.Initial
+    }
+
+    private fun AbstractCodeAdapter<*>.checkHighlightAnimation(action: () -> Unit) {
+        if (options.animateOnHighlight) {
+            animate()
+                    .setDuration(Const.DefaultDelay * 2)
+                    .alpha(Const.Alpha.AlmostInvisible)
+            delayed {
+                animate().alpha(Const.Alpha.Visible)
+                action()
+            }
+        } else action()
     }
 
     /**
@@ -64,15 +73,9 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
      * It holds the placeholder on view until code is not highlighted.
      */
     private fun highlight() {
-        getAdapter()?.highlight {
-
-            animate()
-                    .setDuration(Consts.DELAY * 2)
-                    .alpha(.1f)
-
-            delayed {
-                animate().alpha(1f)
-                getAdapter()?.notifyDataSetChanged()
+        getAdapter()?.apply {
+            highlight {
+                checkHighlightAnimation(this::notifyDataSetChanged)
             }
         }
     }
@@ -81,14 +84,15 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
      * Border shadows will shown if full listing presented.
      * It helps to see what part of code is scrolled & hidden.
      *
-     * @param isShadows Is shadows needed
+     * @param isVisible Is shadows visible
      */
-    private fun setupShadows(isShadows: Boolean) {
-        val visibility = if (isShadows) VISIBLE else GONE
-
-        vShadowRight.visibility = visibility
-        vShadowBottomLine.visibility = visibility
-        vShadowBottomContent.visibility = visibility
+    fun setupShadows(isVisible: Boolean) {
+        val visibility = if (isVisible) VISIBLE else GONE
+        val theme = getOptionsOrDefault().theme
+        vShadows.forEach { (pos, view) ->
+            view.visibility = visibility
+            view.setSafeBackground(pos.createShadow(theme))
+        }
     }
 
     // - Initialization
@@ -112,7 +116,6 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
      */
     fun setAdapter(adapter: AbstractCodeAdapter<*>) {
         vCodeList.adapter = adapter
-        setupShadows(adapter.options.shadows)
         highlight()
     }
 
@@ -121,7 +124,7 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
     /**
      * View options accessor.
      */
-    fun getOptions(): Options? = getAdapter()?.options
+    fun getOptions() = getAdapter()?.options
     fun getOptionsOrDefault() = getOptions() ?: Options(context)
 
     /**
@@ -130,10 +133,14 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
      * @param options Options
      */
     fun updateOptions(options: Options) {
-        if (getAdapter() == null)
-            setOptions(options)
-        else
-            getAdapter()!!.options = options
+        getAdapter() ?: setOptions(options)
+        getAdapter()?.options = options
+        setupShadows(options.shadows)
+    }
+
+    fun updateOptions(body: Options.() -> Unit) {
+        val options = getOptions() ?: getOptionsOrDefault()
+        updateOptions(options.apply(body))
     }
 
     // - Adapter
@@ -169,7 +176,7 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
      */
     fun setCode(code: String) {
         getAdapter() ?: prepare()
-        getAdapter()!!.updateCode(code)
+        getAdapter()?.updateCode(code)
     }
 
     /**
@@ -185,7 +192,40 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
     fun setCode(code: String, language: String) {
         val options = getOptionsOrDefault()
         updateOptions(options.withLanguage(language))
-        getAdapter()!!.updateCode(code)
+        getAdapter()?.updateCode(code)
+    }
+
+    companion object {
+
+        private fun AttributeSet.isAnimateOnStart(context: Context): Boolean {
+            context.theme.obtainStyledAttributes(this, R.styleable.CodeView, 0, 0).apply {
+                val flag = getBoolean(R.styleable.CodeView_animateOnStart, false)
+                recycle()
+                return@isAnimateOnStart flag
+            }
+            return false
+        }
+
+        private fun View.setSafeBackground(newBackground: Drawable) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                background = newBackground
+            }
+        }
+    }
+
+    private enum class ShadowPosition {
+        RightBorder,
+        NumBottom,
+        ContentBottom;
+
+        fun createShadow(theme: ColorThemeData) = when (this) {
+            RightBorder -> GradientDrawable.Orientation.LEFT_RIGHT to theme.bgContent
+            NumBottom -> GradientDrawable.Orientation.TOP_BOTTOM to theme.bgNum
+            ContentBottom -> GradientDrawable.Orientation.TOP_BOTTOM to theme.bgContent
+        }.let {
+            val colors = arrayOf(android.R.color.transparent, it.second)
+            GradientDrawable(it.first, colors.map(Int::color).toIntArray())
+        }
     }
 }
 

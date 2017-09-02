@@ -9,7 +9,6 @@
         android:layout_width="@dimen/line_num_width"
         android:layout_height="@dimen/line_height"
         android:gravity="center"
-        android:fontFamily="monospace"
         android:textSize="@dimen/line_text_size"
         android:text="@string/stub_line_num"/>
 
@@ -17,12 +16,12 @@
         android:id="@+id/tv_line_content"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/line_height"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginLeft="@dimen/default_margin"
+        android:layout_marginRight="@dimen/default_margin"
+        android:layout_toEndOf="@+id/tv_line_diff"
         android:layout_toRightOf="@+id/tv_line_diff"
         android:gravity="center_vertical"
-        android:fontFamily="monospace"
-        android:singleLine="true"
+        android:maxLines="1"
         android:textSize="@dimen/line_text_size"
         android:text="@string/stub_line_content"/>
 

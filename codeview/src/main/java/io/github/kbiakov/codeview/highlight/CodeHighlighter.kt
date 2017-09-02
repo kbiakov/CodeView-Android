@@ -13,48 +13,32 @@ import java.util.*
  */
 object CodeHighlighter {
 
-    private val LT_BRACE = "<".toRegex()
-    private val LT_REGULAR = "&lt;"
-    private val LT_TMP = "^"
-
-    private val parser = PrettifyParser()
-
     /**
      * Highlight code content.
      *
-     * @param codeLanguage Programming language
-     * @param rawSource Code source by one string
-     * @param colorTheme Color theme (see below)
+     * @param language Programming language
+     * @param source Source code as single string
+     * @param theme Color theme (see below)
      * @return Highlighted code, string with necessary inserted color tags
      */
-    fun highlight(codeLanguage: String, rawSource: String, colorTheme: ColorThemeData): String {
-        val source = rawSource.escapeLT()
-        val results = parser.parse(codeLanguage, source)
-        val colorsMap = buildColorsMap(colorTheme)
-        val highlighted = StringBuilder()
+    fun highlight(language: String, source: String, theme: ColorThemeData): String {
+        val colors = buildColorsMap(theme)
 
-        results.forEach {
-            val color = colorsMap.getColor(it)
-            val content = parseContent(source, it)
-            highlighted.append(content.withFontParams(color))
-        }
-
-        return highlighted.toString()
+        return PrettifyParser().parse(language, source)
+                .map { source highlight it applyFontParams colors[it] }
+                .reduce(String::plus)
     }
 
     // - Helpers
 
     /**
-     * Parse user input by extracting highlighted content.
+     * Parse input by extracting highlighted content.
      *
-     * @param codeContent Code content
      * @param result Syntax unit
-     * @return Parsed content to highlight
+     * @return Content to highlight
      */
-    private fun parseContent(codeContent: String, result: ParseResult): String {
-        val length = result.offset + result.length
-        val content = codeContent.substring(result.offset, length)
-        return content.expandLT()
+    private infix fun String.highlight(result: ParseResult) = safeLT {
+        substring(result.offset, result.offset + result.length)
     }
 
     /**
@@ -63,7 +47,7 @@ object CodeHighlighter {
      * @param result Syntax unit
      * @return Color for syntax unit
      */
-    private fun HashMap<String, String>.getColor(result: ParseResult) =
+    private operator fun HashMap<String, String>.get(result: ParseResult) =
             this[result.styleKeys[0]] ?: this["pln"]
 
     /**
@@ -72,31 +56,30 @@ object CodeHighlighter {
      * @param colorTheme Color theme
      * @return Colors map built from color theme
      */
-    private fun buildColorsMap(colorTheme: ColorThemeData) =
-            object : HashMap<String, String>() {
-                init {
-                    val syntaxColors = colorTheme.syntaxColors
+    private fun buildColorsMap(theme: ColorThemeData): HashMap<String, String> {
+        fun color(body: SyntaxColors.() -> Int) =
+                theme.syntaxColors.let { body(it).hex() }
+        return hashMapOf(
+                "typ" to color { type },
+                "kwd" to color { keyword },
+                "lit" to color { literal },
+                "com" to color { comment },
+                "str" to color { string },
+                "pun" to color { punctuation },
+                "pln" to color { plain },
+                "tag" to color { tag },
+                "dec" to color { declaration },
+                "src" to color { plain },
+                "atn" to color { attrName },
+                "atv" to color { attrValue },
+                "nocode" to color { plain })
+    }
 
-                    put("typ", syntaxColors.type.hex())
-                    put("kwd", syntaxColors.keyword.hex())
-                    put("lit", syntaxColors.literal.hex())
-                    put("com", syntaxColors.comment.hex())
-                    put("str", syntaxColors.string.hex())
-                    put("pun", syntaxColors.punctuation.hex())
-                    put("pln", syntaxColors.plain.hex())
-                    put("tag", syntaxColors.tag.hex())
-                    put("dec", syntaxColors.declaration.hex())
-                    put("src", syntaxColors.plain.hex())
-                    put("atn", syntaxColors.attrName.hex())
-                    put("atv", syntaxColors.attrValue.hex())
-                    put("nocode", syntaxColors.plain.hex())
-                }
-            }
+    // - Escaping/extracting "less then" symbol
 
-    // - Escaping/extracting "lower then" symbol
-
-    private fun String.escapeLT() = replace(LT_BRACE, LT_TMP)
-    private fun String.expandLT() = replace(LT_TMP, LT_REGULAR)
+    private fun String.safeLT(op: String.() -> String) = escapeLT().op().expandLT()
+    private fun String.escapeLT() = replace("<", "^")
+    private fun String.expandLT() = replace("^", "&lt;")
 }
 
 /**
@@ -206,6 +189,24 @@ data class SyntaxColors(
         val attrValue: Int = 0x269186)
 
 /**
+ * Font presets.
+ */
+enum class Font {
+    Consolas,
+    CourierNew,
+    DejaVuSansMono,
+    DroidSansMonoSlashed,
+    Inconsolata,
+    Monaco;
+
+    companion object {
+        val Default = DroidSansMonoSlashed
+    }
+}
+
+// - Helpers
+
+/**
  * @return Converted hex int to color by adding alpha-channel
  */
 fun Int.color() = try {
@@ -223,40 +224,42 @@ fun Int.hex() = "#${Integer.toHexString(this)}"
  * @return Is value equals to found or not condition
  */
 fun Int.isFound() = this >= 0
-
 fun Int.notFound() = this == -1
 
 /**
  * Apply font params to string.
  *
- * @param color Color as formatter string
- * @return Formatted string
+ * @param color Color
+ * @return Parametrized string
  */
-fun String.withFontParams(color: String?): String {
-    val parametrizedString = StringBuilder()
-
+infix fun String.applyFontParams(color: String?): String {
+    var parametrizedString = ""
     var idx = 0
     var newIdx = indexOf("\n")
 
     if (newIdx.notFound()) // covers expected tag coverage (within only one line)
-        parametrizedString.append(inFontTag(color))
+        parametrizedString += inFontTag(color)
     else { // may contain multiple lines with line breaks
 
         // put tag on the borders (end & start of line, ..., end of tag)
         do { // until closing tag is reached
-            val part = substring(idx..newIdx - 1).inFontTag(color).plus("\n")
-            parametrizedString.append(part)
+            parametrizedString += (substring(idx .. newIdx - 1) inFontTag color) + "\n"
 
             idx = newIdx + 1
             newIdx = indexOf("\n", idx)
         } while (newIdx.isFound())
 
         if (idx != indexOf("\n")) // if not replaced only once (for multiline tag coverage)
-            parametrizedString.append(substring(idx).inFontTag(color))
+            parametrizedString += substring(idx) inFontTag color
     }
-
-    return parametrizedString.toString()
+    return parametrizedString
 }
+
+/**
+ * @return String wrapped in font tag
+ */
+private infix fun String.inFontTag(color: String?) =
+        "<font color=\"$color\">${escLineBreakAtStart()}</font>"
 
 /**
  * @return String with escaped line break at start
@@ -265,9 +268,3 @@ fun String.escLineBreakAtStart() =
         if (startsWith("\n") && length >= 1)
             substring(1)
         else this
-
-/**
- * @return String surrounded by font tag
- */
-fun String.inFontTag(color: String?) =
-        "<font color=\"$color\">${escLineBreakAtStart()}</font>"

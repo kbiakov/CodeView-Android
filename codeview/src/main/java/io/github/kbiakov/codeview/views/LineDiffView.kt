@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.widget.RelativeLayout
 import android.widget.TextView
 import io.github.kbiakov.codeview.R
-import io.github.kbiakov.codeview.highlight.MonoFontCache
+import io.github.kbiakov.codeview.highlight.FontCache
 
 /**
  * @class CodeDiffView
@@ -15,15 +15,12 @@ import io.github.kbiakov.codeview.highlight.MonoFontCache
  *
  * @author Kirill Biakov
  */
-class LineDiffView : RelativeLayout {
+class LineDiffView(context: Context) : RelativeLayout(context) {
 
     private val tvLineDiff: TextView
     private val tvLineContent: TextView
 
-    /**
-     * Default constructor.
-     */
-    constructor(context: Context) : super(context) {
+    init {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         inflater.inflate(R.layout.item_code_diff, this, true)
 
@@ -39,19 +36,16 @@ class LineDiffView : RelativeLayout {
          * @param model Diff model
          * @return Created line diff view
          */
-        fun create(context: Context, model: DiffModel): LineDiffView {
-            val diffView = LineDiffView(context)
-            diffView.tvLineDiff.text = if (model.isAddition) "+" else "-"
-            diffView.tvLineContent.text = model.content
-            diffView.tvLineContent.typeface = MonoFontCache.getInstance(context).typeface
+        fun create(context: Context, model: DiffModel) = LineDiffView(context).apply {
+            tvLineDiff.text = if (model.isAddition) "+" else "-"
+            tvLineContent.text = model.content
+            tvLineContent.typeface = FontCache.get(context).getTypeface(context)
 
-            diffView.setBackgroundColor(ContextCompat.getColor(context,
+            setBackgroundColor(ContextCompat.getColor(context,
                     if (model.isAddition)
                         R.color.diff_add_background
                     else
                         R.color.diff_del_background))
-
-            return diffView
         }
     }
 }
