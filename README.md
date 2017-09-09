@@ -210,9 +210,9 @@ C/C++/Objective-C (```"c"```, ```"cc"```, ```"cpp"```, ```"cxx"```, ```"cyc"```,
 Didn't found yours? Please, open issue to show your interest & I'll try to add this language in next releases.
 
 ## List of available themes
-* Default (simple light theme).
-* Solarized Light.
-* Monokai.
+* Default (simple light theme)
+* [Solarized Light](http://www.eclipsecolorthemes.org/?view=theme&id=1013)
+* [Monokai](http://www.eclipsecolorthemes.org/?view=theme&id=386)
 
 ## List of available fonts
 * Consolas
