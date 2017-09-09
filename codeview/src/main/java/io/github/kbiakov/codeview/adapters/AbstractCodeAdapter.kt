@@ -29,7 +29,7 @@ import java.util.*
 abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter.ViewHolder> {
 
     protected val context: Context
-    protected var lines: List<String> = ArrayList() // items
+    protected var lines: List<String> = ArrayList()
     protected var droppedLines: List<String>? = null
 
     internal var options: Options
@@ -157,6 +157,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
      */
     private fun updateContent(code: String, onUpdated: () -> Unit) {
         options.code = code
+        options.isHighlighted = true
         prepareCodeLines()
         ui(onUpdated)
     }
@@ -227,7 +228,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
                 }
             }
             tvLineContent.apply {
-                text = html(lines[pos])
+                text = lines[pos].let { if (options.isHighlighted) html(it) else it }
                 textSize = fontSize
                 setTextColor(options.theme.noteColor.color())
             }
@@ -332,6 +333,8 @@ data class Options(
         var shortcutNote: String = context.getString(R.string.show_all),
         var maxLines: Int = 0,
         var lineClickListener: OnCodeLineClickListener? = null) {
+
+    internal var isHighlighted: Boolean = false
 
     fun withCode(code: String): Options {
         this.code = code
