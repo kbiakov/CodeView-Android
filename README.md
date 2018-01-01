@@ -230,6 +230,7 @@ Icon | Application
 <img src="https://goo.gl/ijEiBp" width="48" height="48" /> | [GeekBrains]
 <img src="https://goo.gl/UPsE9F" width="48" height="48" /> | [GitJourney for GitHub]
 <img src="https://goo.gl/kNqAc7" width="48" height="48" /> | [Source Code - Lập Trình]
+<img src="https://goo.gl/jcGMmS" width="48" height="48" /> | [C Programming - CodeSpot]
 
 ## Contribute
 1. You can add your theme (see [ColorTheme](https://github.com/Softwee/codeview-android/blob/master/codeview/src/main/java/io/github/kbiakov/codeview/highlight/CodeHighlighter.kt) class). Try to add some classic color themes or create your own if it looks cool. You can find many of them in different open-source text editors.<br>
@@ -265,3 +266,4 @@ SOFTWARE.
 [GeekBrains]:https://play.google.com/store/apps/details?id=ru.geekbrains
 [GitJourney for GitHub]:https://play.google.com/store/apps/details?id=com.oklab.githubjourney
 [Source Code - Lập Trình]:https://play.google.com/store/apps/details?id=com.noah.truongpq.codeview
+[C Programming - CodeSpot]:https://play.google.com/store/apps/details?id=com.rsd.cprogramming
