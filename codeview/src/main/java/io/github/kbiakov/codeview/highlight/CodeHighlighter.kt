@@ -237,20 +237,21 @@ infix fun String.applyFontParams(color: String?): String {
     var idx = 0
     var newIdx = indexOf("\n")
 
-    if (newIdx.notFound()) // covers expected tag coverage (within only one line)
+    if (newIdx.notFound()) { // covers expected tag coverage (within only one line)
         parametrizedString += inFontTag(color)
-    else { // may contain multiple lines with line breaks
+    } else { // may contain multiple lines with line breaks
 
         // put tag on the borders (end & start of line, ..., end of tag)
         do { // until closing tag is reached
-            parametrizedString += (substring(idx .. newIdx - 1) inFontTag color) + "\n"
+            parametrizedString += "${substring(idx until newIdx) inFontTag color}\n"
 
             idx = newIdx + 1
             newIdx = indexOf("\n", idx)
         } while (newIdx.isFound())
 
-        if (idx != indexOf("\n")) // if not replaced only once (for multiline tag coverage)
+        if (idx != indexOf("\n")) { // if not replaced only once (for multiline tag coverage)
             parametrizedString += substring(idx) inFontTag color
+        }
     }
     return parametrizedString
 }

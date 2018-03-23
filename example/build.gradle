@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '25.0.3'
+    compileSdkVersion compileSdk
+    buildToolsVersion buildTools
 
     defaultConfig {
         applicationId 'io.github.kbiakov.codeviewexample'
-        minSdkVersion 15
-        targetSdkVersion 25
+        minSdkVersion minSdk
+        targetSdkVersion compileSdk
         versionCode 1
         versionName '1.0'
     }
@@ -24,9 +24,9 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:25.3.1'
     compile project(path: ':codeview')
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile "com.android.support:appcompat-v7:$supportLibrary"
 }
 repositories {
     mavenCentral()
