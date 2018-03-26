@@ -39,15 +39,19 @@ class BidirectionalScrollView : HorizontalScrollView {
                 scroll(event)
 
                 val movedOnDistance = dpToPx(context, 2)
-                if (deltaX > movedOnDistance || deltaY > movedOnDistance)
+                if (deltaX > movedOnDistance || deltaY > movedOnDistance) {
                     isMoved = true
+                }
             }
             MotionEvent.ACTION_UP -> {
-                if (!isMoved)
+                if (!isMoved) {
                     return super.dispatchTouchEvent(event)
+                }
                 isMoved = false
             }
-            MotionEvent.ACTION_CANCEL -> isMoved = false
+            MotionEvent.ACTION_CANCEL -> {
+                isMoved = false
+            }
         }
         return true
     }

@@ -34,7 +34,7 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
         inflate(context, R.layout.layout_code_view, this)
         checkStartAnimation(attrs)
 
-        vCodeList = findViewById(R.id.rv_code_content) as RecyclerView
+        vCodeList = findViewById<RecyclerView>(R.id.rv_code_content)
         vCodeList.layoutManager = LinearLayoutManager(context)
         vCodeList.isNestedScrollingEnabled = true
 
@@ -42,7 +42,9 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
                 ShadowPosition.RightBorder to R.id.shadow_right_border,
                 ShadowPosition.NumBottom to R.id.shadow_num_bottom,
                 ShadowPosition.ContentBottom to R.id.shadow_content_bottom
-        ).mapValues { findViewById(it.value) }
+        ).mapValues {
+            findViewById<View>(it.value)
+        }
     }
 
     private fun checkStartAnimation(attrs: AttributeSet) {
@@ -52,8 +54,9 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
             animate()
                     .setDuration(Const.DefaultDelay * 5)
                     .alpha(Const.Alpha.Initial)
-        } else
+        } else {
             alpha = Const.Alpha.Initial
+        }
     }
 
     private fun AbstractCodeAdapter<*>.checkHighlightAnimation(action: () -> Unit) {
@@ -65,7 +68,9 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
                 animate().alpha(Const.Alpha.Visible)
                 action()
             }
-        } else action()
+        } else {
+            action()
+        }
     }
 
     /**
@@ -75,7 +80,7 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
     private fun highlight() {
         getAdapter()?.apply {
             highlight {
-                checkHighlightAnimation(this::notifyDataSetChanged)
+                checkHighlightAnimation(::notifyDataSetChanged)
             }
         }
     }
