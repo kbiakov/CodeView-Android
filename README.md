@@ -227,6 +227,7 @@ Icon | Application
 ------------ | -------------
 <img src="https://goo.gl/ijEiBp" width="48" height="48" /> | [GeekBrains]
 <img src="https://goo.gl/4VhHbn" width="48" height="48" /> | [Awesome Android - UI Libraries]
+<img src="https://goo.gl/1AGK1b" width="48" height="48" /> | [Codify - Codes On The Go]
 <img src="https://goo.gl/UPsE9F" width="48" height="48" /> | [GitJourney for GitHub]
 <img src="https://goo.gl/kNqAc7" width="48" height="48" /> | [Source Code - Lập Trình]
 <img src="https://goo.gl/jcGMmS" width="48" height="48" /> | [C Programming - CodeSpot]
@@ -265,5 +266,6 @@ SOFTWARE.
 [GeekBrains]:https://play.google.com/store/apps/details?id=ru.geekbrains
 [Awesome Android - UI Libraries]:https://play.google.com/store/apps/details?id=in.sumeetlubal.aweandroid.aweandroid
 [GitJourney for GitHub]:https://play.google.com/store/apps/details?id=com.oklab.githubjourney
+[Codify - Codes On The Go]:https://play.google.com/store/apps/details?id=com.femindharamshi.spa
 [Source Code - Lập Trình]:https://play.google.com/store/apps/details?id=com.noah.truongpq.codeview
 [C Programming - CodeSpot]:https://play.google.com/store/apps/details?id=com.rsd.cprogramming
