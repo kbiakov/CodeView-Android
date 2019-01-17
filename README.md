@@ -29,7 +29,7 @@ allprojects {
 
 Add the dependency:
 ```groovy
-compile 'com.github.kbiakov:CodeView-android:1.3.2'
+compile 'com.github.kbiakov:CodeView-Android:1.3.2'
 ```
 
 ## Usage
@@ -46,7 +46,7 @@ Add view to your layout & bind as usual:
 <io.github.kbiakov.codeview.CodeView
 	android:id="@+id/code_view"
 	android:layout_width="wrap_content"
-	android:layout_height="wrap_content"/>
+	android:layout_height="wrap_content" />
 ```
 ```java
 CodeView codeView = (CodeView) findViewById(R.id.code_view);
