@@ -68,17 +68,18 @@ class BidirectionalScrollView : HorizontalScrollView {
     }
 
     override fun measureChild(child: View, parentWidthMeasureSpec: Int, parentHeightMeasureSpec: Int) {
-        val measureSpecZero = makeMeasureSpec(0)
-        child.measure(measureSpecZero, measureSpecZero)
+        val zeroMeasureSpec = makeMeasureSpec(0)
+        child.measure(zeroMeasureSpec, zeroMeasureSpec)
     }
 
-    override fun measureChildWithMargins(child: View,
-                                         parentWidthMeasureSpec: Int, widthUsed: Int,
-                                         parentHeightMeasureSpec: Int, heightUsed: Int) {
-        val params = child.layoutParams as MarginLayoutParams
-        val childWidthMeasureSpec = makeMeasureSpec(params.leftMargin + params.rightMargin)
-        val childHeightMeasureSpec = makeMeasureSpec(params.topMargin + params.bottomMargin)
-        child.measure(childWidthMeasureSpec, childHeightMeasureSpec)
+    override fun measureChildWithMargins(
+            child: View,
+            parentWidthMeasureSpec: Int, widthUsed: Int,
+            parentHeightMeasureSpec: Int, heightUsed: Int
+    ) = with(child.layoutParams as MarginLayoutParams) {
+        val widthMeasureSpec = makeMeasureSpec(leftMargin + rightMargin, MeasureSpec.UNSPECIFIED)
+        val heightMeasureSpec = makeMeasureSpec(topMargin + bottomMargin, MeasureSpec.UNSPECIFIED)
+        child.measure(widthMeasureSpec, heightMeasureSpec)
     }
 
     private fun makeMeasureSpec(size: Int) = makeMeasureSpec(size, MeasureSpec.UNSPECIFIED)

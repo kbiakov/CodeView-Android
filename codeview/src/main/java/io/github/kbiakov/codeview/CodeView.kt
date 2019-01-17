@@ -38,9 +38,10 @@ class CodeView @JvmOverloads constructor(
         inflate(context, R.layout.layout_code_view, this)
         attrs?.let(::checkStartAnimation)
 
-        vCodeList = findViewById<RecyclerView>(R.id.rv_code_content)
-        vCodeList.layoutManager = LinearLayoutManager(context)
-        vCodeList.isNestedScrollingEnabled = true
+        vCodeList = findViewById<RecyclerView>(R.id.rv_code_content).apply {
+            layoutManager = LinearLayoutManager(context)
+            isNestedScrollingEnabled = true
+        }
 
         vShadows = mapOf(
                 ShadowPosition.RightBorder to R.id.shadow_right_border,
