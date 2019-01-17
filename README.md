@@ -1,8 +1,8 @@
 # CodeView (Android)
 
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-codeview--android-blue.svg)](https://android-arsenal.com/details/1/4216)
-[![Release](https://jitpack.io/v/kbiakov/CodeView-android.svg)](https://jitpack.io/#kbiakov/CodeView-android)
-[![Build Status](https://travis-ci.org/kbiakov/CodeView-android.svg?branch=master)](https://travis-ci.org/kbiakov/CodeView-android)
+[![Release](https://jitpack.io/v/kbiakov/CodeView-android.svg)](https://jitpack.io/#kbiakov/CodeView-Android)
+[![Build Status](https://travis-ci.org/kbiakov/CodeView-android.svg?branch=master)](https://travis-ci.org/kbiakov/CodeView-Android)
 <a href="http://www.methodscount.com/?lib=com.github.kbiakov%3ACodeView-android%3A1.3.0"><img src="https://img.shields.io/badge/Methods and size-core: 969 | 1396 KB-e91e63.svg"/></a>
 
 <b>CodeView</b> helps to show code content with syntax highlighting in native way.
@@ -29,7 +29,7 @@ allprojects {
 
 Add the dependency:
 ```groovy
-compile 'com.github.kbiakov:CodeView-android:1.3.1'
+compile 'com.github.kbiakov:CodeView-android:1.3.2'
 ```
 
 ## Usage

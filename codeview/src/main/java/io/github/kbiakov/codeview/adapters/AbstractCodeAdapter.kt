@@ -62,9 +62,9 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         extractLines(options.code).apply {
             if (!options.shortcut || size <= options.maxLines) // limit is not reached, show full
                 lines = this
-            else slice(options.maxLines).apply {
-                lines = linesToShow() + options.shortcutNote.toUpperCase()
-                droppedLines = droppedLines()
+            else slice(options.maxLines).let { (linesToShow, dropped) ->
+                lines = linesToShow + options.shortcutNote.toUpperCase()
+                droppedLines = dropped
             }
         }
     }
@@ -178,15 +178,15 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
         tvLineContent.typeface = options.font
 
         val isLine = viewType == ViewHolderType.Line.viewType
+
         options.format.apply {
             val height = if (isLine) lineHeight else borderHeight
             lineView.layoutParams.height = dpToPx(context, height)
         }
-        return if (isLine) {
-            val holder = LineViewHolder(lineView)
-            holder.setIsRecyclable(false)
-            holder
-        } else BorderViewHolder(lineView)
+        return if (isLine)
+            LineViewHolder(lineView).apply { setIsRecyclable(false) }
+        else
+            BorderViewHolder(lineView)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, pos: Int) {
@@ -207,9 +207,9 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
     // - Helpers (for view holder)
 
     private fun bindClickListener(pos: Int, holder: ViewHolder) {
-        options.lineClickListener?.let {
-            holder.itemView.setOnClickListener {
-                options.lineClickListener?.onCodeLineClicked(pos, lines[pos])
+        holder.itemView.setOnClickListener {
+            options.lineClickListener?.apply {
+                onCodeLineClicked(pos, lines[pos])
             }
         }
     }
@@ -238,23 +238,21 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
     private fun displayFooter(pos: Int, holder: ViewHolder) {
         val entityList = footerEntities[pos]
 
-        holder.llLineFooter.removeAllViews()
+        holder.llLineFooter.apply {
+            removeAllViews()
 
-        entityList?.let {
-            holder.llLineFooter.visibility = if (it.isNotEmpty()) View.VISIBLE else View.GONE
+            entityList?.apply {
+                visibility = if (isNotEmpty()) View.VISIBLE else View.GONE
 
-            it.forEachIndexed { idx, entity ->
-                val footerView = createFooter(context, entity, idx == 0)
-                holder.llLineFooter.addView(footerView)
+                forEachIndexed { idx, entity ->
+                    addView(createFooter(context, entity, idx == 0))
+                }
             }
         }
     }
 
     companion object {
         private const val MaxShortcutLines = 6
-
-        private fun Pair<List<String>, List<String>>.linesToShow() = first
-        private fun Pair<List<String>, List<String>>.droppedLines() = second
     }
 
     // - View holder types
@@ -266,7 +264,7 @@ abstract class AbstractCodeAdapter<T> : RecyclerView.Adapter<AbstractCodeAdapter
             const val LineStartIdx = 1
             const val BordersCount = 2
 
-            fun Int.lineEndIdx() = this - BordersCount
+            private fun Int.lineEndIdx() = this - BordersCount
 
             fun get(pos: Int, n: Int) = when (pos) {
                 in LineStartIdx .. n.lineEndIdx() ->
@@ -336,114 +334,53 @@ data class Options(
 
     internal var isHighlighted: Boolean = false
 
-    fun withCode(code: String): Options {
-        this.code = code
-        return this
-    }
+    fun withCode(code: String) = apply { this.code = code }
+    fun withCode(codeResId: Int) = apply { code = context.getString(codeResId) }
+    fun setCode(codeResId: Int) { withCode(codeResId) }
+    fun withLanguage(language: String) = apply { this.language = language }
 
-    fun withCode(codeResId: Int): Options {
-        this.code = context.getString(codeResId)
-        return this
-    }
+    fun withTheme(theme: ColorThemeData) = apply { this.theme = theme }
+    fun withTheme(theme: ColorTheme) = apply { this.theme = theme.theme() }
+    fun setTheme(theme: ColorTheme) { withTheme(theme) }
 
-    fun setCode(codeResId: Int) {
-        withCode(codeResId)
-    }
+    fun withFont(font: Font) = apply { this.font = font.get() }
+    fun withFont(font: Typeface) = font saveAndThen { apply { this.font = font } }
+    fun withFont(fontPath: String) = apply { this.font = fontPath.get() }
+    fun setFont(fontPath: String) { withFont(fontPath) }
+    fun setFont(font: Font) { withFont(font) }
+    fun withFormat(format: Format) = apply { this.format = format }
 
-    fun withLanguage(language: String): Options {
-        this.language = language
-        return this
-    }
+    fun animateOnHighlight() = apply { animateOnHighlight = true }
+    fun disableHighlightAnimation() = apply { animateOnHighlight = false }
+    fun withShadows() = apply { shadows = true }
+    fun withoutShadows() = apply { shadows = false }
 
-    fun withTheme(theme: ColorThemeData): Options {
-        this.theme = theme
-        return this
-    }
+    fun addCodeLineClickListener(listener: OnCodeLineClickListener) = apply { lineClickListener = listener }
+    fun removeCodeLineClickListener() = apply { lineClickListener = null }
 
-    fun withTheme(theme: ColorTheme): Options {
-        this.theme = theme.theme()
-        return this
-    }
-
-    fun setTheme(theme: ColorTheme) {
-        withTheme(theme)
-    }
-
-    fun withFont(font: Font): Options {
-        this.font = FontCache.get(context).getTypeface(context, font)
-        return this
-    }
-
-    fun withFont(font: Typeface): Options {
-        FontCache.get(context).saveTypeface(font)
-        this.font = font
-        return this
-    }
-
-    fun withFont(fontPath: String): Options {
-        this.font = FontCache.get(context).getTypeface(context, fontPath)
-        return this
-    }
-
-    fun setFont(fontPath: String) {
-        withFont(fontPath)
-    }
-
-    fun setFont(font: Font) {
-        withFont(font)
-    }
-
-    fun withFormat(format: Format): Options {
-        this.format = format
-        return this
-    }
-
-    fun animateOnHighlight(): Options {
-        this.animateOnHighlight = true
-        return this
-    }
-
-    fun disableHighlightAnimation(): Options {
-        this.animateOnHighlight = false
-        return this
-    }
-
-    fun withShadows(): Options {
-        this.shadows = true
-        return this
-    }
-
-    fun withoutShadows(): Options {
-        this.shadows = false
-        return this
-    }
-
-    fun shortcut(maxLines: Int, shortcutNote: String): Options {
+    fun shortcut(maxLines: Int, shortcutNote: String) = apply {
         this.shortcut = true
         this.maxLines = maxLines
         this.shortcutNote = shortcutNote
-        return this
-    }
-
-    fun addCodeLineClickListener(listener: OnCodeLineClickListener): Options {
-        this.lineClickListener = listener
-        return this
-    }
-
-    fun removeCodeLineClickListener(): Options {
-        this.lineClickListener = null
-        return this
     }
 
     companion object Default {
         fun get(context: Context) = Options(context)
     }
+
+    // - Font helpers
+
+    private val fontCache = FontCache.get(context)
+    private fun Font.get() = fontCache.getTypeface(context, this)
+    private fun String.get() = fontCache.getTypeface(context, this)
+    private infix fun <T> Typeface.saveAndThen(body: () -> T): T = fontCache.saveTypeface(this).let { body() }
 }
 
-data class Format(val scaleFactor: Float = 1f,
-                  val lineHeight: Int = (LineHeight * scaleFactor).toInt(),
-                  val borderHeight: Int = (BorderHeight * scaleFactor).toInt(),
-                  val fontSize: Float = FontSize.toFloat()) {
+data class Format(
+        val scaleFactor: Float = 1f,
+        val lineHeight: Int = (LineHeight * scaleFactor).toInt(),
+        val borderHeight: Int = (BorderHeight * scaleFactor).toInt(),
+        val fontSize: Float = FontSize.toFloat()) {
 
     companion object Default {
         private const val LineHeight = 18
