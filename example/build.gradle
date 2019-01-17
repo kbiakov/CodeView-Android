@@ -24,9 +24,11 @@ android {
 }
 
 dependencies {
-    compile project(path: ':codeview')
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "com.android.support:appcompat-v7:$supportLibrary"
+    implementation project(':codeview')
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    implementation "com.android.support:appcompat-v7:$supportLibrary"
+    implementation "com.android.support:recyclerview-v7:$supportLibrary"
 }
 repositories {
     mavenCentral()
