@@ -22,7 +22,11 @@ import io.github.kbiakov.codeview.highlight.color
  *
  * @author Kirill Biakov
  */
-class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, attrs) {
+class CodeView @JvmOverloads constructor(
+        context: Context,
+        attrs: AttributeSet? = null,
+        defStyleAttr: Int = 0
+) : RelativeLayout(context, attrs, defStyleAttr) {
 
     private val vCodeList: RecyclerView
     private val vShadows: Map<ShadowPosition, View>
@@ -32,7 +36,7 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
      */
     init {
         inflate(context, R.layout.layout_code_view, this)
-        checkStartAnimation(attrs)
+        attrs?.let(::checkStartAnimation)
 
         vCodeList = findViewById<RecyclerView>(R.id.rv_code_content)
         vCodeList.layoutManager = LinearLayoutManager(context)
@@ -227,9 +231,9 @@ class CodeView(context: Context, attrs: AttributeSet) : RelativeLayout(context, 
             RightBorder -> GradientDrawable.Orientation.LEFT_RIGHT to theme.bgContent
             NumBottom -> GradientDrawable.Orientation.TOP_BOTTOM to theme.bgNum
             ContentBottom -> GradientDrawable.Orientation.TOP_BOTTOM to theme.bgContent
-        }.let {
-            val colors = arrayOf(android.R.color.transparent, it.second)
-            GradientDrawable(it.first, colors.map(Int::color).toIntArray())
+        }.let { (orientation, color) ->
+            val colors = arrayOf(android.R.color.transparent, color)
+            GradientDrawable(orientation, colors.map(Int::color).toIntArray())
         }
     }
 }
