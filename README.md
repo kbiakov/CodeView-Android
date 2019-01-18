@@ -29,7 +29,7 @@ allprojects {
 
 Add the dependency:
 ```groovy
-compile 'com.github.kbiakov:CodeView-android:1.3.2'
+compile 'com.github.kbiakov:CodeView-Android:1.3.2'
 ```
 
 ## Usage
@@ -46,7 +46,7 @@ Add view to your layout & bind as usual:
 <io.github.kbiakov.codeview.CodeView
 	android:id="@+id/code_view"
 	android:layout_width="wrap_content"
-	android:layout_height="wrap_content"/>
+	android:layout_height="wrap_content" />
 ```
 ```java
 CodeView codeView = (CodeView) findViewById(R.id.code_view);
@@ -200,9 +200,7 @@ See [Github diff](https://github.com/Softwee/codeview-android/blob/master/codevi
 ## How it looks in app
 See <a href="https://github.com/Softwee/codeview-android/blob/master/example/src/main/java/io/github/kbiakov/codeviewexample/ListingsActivity.java">example</a>.<br>
 
-[![CodeView_Android_Solarized_light](https://s10.postimg.org/vx3u6q0l5/Screen_Shot_2016_08_31_at_18_41_31.png)](https://s10.postimg.org/vx3u6q0l5/Screen_Shot_2016_08_31_at_18_41_31.png)
-[![CodeView_Android_Monokau](https://s10.postimg.org/rmkkxe649/Screen_Shot_2016_08_31_at_18_45_05.png)](https://s10.postimg.org/rmkkxe649/Screen_Shot_2016_08_31_at_18_45_05.png)
-[![CodeView_Android_Default](https://s10.postimg.org/u2meb8o6x/Screen_Shot_2016_08_31_at_18_49_33.png)](https://s10.postimg.org/u2meb8o6x/Screen_Shot_2016_08_31_at_18_49_33.png)
+![CodeView_Android_Solarized_light](https://preview.ibb.co/daDqw8/Screen_Shot_2018_07_19_at_19_25_00.png)
 
 ## List of available languages & their extensions
 C/C++/Objective-C (```"c"```, ```"cc"```, ```"cpp"```, ```"cxx"```, ```"cyc"```, ```"m"```), C# (```"cs"```), Java (```"java"```), Bash (```"bash"```, ```"bsh"```, ```"csh"```, ```"sh"```), Python (```"cv"```, ```"py"```, ```"python"```), Perl (```"perl"```, ```"pl"```, ```"pm"```), Ruby (```"rb"```, ```"ruby"```), JavaScript (```"javascript"```, ```"js"```), CoffeeScript (```"coffee"```), Rust (```"rc"```, ```"rs"```, ```"rust"```), Appollo (```"apollo"```, ```"agc"```, ```"aea"```), Basic (```"basic"```, ```"cbm"```), Clojure (```"clj"```), Css (```"css"```), Dart (```"dart"```), Erlang (```"erlang"```, ```"erl"```), Go (```"go"```), Haskell (```"hs"```), Lisp (```"cl"```, ```"el"```, ```"lisp"```, ```"lsp"```, ```"scm"```, ```"ss"```, ```"rkt"```), Llvm (```"llvm"```, ```"ll"```), Lua (```"lua"```), Matlab (```"matlab"```), ML (OCaml, SML, F#, etc) (```"fs"```, ```"ml"```), Mumps (```"mumps"```), N (```"n"```, ```"nemerle"```), Pascal (```"pascal"```), R (```"r"```, ```"s"```, ```"R"```, ```"S"```, ```"Splus"```), Rd (```"Rd"```, ```"rd"```), Scala (```"scala"```), SQL (```"sql"```), Tex (```"latex"```, ```"tex"```), VB (```"vb"```, ```"vbs"```), VHDL (```"vhdl"```, ```"vhd"```), Tcl (```"tcl"```), Wiki (```"wiki.meta"```), XQuery (```"xq"```, ```"xquery"```), YAML (```"yaml"```, ```"yml"```), Markdown (```"md"```, ```"markdown"```), formats (```"json"```, ```"xml"```, ```"proto"```), ```"regex"```
@@ -228,6 +226,8 @@ List of apps on Play Store where this library used. Ping me if you want to be he
 Icon | Application
 ------------ | -------------
 <img src="https://goo.gl/ijEiBp" width="48" height="48" /> | [GeekBrains]
+<img src="https://goo.gl/4VhHbn" width="48" height="48" /> | [Awesome Android - UI Libraries]
+<img src="https://goo.gl/1AGK1b" width="48" height="48" /> | [Codify - Codes On The Go]
 <img src="https://goo.gl/UPsE9F" width="48" height="48" /> | [GitJourney for GitHub]
 <img src="https://goo.gl/kNqAc7" width="48" height="48" /> | [Source Code - Lập Trình]
 <img src="https://goo.gl/jcGMmS" width="48" height="48" /> | [C Programming - CodeSpot]
@@ -264,6 +264,8 @@ SOFTWARE.
 ```
 
 [GeekBrains]:https://play.google.com/store/apps/details?id=ru.geekbrains
+[Awesome Android - UI Libraries]:https://play.google.com/store/apps/details?id=in.sumeetlubal.aweandroid.aweandroid
 [GitJourney for GitHub]:https://play.google.com/store/apps/details?id=com.oklab.githubjourney
+[Codify - Codes On The Go]:https://play.google.com/store/apps/details?id=com.femindharamshi.spa
 [Source Code - Lập Trình]:https://play.google.com/store/apps/details?id=com.noah.truongpq.codeview
 [C Programming - CodeSpot]:https://play.google.com/store/apps/details?id=com.rsd.cprogramming
