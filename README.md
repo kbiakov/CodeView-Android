@@ -1,7 +1,7 @@
 # CodeView (Android)
 
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-codeview--android-blue.svg)](https://android-arsenal.com/details/1/4216)
-[![Release](https://jitpack.io/v/kbiakov/CodeView-android.svg)](https://jitpack.io/#kbiakov/CodeView-Android)
+[![Release](https://jitpack.io/v/kbiakov/CodeView-Android.svg)](https://jitpack.io/#kbiakov/CodeView-Android)
 [![Build Status](https://travis-ci.org/kbiakov/CodeView-android.svg?branch=master)](https://travis-ci.org/kbiakov/CodeView-Android)
 <a href="http://www.methodscount.com/?lib=com.github.kbiakov%3ACodeView-android%3A1.3.0"><img src="https://img.shields.io/badge/Methods and size-core: 969 | 1396 KB-e91e63.svg"/></a>
 
@@ -226,11 +226,11 @@ List of apps on Play Store where this library used. Ping me if you want to be he
 Icon | Application
 ------------ | -------------
 <img src="https://goo.gl/ijEiBp" width="48" height="48" /> | [GeekBrains]
-<img src="https://goo.gl/4VhHbn" width="48" height="48" /> | [Awesome Android - UI Libraries]
 <img src="https://goo.gl/1AGK1b" width="48" height="48" /> | [Codify - Codes On The Go]
+<img src="https://goo.gl/jcGMmS" width="48" height="48" /> | [C Programming - CodeSpot]
+<img src="https://goo.gl/4VhHbn" width="48" height="48" /> | [Awesome Android - UI Libraries]
 <img src="https://goo.gl/UPsE9F" width="48" height="48" /> | [GitJourney for GitHub]
 <img src="https://goo.gl/kNqAc7" width="48" height="48" /> | [Source Code - Lập Trình]
-<img src="https://goo.gl/jcGMmS" width="48" height="48" /> | [C Programming - CodeSpot]
 
 ## Contribute
 1. You can add your theme (see [ColorTheme](https://github.com/Softwee/codeview-android/blob/master/codeview/src/main/java/io/github/kbiakov/codeview/highlight/CodeHighlighter.kt) class). Try to add some classic color themes or create your own if it looks cool. You can find many of them in different open-source text editors.<br>
@@ -264,8 +264,8 @@ SOFTWARE.
 ```
 
 [GeekBrains]:https://play.google.com/store/apps/details?id=ru.geekbrains
+[Codify - Codes On The Go]:https://play.google.com/store/apps/details?id=com.femindharamshi.spa
+[C Programming - 200+ Offline Tutorial and Examples]:https://play.google.com/store/apps/details?id=com.rsd.cprogramming
 [Awesome Android - UI Libraries]:https://play.google.com/store/apps/details?id=in.sumeetlubal.aweandroid.aweandroid
 [GitJourney for GitHub]:https://play.google.com/store/apps/details?id=com.oklab.githubjourney
-[Codify - Codes On The Go]:https://play.google.com/store/apps/details?id=com.femindharamshi.spa
 [Source Code - Lập Trình]:https://play.google.com/store/apps/details?id=com.noah.truongpq.codeview
-[C Programming - CodeSpot]:https://play.google.com/store/apps/details?id=com.rsd.cprogramming
