@@ -3,11 +3,11 @@ package io.github.kbiakov.codeview
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
 import android.view.View
 import android.widget.RelativeLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import io.github.kbiakov.codeview.Thread.delayed
 import io.github.kbiakov.codeview.adapters.AbstractCodeAdapter
 import io.github.kbiakov.codeview.adapters.CodeWithNotesAdapter
