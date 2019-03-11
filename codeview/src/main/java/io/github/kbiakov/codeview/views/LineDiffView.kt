@@ -1,10 +1,10 @@
 package io.github.kbiakov.codeview.views
 
 import android.content.Context
-import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import io.github.kbiakov.codeview.R
 import io.github.kbiakov.codeview.highlight.FontCache
 

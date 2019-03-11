@@ -1,22 +1,13 @@
 package io.github.kbiakov.codeviewexample;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
-import org.jetbrains.annotations.NotNull;
-
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import io.github.kbiakov.codeview.CodeView;
-import io.github.kbiakov.codeview.OnCodeLineClickListener;
-import io.github.kbiakov.codeview.adapters.CodeWithDiffsAdapter;
-import io.github.kbiakov.codeview.adapters.Format;
 import io.github.kbiakov.codeview.adapters.Options;
 import io.github.kbiakov.codeview.highlight.ColorTheme;
-import io.github.kbiakov.codeview.highlight.ColorThemeData;
 import io.github.kbiakov.codeview.highlight.Font;
-import io.github.kbiakov.codeview.highlight.FontCache;
-import io.github.kbiakov.codeview.views.DiffModel;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 

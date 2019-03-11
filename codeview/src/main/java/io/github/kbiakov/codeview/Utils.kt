@@ -102,6 +102,14 @@ object Thread {
     }
 
     /**
+     * Perform async and UI operations sequentially.
+     *
+     * @param asyncBody Async operation body
+     * @param uiBody UI operation body
+     */
+    fun <T> asyncUi(asyncBody: () -> T, uiBody: (T) -> Unit) = async { asyncBody().also { ui { uiBody(it)} } }
+
+    /**
      * Delayed block call.
      *
      * @param body Operation body
