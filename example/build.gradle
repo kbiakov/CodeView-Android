@@ -27,8 +27,8 @@ dependencies {
     implementation project(':codeview')
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    implementation "com.android.support:appcompat-v7:$supportLibrary"
-    implementation "com.android.support:recyclerview-v7:$supportLibrary"
+    implementation "androidx.appcompat:appcompat:$androidxLibrary"
+    implementation "androidx.recyclerview:recyclerview:$androidxLibrary"
 }
 repositories {
     mavenCentral()

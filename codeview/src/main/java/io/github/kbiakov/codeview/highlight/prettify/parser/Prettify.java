@@ -31,8 +31,11 @@ import io.github.kbiakov.codeview.highlight.prettify.lang.LangDart;
 import io.github.kbiakov.codeview.highlight.prettify.lang.LangErlang;
 import io.github.kbiakov.codeview.highlight.prettify.lang.LangGo;
 import io.github.kbiakov.codeview.highlight.prettify.lang.LangHs;
+import io.github.kbiakov.codeview.highlight.prettify.lang.LangKotlin;
+import io.github.kbiakov.codeview.highlight.prettify.lang.LangLasso;
 import io.github.kbiakov.codeview.highlight.prettify.lang.LangLisp;
 import io.github.kbiakov.codeview.highlight.prettify.lang.LangLlvm;
+import io.github.kbiakov.codeview.highlight.prettify.lang.LangLogtalk;
 import io.github.kbiakov.codeview.highlight.prettify.lang.LangLua;
 import io.github.kbiakov.codeview.highlight.prettify.lang.LangMatlab;
 import io.github.kbiakov.codeview.highlight.prettify.lang.LangMd;
@@ -51,6 +54,8 @@ import io.github.kbiakov.codeview.highlight.prettify.lang.LangVhdl;
 import io.github.kbiakov.codeview.highlight.prettify.lang.LangWiki;
 import io.github.kbiakov.codeview.highlight.prettify.lang.LangXq;
 import io.github.kbiakov.codeview.highlight.prettify.lang.LangYaml;
+import io.github.kbiakov.codeview.highlight.prettify.lang.LangEx;
+import io.github.kbiakov.codeview.highlight.prettify.lang.LangSwift;
 
 /**
  * This is similar to the prettify.js in JavaScript Prettify.
@@ -394,6 +399,11 @@ public class Prettify {
       register(LangWiki.class);
       register(LangXq.class);
       register(LangYaml.class);
+      register(LangEx.class);
+      register(LangSwift.class);
+      register(LangKotlin.class);
+      register(LangLogtalk.class);
+      register(LangLasso.class);
     } catch (Exception ex) {
       LOG.log(Level.SEVERE, null, ex);
     }
