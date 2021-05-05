@@ -6,7 +6,6 @@ import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import android.view.View.MeasureSpec
 import android.view.View.MeasureSpec.makeMeasureSpec
 import android.widget.HorizontalScrollView
 import io.github.kbiakov.codeview.R
@@ -69,6 +68,7 @@ class BidirectionalScrollView : HorizontalScrollView {
     ) = with(child.layoutParams as MarginLayoutParams) {
 
         val widthMeasureSpec = makeMeasureSpec(leftMargin + rightMargin, MeasureSpec.UNSPECIFIED)
+
         /**
          * Let the child RecyclerView know the actual height again.
          * Because [RecyclerView.LayoutManager.mHeightMode] is determined by MeasureSpec mode in [RecyclerView.onMeasure].
