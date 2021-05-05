@@ -45,6 +45,9 @@ class BidirectionalScrollView : HorizontalScrollView {
     }
 
     override fun onTouchEvent(ev: MotionEvent?): Boolean {
+        // call recyclerview's and its onTouchEvent here
+        // to support cross-direction scrolling like 'scroll' method does before. (eg: 45° left top to right down)
+
         // first, force child recyclerview handles vertical scrolling.
         codeContentRv.onTouchEvent(ev)
         // then handle horizontal scrolling here.
