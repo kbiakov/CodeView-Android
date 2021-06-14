@@ -113,6 +113,11 @@ public class Prettify {
           + "abstract,assert,boolean,byte,extends,final,finally,implements,import,"
           + "instanceof,interface,null,native,package,strictfp,super,synchronized,"
           + "throws,transient";
+  public static final String KOTLIN_KEYWORDS = JAVA_KEYWORDS + ","
+          + "as,as?,fun,in,!in,object,typealias,val,var,when,by,constructor,delegate,dynamic,field"
+          + "file,get,init,set,value,where,actual,annotation,companion,crossinline,data,enum,expect"
+          + "external,field,infix,inline,inner,internal,it,lateinit,noinline,open,operator,out,override,"
+          + "reified,sealed,suspend,tailrec,vararg";
   public static final String RUST_KEYWORDS = FLOW_CONTROL_KEYWORDS + "," + "as,assert,const,copy,drop,"
           + "enum,extern,fail,false,fn,impl,let,log,loop,match,mod,move,mut,priv,"
           + "pub,pure,ref,self,static,struct,true,trait,type,unsafe,use";
@@ -141,8 +146,9 @@ public class Prettify {
           + "BEGIN,END";
   public static final String SH_KEYWORDS = FLOW_CONTROL_KEYWORDS + "," + "case,done,elif,esac,eval,fi,"
           + "function,in,local,set,then,until";
-  public static final String ALL_KEYWORDS = CPP_KEYWORDS + "," + CSHARP_KEYWORDS + "," + JSCRIPT_KEYWORDS + "," + PERL_KEYWORDS + ","
-          + PYTHON_KEYWORDS + "," + RUBY_KEYWORDS + "," + SH_KEYWORDS;
+  public static final String ALL_KEYWORDS = CPP_KEYWORDS + "," + KOTLIN_KEYWORDS + "," + CSHARP_KEYWORDS
+          + "," + JSCRIPT_KEYWORDS + "," + PERL_KEYWORDS + "," + PYTHON_KEYWORDS + "," + RUBY_KEYWORDS
+          + "," + SH_KEYWORDS;
   public static final Pattern C_TYPES = Pattern.compile("^(DIR|FILE|vector|(de|priority_)?queue|list|stack|(const_)?iterator|(multi)?(set|map)|bitset|u?(int|float)\\d*)\\b");
   // token style names.  correspond to css classes
   /**
@@ -294,6 +300,11 @@ public class Prettify {
       decorateSourceMap.put("keywords", JAVA_KEYWORDS);
       decorateSourceMap.put("cStyleComments", true);
       registerLangHandler(sourceDecorator(decorateSourceMap), Arrays.asList(new String[]{"java"}));
+
+      decorateSourceMap = new HashMap<String, Object>();
+      decorateSourceMap.put("keywords", KOTLIN_KEYWORDS);
+      decorateSourceMap.put("cStyleComments", true);
+      registerLangHandler(sourceDecorator(decorateSourceMap), Arrays.asList(new String[]{"kt"}));
 
       decorateSourceMap = new HashMap<String, Object>();
       decorateSourceMap.put("keywords", SH_KEYWORDS);
