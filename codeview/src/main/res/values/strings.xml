@@ -1,8 +1,0 @@
-<resources>
-    <string name="app_name">CodeView</string>
-
-    <string name="stub_line_num">1</string>
-    <string name="stub_line_content">public static final int main(String[] args) {</string>
-    <string name="show_all">Show all</string>
-    <string name="dots">...</string>
-</resources>
